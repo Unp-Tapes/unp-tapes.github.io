@@ -113,25 +113,29 @@
       border-radius:4px;padding:3px 10px;
     }
 
-    /* ── TRACK CARD ── */
+    /* ── TRACK CARD (REDiseñado) ── */
     .track-list{display:flex;flex-direction:column;gap:12px}
     .track-card{
       background:var(--s1);border:1px solid var(--border);
       border-radius:var(--radius);overflow:hidden;
-      display:grid;grid-template-columns:88px 1fr;
+      display:grid;grid-template-columns:100px 1fr;
       transition:border-color .25s,box-shadow .25s;
       animation:fadeUp .4s ease both;
+      height:100px;
     }
     @keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
     .track-card:hover{border-color:var(--purple);box-shadow:0 0 20px rgba(123,79,255,.12)}
 
     .track-cover{
-      width:88px;height:88px;object-fit:cover;display:block;
-      background:var(--s2);flex-shrink:0;
+      width:100px;height:100px;object-fit:cover;display:block;
+      background:var(--s2);flex-shrink:0;border-right:1px solid var(--border);
     }
-    .track-body{padding:12px 16px 10px;display:flex;flex-direction:column;justify-content:space-between;min-width:0}
-    .track-meta{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
-    .track-title{font-family:var(--fh);font-size:1.1rem;letter-spacing:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .track-body{
+      padding:12px 16px;display:flex;flex-direction:column;
+      justify-content:space-between;min-width:0;position:relative;
+    }
+    .track-meta{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:4px}
+    .track-title{font-family:var(--fh);font-size:1.2rem;letter-spacing:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
     .track-genre{
       font-size:.6rem;color:var(--accent);background:rgba(232,255,71,.07);
       border:1px solid rgba(232,255,71,.18);border-radius:4px;
@@ -139,59 +143,66 @@
       text-transform:uppercase;letter-spacing:.08em;
     }
 
-    /* Player row */
-    .audio-row{display:flex;align-items:center;gap:8px;margin-top:8px}
+    /* Row Principal del Reproductor */
+    .audio-row{display:flex;align-items:center;gap:12px;flex:1;position:relative}
     .play-btn{
-      width:32px;height:32px;border-radius:50%;background:var(--accent);
+      width:36px;height:36px;border-radius:50%;background:var(--accent);
       border:none;cursor:pointer;flex-shrink:0;
       display:flex;align-items:center;justify-content:center;
-      transition:background .2s,transform .15s;
+      transition:background .2s,transform .15s;z-index:2;
     }
     .play-btn:hover{background:#fff;transform:scale(1.08)}
-    .play-btn svg{width:12px;height:12px;fill:#080810}
-    .seek-wrap{flex:1;display:flex;flex-direction:column;gap:3px}
+    .play-btn svg{width:14px;height:14px;fill:#080810}
+
+    /* Contenedor central */
+    .seek-wrap{
+      flex:1;height:100%;display:flex;flex-direction:column;
+      justify-content:center;position:relative;min-width:0;
+    }
+
+    /* WINAMP VISUALIZER como fondo */
+    .visualizer-wrap{
+      position:absolute;inset:0;
+      display:flex;align-items:center;gap:1px;
+      padding:0;opacity:0;transition:opacity .3s;
+      z-index:0;pointer-events:none;
+    }
+    .visualizer-wrap.active{opacity:.4}
+    .viz-bar{
+      flex:1;background:var(--muted);height:2px;
+      transition:background .2s,height 0.05s linear;
+      border-radius:1px;position:relative;
+    }
+    .viz-peak{display:none}
+
+    /* Seekbar */
     input[type="range"].seek{
-      -webkit-appearance:none;width:100%;height:3px;
-      background:var(--border);border-radius:2px;outline:none;cursor:pointer;
+      -webkit-appearance:none;width:100%;
+      background:transparent;outline:none;cursor:pointer;
+      position:relative;z-index:1;height:40px;
+    }
+    input[type="range"].seek::-webkit-slider-runnable-track{
+      width:100%;height:2px;background:rgba(255,255,255,.1);
     }
     input[type="range"].seek::-webkit-slider-thumb{
       -webkit-appearance:none;width:10px;height:10px;
       border-radius:50%;background:var(--accent);cursor:pointer;
+      margin-top:-4px;box-shadow:0 0 5px rgba(0,0,0,.5);
     }
-    .time-row{display:flex;justify-content:space-between;font-size:.6rem;color:var(--muted)}
-    .dl-btn{
-      display:flex;align-items:center;gap:5px;
-      background:transparent;border:1px solid var(--border);border-radius:5px;
-      color:var(--muted);font-family:var(--fb);font-size:.62rem;
-      letter-spacing:.08em;text-transform:uppercase;padding:4px 10px;
-      cursor:pointer;text-decoration:none;transition:border-color .2s,color .2s;flex-shrink:0;
-    }
-    .dl-btn:hover{border-color:var(--accent);color:var(--accent)}
-    .dl-btn svg{width:10px;height:10px;fill:currentColor}
 
-    /* ── WINAMP VISUALIZER ── */
-    .visualizer-wrap{
-      width:100%;height:40px;
-      display:flex;align-items:flex-end;gap:2px;
-      padding:0 2px;margin-top:6px;
-      opacity:0;transition:opacity .3s;
+    /* Tiempos */
+    .controls-meta{
+      display:flex;justify-content:space-between;align-items:center;
+      font-size:.6rem;color:var(--muted);font-family:var(--fb);
+      margin-top:-8px;position:relative;z-index:2;
     }
-    .visualizer-wrap.active{opacity:1}
-    .viz-bar{
-      flex:1;min-width:3px;
-      height:2px;
-      position:relative;
-      background-image:linear-gradient(to bottom, rgba(0,0,0,0.3) 1px, transparent 1px);
-      background-size:100% 3px;
-      transition:height 0.08s ease;
-    }
-    .viz-peak{
-      position:absolute;
-      bottom:0;
-      left:0;right:0;
-      height:2px;background:#fff;border-radius:1px;
-      opacity:.8;
-      transition:transform 0.05s linear;
+    .time-row{display:flex;gap:4px;}
+
+    @media(max-width:520px){
+      .track-card{grid-template-columns:70px 1fr;height:70px}
+      .track-cover{width:70px;height:70px}
+      .track-title{font-size:1rem}
+      .play-btn{width:30px;height:30px}
     }
     .state-msg{text-align:center;padding:60px 0;color:var(--muted);font-size:.78rem;letter-spacing:.1em}
     .spinner{
@@ -359,9 +370,12 @@
           <div class="seek-wrap">
             <div class="visualizer-wrap" id="viz-${track.id}"></div>
             <input type="range" class="seek" value="0" min="0" step="0.1"/>
-            <div class="time-row">
-              <span class="current-time">0:00</span>
-              <span class="duration">—:——</span>
+            <div class="controls-meta">
+              <div class="time-row">
+                <span class="current-time">0:00</span>
+                <span>/</span>
+                <span class="duration">—:——</span>
+              </div>
             </div>
           </div>
         </div>
