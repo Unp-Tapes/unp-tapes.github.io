@@ -437,6 +437,19 @@
       <div class="progress-label" id="upload-progress-label">Preparando…</div>
     </div>
 
+    <!-- TOGGLE DESCARGA -->
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-top:16px;padding:12px 14px;background:var(--s2);border:1px solid var(--border);border-radius:6px;">
+      <div>
+        <div style="font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;">Permitir descarga</div>
+        <div style="font-size:.62rem;color:var(--muted);margin-top:2px;">Los oyentes podrán descargar este track</div>
+      </div>
+      <label style="position:relative;display:inline-block;width:44px;height:24px;cursor:pointer;">
+        <input type="checkbox" id="track-downloadable" style="opacity:0;width:0;height:0;">
+        <span id="toggle-track" style="position:absolute;inset:0;background:var(--border);border-radius:12px;transition:.2s;"></span>
+        <span id="toggle-thumb" style="position:absolute;left:3px;top:3px;width:18px;height:18px;background:#fff;border-radius:50%;transition:.2s;"></span>
+      </label>
+    </div>
+
     <button class="submit-btn" style="margin-top:16px" id="upload-btn" onclick="uploadTrack()">Publicar canción</button>
   </div>
 
@@ -639,8 +652,9 @@
   };
 
   window.uploadTrack = async function(){
-    const title = document.getElementById('track-title').value.trim();
-    const genre = document.getElementById('track-genre').value.trim();
+    const title        = document.getElementById('track-title').value.trim();
+    const genre        = document.getElementById('track-genre').value.trim();
+    const downloadable = document.getElementById('track-downloadable').checked;
     clearMessages('upload');
 
     if(!title){ showError('upload-error','El título es obligatorio'); return; }
@@ -676,7 +690,7 @@
       // 3. Guardar en Firestore
       setLabel('upload-progress-label','Guardando…');
       await addDoc(collection(db,`artists/${uid}/tracks`),{
-        title, genre, audioURL, coverURL,
+        title, genre, audioURL, coverURL, downloadable,
         createdAt: serverTimestamp()
       });
 
@@ -687,6 +701,8 @@
       document.getElementById('cover-input').value = '';
       document.getElementById('audio-name').textContent = '';
       document.getElementById('cover-name').textContent = '';
+      document.getElementById('track-downloadable').checked = false;
+      updateToggleUI('track-downloadable','toggle-track','toggle-thumb', false);
       selectedAudio = null; selectedCover = null;
 
       document.getElementById('upload-progress').style.display = 'none';
@@ -845,6 +861,20 @@
     };
     return map[code] || 'Error: '+code;
   }
+
+  // ── TOGGLE UI ──
+  function updateToggleUI(checkId, trackId, thumbId, checked){
+    const track = document.getElementById(trackId);
+    const thumb = document.getElementById(thumbId);
+    if(!track||!thumb) return;
+    track.style.background = checked ? 'var(--accent)' : 'var(--border)';
+    thumb.style.transform  = checked ? 'translateX(20px)' : 'translateX(0)';
+    thumb.style.background = checked ? '#080810' : '#fff';
+  }
+
+  document.getElementById('track-downloadable')?.addEventListener('change', function(){
+    updateToggleUI('track-downloadable','toggle-track','toggle-thumb', this.checked);
+  });
 
   // Drag-over visual feedback
   document.querySelectorAll('.file-drop').forEach(zone=>{

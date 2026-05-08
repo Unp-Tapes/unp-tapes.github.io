@@ -197,6 +197,15 @@
       margin-top:-8px;position:relative;z-index:2;
     }
     .time-row{display:flex;gap:4px;}
+    .dl-btn{
+      display:flex;align-items:center;gap:5px;flex-shrink:0;
+      background:transparent;border:1px solid var(--border);border-radius:5px;
+      color:var(--muted);font-family:var(--fb);font-size:.62rem;
+      letter-spacing:.08em;text-transform:uppercase;padding:4px 10px;
+      cursor:pointer;transition:border-color .2s,color .2s;
+    }
+    .dl-btn:hover{border-color:var(--accent);color:var(--accent)}
+    .dl-btn svg{width:10px;height:10px;fill:currentColor}
 
     @media(max-width:520px){
       .track-card{grid-template-columns:70px 1fr;height:70px}
@@ -354,7 +363,7 @@
   function renderTrackCard(track){
     const cover = track.coverURL
       ? `<img class="track-cover" src="${track.coverURL}" alt="${track.title}"/>`
-      : `<div class="track-cover" style="display:flex;align-items:center;justify-content:center;font-size:2rem;">🎵</div>`;
+      : `<div class="track-cover" style="display:flex;align-items:center;justify-content:center;font-size:2rem;background:var(--s2)">🎵</div>`;
     return `
     <div class="track-card" data-url="${track.audioURL||''}" data-title="${(track.title||'').toLowerCase()}" data-genre="${(track.genre||'').toLowerCase()}">
       ${cover}
@@ -370,17 +379,23 @@
           <div class="seek-wrap">
             <div class="visualizer-wrap" id="viz-${track.id}"></div>
             <input type="range" class="seek" value="0" min="0" step="0.1"/>
-            <div class="controls-meta">
-              <div class="time-row">
-                <span class="current-time">0:00</span>
-                <span>/</span>
-                <span class="duration">—:——</span>
-              </div>
-            </div>
           </div>
+        </div>
+        <div class="controls-meta">
+          <div class="time-row">
+            <span class="current-time">0:00</span>
+            <span>/</span>
+            <span class="duration">—:——</span>
+          </div>
+          ${track.downloadable?`
+          <button class="dl-btn" onclick="downloadTrack('${track.audioURL}','${(track.title||'track').replace(/'/g,"\\'")}',this)" title="Descargar MP3">
+            <svg viewBox="0 0 24 24"><path d="M5 20h14v-2H5v2zm7-18v10.59l-3.3-3.3-1.41 1.41L12 15.41l4.71-4.71-1.41-1.41L13 12.59V2h-1z"/></svg>
+            <span class="dl-text">MP3</span>
+          </button>`:''}
         </div>
       </div>
     </div>`;
+  }
   }
 
   // ── WINAMP VISUALIZER ENGINE ──
@@ -510,17 +525,14 @@
           if(!container) return;
           const {bars, peaks} = buildBars(container);
           const data  = new Uint8Array(analyser.frequencyBinCount);
-          const maxH  = 40;
+          const maxH  = 25;
           let rafId   = null;
           const peakH = new Array(NUM_BARS).fill(2);
           const peakT = new Array(NUM_BARS).fill(0);
 
-          // Colorear barras estilo Winamp
-          bars.forEach((b,i)=>{
-            const p = i/NUM_BARS;
-            const r = Math.round(p<.5 ? p*2*200 : 200);
-            const g = Math.round(p<.5 ? 255 : (1-p)*2*255);
-            b.style.background = `rgb(${r},${g},50)`;
+          // Color morado sutil para visualizador de fondo
+          bars.forEach(b=>{
+            b.style.background = `rgba(123,79,255,0.5)`;
           });
 
           function draw(){
@@ -617,6 +629,24 @@
       a.click();
       URL.revokeObjectURL(a.href);
       btn.innerHTML = `<svg viewBox="0 0 24 24"><path d="M5 20h14v-2H5v2zm7-18v10.59l-3.3-3.3-1.41 1.41L12 15.41l4.71-4.71-1.41-1.41L13 12.59V2h-1z"/></svg> DL`;
+    } catch(e){
+      alert('Error al descargar: '+e.message);
+    }
+  };
+
+  // ── DESCARGA DIRECTA ──
+  window.downloadTrack = async function(url, title, btn){
+    try{
+      const orig = btn.innerHTML;
+      btn.textContent = '…';
+      const res  = await fetch(url);
+      const blob = await res.blob();
+      const a    = document.createElement('a');
+      a.href     = URL.createObjectURL(blob);
+      a.download = title+'.mp3';
+      a.click();
+      URL.revokeObjectURL(a.href);
+      btn.innerHTML = orig;
     } catch(e){
       alert('Error al descargar: '+e.message);
     }
