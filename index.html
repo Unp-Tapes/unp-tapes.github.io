@@ -258,12 +258,12 @@
 
   // ── REEMPLAZA con tus credenciales Firebase ──
   const firebaseConfig = {
-    apiKey: "AIzaSyAQeS0wTC4HhRx78uGTvWnfjcZoZCk_zME",
-    authDomain: "unp-tapes-e5942.firebaseapp.com",
-    projectId: "unp-tapes-e5942",
-    storageBucket: "unp-tapes-e5942.firebasestorage.app",
-    messagingSenderId: "850772544349",
-    appId: "1:850772544349:web:c70a87db6e32a24d1876b4"
+    apiKey:            "TU_API_KEY",
+    authDomain:        "TU_PROYECTO.firebaseapp.com",
+    projectId:         "TU_PROYECTO",
+    storageBucket:     "TU_PROYECTO.appspot.com",
+    messagingSenderId: "TU_SENDER_ID",
+    appId:             "TU_APP_ID"
   };
 
   const app = initializeApp(firebaseConfig);
@@ -364,11 +364,6 @@
               <span class="duration">—:——</span>
             </div>
           </div>
-          ${track.audioURL?`
-          <a class="dl-btn" href="${track.audioURL}" download="${track.title||'track'}.mp3" target="_blank">
-            <svg viewBox="0 0 24 24"><path d="M5 20h14v-2H5v2zm7-18v10.59l-3.3-3.3-1.41 1.41L12 15.41l4.71-4.71-1.41-1.41L13 12.59V2h-1z"/></svg>
-            DL
-          </a>`:''}
         </div>
       </div>
     </div>`;
@@ -517,11 +512,14 @@
           function draw(){
             rafId = requestAnimationFrame(draw);
             analyser.getByteFrequencyData(data);
-            const step = Math.floor(data.length/NUM_BARS);
+            const len = data.length;
             for(let i=0;i<NUM_BARS;i++){
+              // Escala logarítmica — más resolución en graves
+              const start = Math.floor(Math.pow(i/NUM_BARS, 2) * len);
+              const end   = Math.floor(Math.pow((i+1)/NUM_BARS, 2) * len) || start+1;
               let val=0;
-              for(let j=0;j<step;j++) val+=data[i*step+j];
-              val=val/step;
+              for(let j=start;j<end;j++) val+=data[j];
+              val=val/(end-start);
               const h=Math.max(2,(val/255)*maxH);
               bars[i].style.height=h+'px';
               if(h>=peakH[i]){peakH[i]=h;peakT[i]=PEAK_HOLD;}
@@ -590,6 +588,24 @@
     })).filter(d=>d.tracks.length>0);
 
     renderAll(filtered);
+  };
+
+  // ── DESCARGA DIRECTA ──
+  window.downloadTrack = async function(url, title){
+    try{
+      const btn = event.currentTarget;
+      btn.textContent = '…';
+      const res  = await fetch(url);
+      const blob = await res.blob();
+      const a    = document.createElement('a');
+      a.href     = URL.createObjectURL(blob);
+      a.download = title+'.mp3';
+      a.click();
+      URL.revokeObjectURL(a.href);
+      btn.innerHTML = `<svg viewBox="0 0 24 24"><path d="M5 20h14v-2H5v2zm7-18v10.59l-3.3-3.3-1.41 1.41L12 15.41l4.71-4.71-1.41-1.41L13 12.59V2h-1z"/></svg> DL`;
+    } catch(e){
+      alert('Error al descargar: '+e.message);
+    }
   };
 
   loadAll();
