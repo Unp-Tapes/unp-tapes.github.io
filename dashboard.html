@@ -1,0 +1,860 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Panel de Artista — SNDWV</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet"/>
+  <style>
+    :root{
+      --bg:#080810;--s1:#0f0f1c;--s2:#161626;--border:#1e1e38;
+      --accent:#e8ff47;--accent2:#ff4757;--purple:#7b4fff;
+      --text:#eeeeff;--muted:#5a5a7a;--radius:10px;
+      --fh:'Bebas Neue',sans-serif;--fb:'DM Mono',monospace;
+    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    body{background:var(--bg);color:var(--text);font-family:var(--fb);min-height:100vh}
+    body::before{
+      content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
+      background:
+        radial-gradient(ellipse 60% 50% at 10% 10%,rgba(123,79,255,.12) 0%,transparent 60%),
+        radial-gradient(ellipse 50% 40% at 90% 85%,rgba(232,255,71,.07) 0%,transparent 55%);
+    }
+
+    /* ── NAV ── */
+    nav{
+      position:sticky;top:0;z-index:100;
+      background:rgba(8,8,16,.9);backdrop-filter:blur(16px);
+      border-bottom:1px solid var(--border);
+      display:flex;align-items:center;justify-content:space-between;
+      padding:0 32px;height:60px;
+    }
+    .nav-logo{font-family:var(--fh);font-size:1.6rem;letter-spacing:4px;color:var(--accent);text-decoration:none}
+    .nav-logo em{color:var(--text);font-style:normal}
+    #nav-user{display:flex;align-items:center;gap:12px;font-size:.72rem;color:var(--muted)}
+    .btn{
+      font-family:var(--fb);font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;
+      padding:7px 16px;border-radius:6px;cursor:pointer;text-decoration:none;
+      transition:all .2s;border:1px solid transparent;
+    }
+    .btn-ghost{border-color:var(--border);color:var(--muted);background:transparent}
+    .btn-ghost:hover{border-color:var(--accent);color:var(--accent)}
+    .btn-solid{background:var(--accent);color:#080810;border-color:var(--accent)}
+    .btn-solid:hover{background:#fff;border-color:#fff}
+    .btn-danger{border-color:var(--accent2);color:var(--accent2);background:transparent}
+    .btn-danger:hover{background:var(--accent2);color:#fff}
+    .btn-purple{background:var(--purple);color:#fff;border-color:var(--purple)}
+    .btn-purple:hover{background:#9b6fff}
+
+    /* ── LAYOUT CONTAINERS ── */
+    .page{position:relative;z-index:1;max-width:700px;margin:0 auto;padding:48px 24px 100px}
+
+    /* ── AUTH FORMS ── */
+    .auth-wrap{
+      max-width:420px;margin:0 auto;
+      background:var(--s1);border:1px solid var(--border);
+      border-radius:16px;padding:40px 36px;
+    }
+    .auth-title{font-family:var(--fh);font-size:2.2rem;letter-spacing:3px;margin-bottom:6px}
+    .auth-title span{color:var(--accent)}
+    .auth-sub{font-size:.72rem;color:var(--muted);margin-bottom:28px;letter-spacing:.06em}
+    .auth-tabs{display:flex;gap:0;margin-bottom:28px;border-radius:8px;overflow:hidden;border:1px solid var(--border)}
+    .tab-btn{
+      flex:1;padding:9px;font-family:var(--fb);font-size:.7rem;letter-spacing:.1em;
+      text-transform:uppercase;background:transparent;border:none;
+      color:var(--muted);cursor:pointer;transition:all .2s;
+    }
+    .tab-btn.active{background:var(--accent);color:#080810}
+
+    /* ── FORM FIELDS ── */
+    .field{margin-bottom:16px}
+    .field label{display:block;font-size:.65rem;color:var(--muted);letter-spacing:.12em;text-transform:uppercase;margin-bottom:6px}
+    .field input,.field select,.field textarea{
+      width:100%;background:var(--s2);border:1px solid var(--border);
+      border-radius:6px;color:var(--text);font-family:var(--fb);font-size:.8rem;
+      padding:10px 14px;outline:none;transition:border-color .2s;
+      text-transform:uppercase;letter-spacing:.08em;
+    }
+    .field input:focus,.field select:focus,.field textarea:focus{border-color:var(--purple)}
+    .field input::placeholder,.field textarea::placeholder{color:var(--muted)}
+    .field select{appearance:none;-webkit-appearance:none;cursor:pointer;
+      background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='%235a5a7a'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
+      background-repeat:no-repeat;background-position:right 12px center;padding-right:32px;
+    }
+    .field select option{background:var(--s2);text-transform:uppercase}
+    .field textarea{resize:vertical;min-height:70px}
+    .submit-btn{
+      width:100%;padding:12px;margin-top:8px;font-size:.78rem;letter-spacing:.15em;
+      text-transform:uppercase;background:var(--accent);color:#080810;
+      border:none;border-radius:8px;cursor:pointer;font-family:var(--fb);
+      font-weight:500;transition:all .2s;
+    }
+    .submit-btn:hover{background:#fff}
+    .submit-btn:disabled{opacity:.4;cursor:not-allowed}
+    .error-msg{
+      font-size:.68rem;color:var(--accent2);background:rgba(255,71,87,.08);
+      border:1px solid rgba(255,71,87,.2);border-radius:6px;
+      padding:8px 12px;margin-bottom:16px;display:none;
+    }
+    .success-msg{
+      font-size:.68rem;color:var(--accent);background:rgba(232,255,71,.07);
+      border:1px solid rgba(232,255,71,.2);border-radius:6px;
+      padding:8px 12px;margin-bottom:16px;display:none;
+    }
+
+    /* ── DASHBOARD ── */
+    #dashboard{display:none}
+    .dash-header{
+      display:flex;align-items:center;gap:20px;
+      padding:28px 0 24px;border-bottom:1px solid var(--border);margin-bottom:32px;
+    }
+    .dash-avatar{
+      width:72px;height:72px;border-radius:50%;
+      border:2px solid var(--accent);background:var(--s2);
+      object-fit:cover;flex-shrink:0;
+      display:flex;align-items:center;justify-content:center;
+      font-size:1.8rem;overflow:hidden;
+    }
+    .dash-avatar img{width:100%;height:100%;object-fit:cover}
+    .dash-info h2{font-family:var(--fh);font-size:1.8rem;letter-spacing:2px}
+    .dash-info p{font-size:.68rem;color:var(--muted);margin-top:4px}
+    .dash-actions{margin-left:auto;display:flex;gap:8px}
+
+    /* ── SECTION HEADINGS ── */
+    .section-head{
+      display:flex;align-items:center;justify-content:space-between;
+      margin-bottom:20px;
+    }
+    .section-head h3{font-family:var(--fh);font-size:1.1rem;letter-spacing:3px;color:var(--muted)}
+
+    /* ── UPLOAD PANEL ── */
+    .upload-panel{
+      background:var(--s1);border:1px solid var(--border);
+      border-radius:var(--radius);padding:24px;margin-bottom:32px;
+      display:none;
+    }
+    .upload-panel.open{display:block}
+    .upload-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    @media(max-width:520px){.upload-grid{grid-template-columns:1fr}}
+
+    /* File drop zones */
+    .file-drop{
+      border:2px dashed var(--border);border-radius:8px;
+      padding:20px;text-align:center;cursor:pointer;
+      transition:border-color .2s,background .2s;position:relative;
+    }
+    .file-drop:hover,.file-drop.dragover{border-color:var(--purple);background:rgba(123,79,255,.05)}
+    .file-drop input[type="file"]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+    .file-drop-icon{font-size:1.8rem;margin-bottom:6px}
+    .file-drop-label{font-size:.65rem;color:var(--muted);letter-spacing:.08em;text-transform:uppercase}
+    .file-drop-name{font-size:.72rem;color:var(--accent);margin-top:4px;word-break:break-all}
+
+    /* Upload progress */
+    .progress-wrap{margin-top:16px;display:none}
+    .progress-bar-bg{background:var(--s2);border-radius:4px;height:4px;overflow:hidden}
+    .progress-bar{background:var(--accent);height:100%;width:0;transition:width .3s;border-radius:4px}
+    .progress-label{font-size:.65rem;color:var(--muted);margin-top:4px;letter-spacing:.06em}
+
+    /* ── TRACK LIST ── */
+    .my-tracks{display:flex;flex-direction:column;gap:10px}
+    .my-track-card{
+      background:var(--s1);border:1px solid var(--border);border-radius:var(--radius);
+      display:flex;align-items:center;flex-wrap:wrap;gap:12px;padding:10px 14px 10px 10px;
+      transition:border-color .2s;
+      animation:fadeUp .3s ease both;
+    }
+    @keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+    .my-track-card:hover{border-color:var(--purple)}
+    .my-cover{width:56px;height:56px;border-radius:6px;object-fit:cover;background:var(--s2);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:1.4rem}
+    .my-cover img{width:100%;height:100%;border-radius:6px;object-fit:cover}
+    .my-info{flex:1;min-width:0}
+    .my-title{font-family:var(--fh);font-size:1rem;letter-spacing:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .my-meta{font-size:.62rem;color:var(--muted);margin-top:2px}
+    .my-actions{display:flex;gap:6px;flex-shrink:0}
+    .my-player{width:100%;display:flex;align-items:center;gap:8px;padding-top:8px;border-top:1px solid var(--border)}
+    .mini-play{width:28px;height:28px;border-radius:50%;background:var(--accent);border:none;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:background .2s}
+    .mini-play:hover{background:#fff}
+    .mini-play svg{width:11px;height:11px;fill:#080810}
+    .mini-seek{flex:1;-webkit-appearance:none;appearance:none;height:3px;background:var(--border);border-radius:2px;outline:none;cursor:pointer;accent-color:var(--accent)}
+    .mini-seek::-webkit-slider-thumb{-webkit-appearance:none;width:10px;height:10px;border-radius:50%;background:var(--accent);cursor:pointer}
+    .mini-time{font-size:.6rem;color:var(--muted);white-space:nowrap}
+    .icon-btn{
+      width:30px;height:30px;border-radius:6px;border:1px solid var(--border);
+      background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;
+      transition:all .2s;color:var(--muted);
+    }
+    .icon-btn:hover.delete{border-color:var(--accent2);color:var(--accent2)}
+
+    /* ── PROFILE EDIT ── */
+    .profile-panel{
+      background:var(--s1);border:1px solid var(--border);
+      border-radius:var(--radius);padding:24px;margin-bottom:32px;
+      display:none;
+    }
+    .profile-panel.open{display:block}
+
+    /* ── STATES ── */
+    .state-msg{text-align:center;padding:40px 0;color:var(--muted);font-size:.78rem;letter-spacing:.1em}
+    .spinner{width:28px;height:28px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite;margin:0 auto 12px}
+    @keyframes spin{to{transform:rotate(360deg)}}
+  </style>
+</head>
+<body>
+
+<nav>
+  <a href="index.html" class="nav-logo">SND<em>WV</em></a>
+  <div id="nav-user">
+    <a href="https://unp-tapes.github.io" target="_blank" class="btn btn-ghost" id="public-btn" style="display:none">🌐 Página pública</a>
+    <span id="nav-email"></span>
+    <button class="btn btn-ghost" id="logout-btn" style="display:none" onclick="logOut()">Salir</button>
+  </div>
+</nav>
+
+<!-- ── AUTH SECTION ── -->
+<div class="page" id="auth-section">
+  <div class="auth-wrap">
+    <div class="auth-title">PANEL <span>ARTISTA</span></div>
+    <p class="auth-sub">Gestiona tu perfil y tus canciones</p>
+
+    <div class="auth-tabs">
+      <button class="tab-btn active" onclick="switchTab('login')">Entrar</button>
+      <button class="tab-btn" onclick="switchTab('register')">Registro</button>
+    </div>
+
+    <div id="auth-error" class="error-msg"></div>
+    <div id="auth-success" class="success-msg"></div>
+
+    <!-- LOGIN -->
+    <div id="tab-login">
+      <div class="field">
+        <label>Email</label>
+        <input type="email" id="login-email" placeholder="tu@email.com"/>
+      </div>
+      <div class="field">
+        <label>Contraseña</label>
+        <input type="password" id="login-pass" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()"/>
+      </div>
+      <button class="submit-btn" onclick="doLogin()">Entrar al panel</button>
+    </div>
+
+    <!-- REGISTER -->
+    <div id="tab-register" style="display:none">
+      <div class="upload-grid">
+        <div class="field">
+          <label>Nombre artístico</label>
+          <input type="text" id="reg-name" placeholder="Tu nombre / alias"/>
+        </div>
+        <div class="field">
+          <label>Género musical</label>
+          <select id="reg-genre">
+            <option value="" disabled selected>— Seleccionar —</option>
+            <option>Hip-Hop</option>
+            <option>Trap</option>
+            <option>Drill</option>
+            <option>R&B</option>
+            <option>Reggaeton</option>
+            <option>Electrónica</option>
+            <option>House</option>
+            <option>Techno</option>
+            <option>Ambient</option>
+            <option>Lo-Fi</option>
+            <option>Jazz</option>
+            <option>Soul</option>
+            <option>Rock</option>
+            <option>Metal</option>
+            <option>Pop</option>
+            <option>Cumbia</option>
+            <option>Salsa</option>
+            <option>Funk</option>
+            <option>Experimental</option>
+            <option>Instrumental</option>
+            <option>Otro</option>
+          </select>
+        </div>
+      </div>
+      <div class="field">
+        <label>Ciudad / País</label>
+        <input type="text" id="reg-city" placeholder="Santiago, Chile"/>
+      </div>
+      <div class="field">
+        <label>Email</label>
+        <input type="email" id="reg-email" placeholder="tu@email.com"/>
+      </div>
+      <div class="field">
+        <label>Contraseña</label>
+        <input type="password" id="reg-pass" placeholder="Mínimo 6 caracteres"/>
+      </div>
+      <button class="submit-btn" onclick="doRegister()">Crear cuenta</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── DASHBOARD SECTION ── -->
+<div class="page" id="dashboard">
+
+  <!-- HEADER DEL ARTISTA -->
+  <div class="dash-header">
+    <div class="dash-avatar" id="dash-avatar-wrap">
+      <span id="dash-avatar-initial">?</span>
+    </div>
+    <div class="dash-info">
+      <h2 id="dash-name">—</h2>
+      <p id="dash-genre-city"></p>
+    </div>
+    <div class="dash-actions">
+      <button class="btn btn-ghost" onclick="toggleProfile()">✏ Perfil</button>
+      <button class="btn btn-purple" onclick="toggleUpload()">+ Subir Track</button>
+    </div>
+  </div>
+
+  <!-- EDITAR PERFIL -->
+  <div class="profile-panel" id="profile-panel">
+    <div class="section-head">
+      <h3>· Editar Perfil ·</h3>
+      <button class="btn btn-ghost" onclick="toggleProfile()">✕ Cerrar</button>
+    </div>
+    <div id="profile-error" class="error-msg"></div>
+    <div id="profile-success" class="success-msg"></div>
+    <div class="upload-grid">
+      <div class="field">
+        <label>Nombre artístico</label>
+        <input type="text" id="edit-name" placeholder="Tu nombre"/>
+      </div>
+      <div class="field">
+        <label>Género</label>
+        <select id="edit-genre">
+          <option value="" disabled>— Seleccionar —</option>
+          <option>Hip-Hop</option>
+          <option>Trap</option>
+          <option>Drill</option>
+          <option>R&B</option>
+          <option>Reggaeton</option>
+          <option>Electrónica</option>
+          <option>House</option>
+          <option>Techno</option>
+          <option>Ambient</option>
+          <option>Lo-Fi</option>
+          <option>Jazz</option>
+          <option>Soul</option>
+          <option>Rock</option>
+          <option>Metal</option>
+          <option>Pop</option>
+          <option>Cumbia</option>
+          <option>Salsa</option>
+          <option>Funk</option>
+          <option>Experimental</option>
+          <option>Instrumental</option>
+          <option>Otro</option>
+        </select>
+      </div>
+    </div>
+    <div class="field">
+      <label>Ciudad / País</label>
+      <input type="text" id="edit-city" placeholder="Ciudad, País"/>
+    </div>
+    <div class="field">
+      <label>Foto de perfil</label>
+      <div class="file-drop" id="profile-drop">
+        <input type="file" id="profile-photo-input" accept="image/*" onchange="previewProfilePhoto(this)"/>
+        <div class="file-drop-icon">👤</div>
+        <div class="file-drop-label">Subir foto</div>
+        <div class="file-drop-name" id="profile-photo-name"></div>
+      </div>
+    </div>
+    <div class="progress-wrap" id="profile-progress">
+      <div class="progress-bar-bg"><div class="progress-bar" id="profile-bar"></div></div>
+      <div class="progress-label" id="profile-progress-label">Subiendo…</div>
+    </div>
+    <button class="submit-btn" style="margin-top:16px" onclick="saveProfile()">Guardar cambios</button>
+  </div>
+
+  <!-- SUBIR TRACK -->
+  <div class="upload-panel" id="upload-panel">
+    <div class="section-head">
+      <h3>· Nueva Canción ·</h3>
+      <button class="btn btn-ghost" onclick="toggleUpload()">✕ Cerrar</button>
+    </div>
+    <div id="upload-error" class="error-msg"></div>
+
+    <div class="upload-grid">
+      <div class="field">
+        <label>Título</label>
+        <input type="text" id="track-title" placeholder="Nombre de la canción"/>
+      </div>
+      <div class="field">
+        <label>Género</label>
+        <select id="track-genre">
+          <option value="" disabled selected>— Seleccionar —</option>
+          <option>Hip-Hop</option>
+          <option>Trap</option>
+          <option>Drill</option>
+          <option>R&B</option>
+          <option>Reggaeton</option>
+          <option>Electrónica</option>
+          <option>House</option>
+          <option>Techno</option>
+          <option>Ambient</option>
+          <option>Lo-Fi</option>
+          <option>Jazz</option>
+          <option>Soul</option>
+          <option>Rock</option>
+          <option>Metal</option>
+          <option>Pop</option>
+          <option>Cumbia</option>
+          <option>Salsa</option>
+          <option>Funk</option>
+          <option>Experimental</option>
+          <option>Instrumental</option>
+          <option>Otro</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="upload-grid" style="margin-top:4px">
+      <!-- AUDIO DROP -->
+      <div>
+        <div class="file-drop" id="audio-drop">
+          <input type="file" id="audio-input" accept="audio/mp3,audio/mpeg,audio/*" onchange="setFile(this,'audio')"/>
+          <div class="file-drop-icon">🎵</div>
+          <div class="file-drop-label">Archivo .mp3</div>
+          <div class="file-drop-name" id="audio-name"></div>
+        </div>
+      </div>
+      <!-- COVER DROP -->
+      <div>
+        <div class="file-drop" id="cover-drop">
+          <input type="file" id="cover-input" accept="image/*" onchange="setFile(this,'cover')"/>
+          <div class="file-drop-icon">🖼</div>
+          <div class="file-drop-label">Portada (imagen)</div>
+          <div class="file-drop-name" id="cover-name"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="progress-wrap" id="upload-progress">
+      <div class="progress-bar-bg"><div class="progress-bar" id="upload-bar"></div></div>
+      <div class="progress-label" id="upload-progress-label">Preparando…</div>
+    </div>
+
+    <button class="submit-btn" style="margin-top:16px" id="upload-btn" onclick="uploadTrack()">Publicar canción</button>
+  </div>
+
+  <!-- MIS TRACKS -->
+  <div class="section-head">
+    <h3>· Mis Canciones ·</h3>
+    <span id="tracks-count" style="font-size:.65rem;color:var(--muted)"></span>
+  </div>
+  <div id="my-tracks-list">
+    <div class="state-msg"><div class="spinner"></div>Cargando…</div>
+  </div>
+
+</div><!-- /dashboard -->
+
+
+<!-- ── FIREBASE ── -->
+<script type="module">
+  import { initializeApp }                   from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getAuth, createUserWithEmailAndPassword,
+           signInWithEmailAndPassword,
+           signOut, onAuthStateChanged }      from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+  import { getFirestore, doc, setDoc, getDoc,
+           collection, getDocs,
+           addDoc, deleteDoc,
+           serverTimestamp, orderBy, query }  from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+  import { getStorage, ref, uploadBytesResumable,
+           getDownloadURL, deleteObject }     from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
+
+  // ══════════════════════════════════════════════
+  //  REEMPLAZA con tus credenciales Firebase
+  // ══════════════════════════════════════════════
+  const firebaseConfig = {
+    apiKey: "AIzaSyAQeS0wTC4HhRx78uGTvWnfjcZoZCk_zME",
+    authDomain: "unp-tapes-e5942.firebaseapp.com",
+    projectId: "unp-tapes-e5942",
+    storageBucket: "unp-tapes-e5942.firebasestorage.app",
+    messagingSenderId: "850772544349",
+    appId: "1:850772544349:web:c70a87db6e32a24d1876b4"
+  };
+
+  const app     = initializeApp(firebaseConfig);
+  const auth    = getAuth(app);
+  const db      = getFirestore(app);
+  const storage = getStorage(app);
+
+  let currentUser   = null;
+  let artistProfile = null;
+  let selectedAudio = null;
+  let selectedCover = null;
+
+  // ──────────────────────────────────────────────
+  //  AUTH STATE
+  // ──────────────────────────────────────────────
+  onAuthStateChanged(auth, async user => {
+    if(user){
+      currentUser = user;
+      document.getElementById('auth-section').style.display  = 'none';
+      document.getElementById('dashboard').style.display     = 'block';
+      document.getElementById('nav-email').textContent       = user.email;
+      document.getElementById('logout-btn').style.display    = 'inline-flex';
+      document.getElementById('public-btn').style.display    = 'inline-flex';
+      await loadProfile();
+      await loadMyTracks();
+    } else {
+      currentUser = null;
+      document.getElementById('auth-section').style.display  = 'block';
+      document.getElementById('dashboard').style.display     = 'none';
+      document.getElementById('nav-email').textContent       = '';
+      document.getElementById('logout-btn').style.display    = 'none';
+    }
+  });
+
+  // ──────────────────────────────────────────────
+  //  AUTH ACTIONS
+  // ──────────────────────────────────────────────
+  window.switchTab = function(tab){
+    document.querySelectorAll('.tab-btn').forEach((b,i)=>b.classList.toggle('active', (tab==='login'?i===0:i===1)));
+    document.getElementById('tab-login').style.display    = tab==='login'   ? 'block':'none';
+    document.getElementById('tab-register').style.display = tab==='register'? 'block':'none';
+    clearMessages();
+  };
+
+  window.doLogin = async function(){
+    const email = document.getElementById('login-email').value.trim();
+    const pass  = document.getElementById('login-pass').value;
+    clearMessages();
+    if(!email||!pass){ showError('auth-error','Completa todos los campos'); return; }
+    try {
+      await signInWithEmailAndPassword(auth, email, pass);
+    } catch(e){
+      showError('auth-error', friendlyError(e.code));
+    }
+  };
+
+  window.doRegister = async function(){
+    const name  = document.getElementById('reg-name').value.trim();
+    const genre = document.getElementById('reg-genre').value.trim();
+    const city  = document.getElementById('reg-city').value.trim();
+    const email = document.getElementById('reg-email').value.trim();
+    const pass  = document.getElementById('reg-pass').value;
+    clearMessages();
+    if(!name||!email||!pass){ showError('auth-error','Nombre, email y contraseña son obligatorios'); return; }
+    try {
+      const cred = await createUserWithEmailAndPassword(auth, email, pass);
+      await setDoc(doc(db,'artists',cred.user.uid),{
+        name, genre, city, email,
+        photoURL:'', createdAt: serverTimestamp()
+      });
+      showSuccess('auth-success','¡Cuenta creada! Iniciando sesión…');
+    } catch(e){
+      showError('auth-error', friendlyError(e.code));
+    }
+  };
+
+  window.logOut = async function(){
+    await signOut(auth);
+  };
+
+  // ──────────────────────────────────────────────
+  //  PROFILE
+  // ──────────────────────────────────────────────
+  async function loadProfile(){
+    const snap = await getDoc(doc(db,'artists',currentUser.uid));
+    if(!snap.exists()) return;
+    artistProfile = snap.data();
+    renderDashHeader();
+    document.getElementById('edit-name').value  = artistProfile.name  || '';
+    document.getElementById('edit-genre').value = artistProfile.genre || '';
+    document.getElementById('edit-city').value  = artistProfile.city  || '';
+  }
+
+  function renderDashHeader(){
+    document.getElementById('dash-name').textContent = artistProfile.name || currentUser.email;
+    document.getElementById('dash-genre-city').textContent =
+      [artistProfile.genre, artistProfile.city].filter(Boolean).join(' · ');
+    const wrap = document.getElementById('dash-avatar-wrap');
+    if(artistProfile.photoURL){
+      wrap.innerHTML = `<img src="${artistProfile.photoURL}" style="width:100%;height:100%;border-radius:50%;object-fit:cover"/>`;
+    } else {
+      wrap.innerHTML = `<span style="font-size:1.8rem">${(artistProfile.name||'?')[0].toUpperCase()}</span>`;
+    }
+  }
+
+  window.toggleProfile = function(){
+    document.getElementById('profile-panel').classList.toggle('open');
+    document.getElementById('upload-panel').classList.remove('open');
+  };
+
+  window.previewProfilePhoto = function(input){
+    if(input.files[0]) document.getElementById('profile-photo-name').textContent = input.files[0].name;
+  };
+
+  window.saveProfile = async function(){
+    const name  = document.getElementById('edit-name').value.trim();
+    const genre = document.getElementById('edit-genre').value.trim();
+    const city  = document.getElementById('edit-city').value.trim();
+    const file  = document.getElementById('profile-photo-input').files[0];
+    clearMessages('profile');
+
+    let photoURL = artistProfile.photoURL || '';
+
+    if(file){
+      document.getElementById('profile-progress').style.display = 'block';
+      photoURL = await uploadFile(
+        file,
+        `artists/${currentUser.uid}/profile/${Date.now()}_${file.name}`,
+        'profile-bar','profile-progress-label'
+      );
+      document.getElementById('profile-progress').style.display = 'none';
+    }
+
+    await setDoc(doc(db,'artists',currentUser.uid),{
+      name, genre, city,
+      email: currentUser.email,
+      photoURL, createdAt: artistProfile.createdAt || serverTimestamp()
+    });
+    artistProfile = {...artistProfile, name, genre, city, photoURL};
+    renderDashHeader();
+    showSuccess('profile-success','Perfil actualizado ✓');
+    setTimeout(()=>document.getElementById('profile-panel').classList.remove('open'),1500);
+  };
+
+  // ──────────────────────────────────────────────
+  //  UPLOAD TRACK
+  // ──────────────────────────────────────────────
+  window.toggleUpload = function(){
+    document.getElementById('upload-panel').classList.toggle('open');
+    document.getElementById('profile-panel').classList.remove('open');
+  };
+
+  window.setFile = function(input, type){
+    if(!input.files[0]) return;
+    if(type==='audio'){
+      selectedAudio = input.files[0];
+      document.getElementById('audio-name').textContent = input.files[0].name;
+    } else {
+      selectedCover = input.files[0];
+      document.getElementById('cover-name').textContent = input.files[0].name;
+    }
+  };
+
+  window.uploadTrack = async function(){
+    const title = document.getElementById('track-title').value.trim();
+    const genre = document.getElementById('track-genre').value.trim();
+    clearMessages('upload');
+
+    if(!title){ showError('upload-error','El título es obligatorio'); return; }
+    if(!selectedAudio){ showError('upload-error','Selecciona un archivo de audio'); return; }
+
+    const btn = document.getElementById('upload-btn');
+    btn.disabled = true;
+    document.getElementById('upload-progress').style.display = 'block';
+
+    try{
+      const uid  = currentUser.uid;
+      const ts   = Date.now();
+
+      // 1. Subir audio
+      setLabel('upload-progress-label','Subiendo audio…');
+      const audioURL = await uploadFile(
+        selectedAudio,
+        `artists/${uid}/tracks/${ts}_${selectedAudio.name}`,
+        'upload-bar','upload-progress-label'
+      );
+
+      // 2. Subir portada (opcional)
+      let coverURL = '';
+      if(selectedCover){
+        setLabel('upload-progress-label','Subiendo portada…');
+        coverURL = await uploadFile(
+          selectedCover,
+          `artists/${uid}/covers/${ts}_${selectedCover.name}`,
+          'upload-bar','upload-progress-label'
+        );
+      }
+
+      // 3. Guardar en Firestore
+      setLabel('upload-progress-label','Guardando…');
+      await addDoc(collection(db,`artists/${uid}/tracks`),{
+        title, genre, audioURL, coverURL,
+        createdAt: serverTimestamp()
+      });
+
+      // Reset
+      document.getElementById('track-title').value = '';
+      document.getElementById('track-genre').value = '';
+      document.getElementById('audio-input').value = '';
+      document.getElementById('cover-input').value = '';
+      document.getElementById('audio-name').textContent = '';
+      document.getElementById('cover-name').textContent = '';
+      selectedAudio = null; selectedCover = null;
+
+      document.getElementById('upload-progress').style.display = 'none';
+      document.getElementById('upload-panel').classList.remove('open');
+      btn.disabled = false;
+      await loadMyTracks();
+
+    } catch(e){
+      showError('upload-error','Error al subir: '+e.message);
+      document.getElementById('upload-progress').style.display = 'none';
+      btn.disabled = false;
+    }
+  };
+
+  // ──────────────────────────────────────────────
+  //  MY TRACKS
+  // ──────────────────────────────────────────────
+  async function loadMyTracks(){
+    const container = document.getElementById('my-tracks-list');
+    container.innerHTML = '<div class="state-msg"><div class="spinner"></div>Cargando…</div>';
+    try{
+      const uid   = currentUser.uid;
+      const snap  = await getDocs(
+        query(collection(db,`artists/${uid}/tracks`), orderBy('createdAt','desc'))
+      );
+      const tracks = [];
+      snap.forEach(d => tracks.push({id:d.id,...d.data()}));
+      document.getElementById('tracks-count').textContent = `${tracks.length} canción${tracks.length!==1?'es':''}`;
+
+      if(!tracks.length){
+        container.innerHTML = '<div class="state-msg">Aún no tienes canciones. ¡Sube tu primer track!</div>';
+        return;
+      }
+      container.innerHTML = `<div class="my-tracks">${tracks.map(t=>renderMyTrack(t)).join('')}</div>`;
+      initDashPlayers();
+    } catch(e){
+      container.innerHTML = `<div class="state-msg">Error: ${e.message}</div>`;
+    }
+  }
+
+  function renderMyTrack(track){
+    const coverHTML = track.coverURL
+      ? `<div class="my-cover"><img src="${track.coverURL}" alt="${track.title}"/></div>`
+      : `<div class="my-cover">🎵</div>`;
+    const playerHTML = track.audioURL ? `
+    <div class="my-player">
+      <button class="mini-play" data-playing="false">
+        <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+      </button>
+      <audio preload="metadata" src="${track.audioURL}"></audio>
+      <input type="range" class="mini-seek" value="0" min="0" step="0.1"/>
+      <span class="mini-time">0:00 / —:——</span>
+    </div>` : '';
+    return `
+    <div class="my-track-card" id="track-${track.id}">
+      ${coverHTML}
+      <div class="my-info">
+        <div class="my-title">${track.title||'Sin título'}</div>
+        <div class="my-meta">${track.genre||''}</div>
+      </div>
+      <div class="my-actions">
+        <button class="icon-btn delete" title="Eliminar" onclick="deleteTrack('${track.id}','${track.audioURL||''}','${track.coverURL||''}')">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M9 3v1H4v2h1v13a2 2 0 002 2h10a2 2 0 002-2V6h1V4h-5V3H9zm0 5h2v9H9V8zm4 0h2v9h-2V8z"/>
+          </svg>
+        </button>
+      </div>
+      ${playerHTML}
+    </div>`;
+  }
+
+  function initDashPlayers(){
+    const PLAY  = `<svg viewBox="0 0 24 24" width="11" height="11" fill="#080810"><path d="M8 5v14l11-7z"/></svg>`;
+    const PAUSE = `<svg viewBox="0 0 24 24" width="11" height="11" fill="#080810"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>`;
+    function fmt(s){if(!s||isNaN(s))return'0:00';return`${Math.floor(s/60)}:${String(Math.floor(s%60)).padStart(2,'0')}`;}
+
+    document.querySelectorAll('.my-player').forEach(row=>{
+      const audio = row.querySelector('audio');
+      const seek  = row.querySelector('.mini-seek');
+      const time  = row.querySelector('.mini-time');
+      const btn   = row.querySelector('.mini-play');
+      if(!audio) return;
+
+      audio.addEventListener('loadedmetadata',()=>{ seek.max=audio.duration; time.textContent=`0:00 / ${fmt(audio.duration)}`; });
+      audio.addEventListener('timeupdate',()=>{ seek.value=audio.currentTime; time.textContent=`${fmt(audio.currentTime)} / ${fmt(audio.duration)}`; });
+      audio.addEventListener('ended',()=>{ btn.dataset.playing='false'; btn.innerHTML=PLAY; seek.value=0; });
+
+      btn.addEventListener('click',()=>{
+        const playing = btn.dataset.playing==='true';
+        document.querySelectorAll('.my-player audio').forEach(a=>{ if(a!==audio){ a.pause(); const b=a.closest('.my-player').querySelector('.mini-play'); b.dataset.playing='false'; b.innerHTML=PLAY; }});
+        if(playing){ audio.pause(); btn.dataset.playing='false'; btn.innerHTML=PLAY; }
+        else{ audio.play(); btn.dataset.playing='true'; btn.innerHTML=PAUSE; }
+      });
+      seek.addEventListener('input',()=>{ audio.currentTime=seek.value; });
+    });
+  }
+
+  window.deleteTrack = async function(trackId, audioURL, coverURL){
+    if(!confirm('¿Eliminar esta canción? Esta acción no se puede deshacer.')) return;
+    try{
+      const uid = currentUser.uid;
+      await deleteDoc(doc(db,`artists/${uid}/tracks`,trackId));
+      // Intentar borrar archivos de Storage (best effort)
+      if(audioURL) try{ await deleteObject(ref(storage, audioURL.split('?')[0].split('/o/')[1].replace(/%2F/g,'/'))); }catch(e){}
+      if(coverURL) try{ await deleteObject(ref(storage, coverURL.split('?')[0].split('/o/')[1].replace(/%2F/g,'/'))); }catch(e){}
+      document.getElementById(`track-${trackId}`)?.remove();
+    } catch(e){
+      alert('Error al eliminar: '+e.message);
+    }
+  };
+
+  // ──────────────────────────────────────────────
+  //  STORAGE UPLOAD HELPER
+  // ──────────────────────────────────────────────
+  function uploadFile(file, path, barId, labelId){
+    return new Promise((resolve, reject)=>{
+      const storRef  = ref(storage, path);
+      const task     = uploadBytesResumable(storRef, file);
+      task.on('state_changed',
+        snap => {
+          const pct = Math.round(snap.bytesTransferred/snap.totalBytes*100);
+          document.getElementById(barId).style.width  = pct+'%';
+          document.getElementById(labelId).textContent = `${pct}%`;
+        },
+        reject,
+        async () => resolve(await getDownloadURL(task.snapshot.ref))
+      );
+    });
+  }
+
+  // ──────────────────────────────────────────────
+  //  HELPERS
+  // ──────────────────────────────────────────────
+  function showError(id, msg){
+    const el = document.getElementById(id);
+    el.textContent = msg; el.style.display = 'block';
+  }
+  function showSuccess(id, msg){
+    const el = document.getElementById(id);
+    el.textContent = msg; el.style.display = 'block';
+  }
+  function clearMessages(scope){
+    ['auth-error','auth-success','profile-error','profile-success','upload-error']
+      .filter(id => !scope || id.startsWith(scope))
+      .forEach(id=>{ const el=document.getElementById(id); if(el) el.style.display='none'; });
+  }
+  function setLabel(id,txt){ const el=document.getElementById(id); if(el) el.textContent=txt; }
+  function friendlyError(code){
+    const map={
+      'auth/email-already-in-use':'Ese email ya está registrado.',
+      'auth/invalid-email':'Email no válido.',
+      'auth/weak-password':'La contraseña debe tener al menos 6 caracteres.',
+      'auth/user-not-found':'No existe cuenta con ese email.',
+      'auth/wrong-password':'Contraseña incorrecta.',
+      'auth/invalid-credential':'Email o contraseña incorrectos.',
+    };
+    return map[code] || 'Error: '+code;
+  }
+
+  // Drag-over visual feedback
+  document.querySelectorAll('.file-drop').forEach(zone=>{
+    zone.addEventListener('dragover', e=>{ e.preventDefault(); zone.classList.add('dragover'); });
+    zone.addEventListener('dragleave', ()=> zone.classList.remove('dragover'));
+    zone.addEventListener('drop', ()=> zone.classList.remove('dragover'));
+  });
+
+  // handle #register anchor from index.html
+  if(location.hash==='#register') switchTab('register');
+</script>
+</body>
+</html>
