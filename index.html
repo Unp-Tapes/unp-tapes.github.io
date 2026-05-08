@@ -183,11 +183,15 @@
       position:relative;
       background-image:linear-gradient(to bottom, rgba(0,0,0,0.3) 1px, transparent 1px);
       background-size:100% 3px;
+      transition:height 0.08s ease;
     }
     .viz-peak{
-      position:absolute;top:0;left:0;right:0;
+      position:absolute;
+      bottom:0;
+      left:0;right:0;
       height:2px;background:#fff;border-radius:1px;
       opacity:.8;
+      transition:transform 0.05s linear;
     }
     .state-msg{text-align:center;padding:60px 0;color:var(--muted);font-size:.78rem;letter-spacing:.1em}
     .spinner{
@@ -443,7 +447,7 @@
           if(entry.peakT[i] > 0) entry.peakT[i]--;
           else entry.peakH[i] = Math.max(2, entry.peakH[i]-PEAK_FALL);
         }
-        peaks[i].style.top = (maxH - entry.peakH[i] - 2)+'px';
+        peaks[i].style.bottom = (entry.peakH[i] - 2)+'px';
       }
     }
 
@@ -522,7 +526,7 @@
               bars[i].style.height=h+'px';
               if(h>=peakH[i]){peakH[i]=h;peakT[i]=PEAK_HOLD;}
               else{ if(peakT[i]>0)peakT[i]--; else peakH[i]=Math.max(2,peakH[i]-PEAK_FALL); }
-              peaks[i].style.top=(maxH-peakH[i]-2)+'px';
+              peaks[i].style.bottom = (peakH[i] - 2)+'px';
             }
           }
 
