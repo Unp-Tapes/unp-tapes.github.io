@@ -276,7 +276,6 @@
   import { getFirestore, collection,
            getDocs, query, orderBy }    from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-  // ── REEMPLAZA con tus credenciales Firebase ──
   const firebaseConfig = {
     apiKey: "AIzaSyAQeS0wTC4HhRx78uGTvWnfjcZoZCk_zME",
     authDomain: "unp-tapes-e5942.firebaseapp.com",
@@ -489,10 +488,11 @@
   function initPlayers(){
     document.querySelectorAll('.audio-row').forEach(row=>{
       const card     = row.closest('.track-card');
+      const body     = row.closest('.track-body');
       const audioURL = card?.dataset.url || '';
       const seek     = row.querySelector('.seek');
-      const curEl    = row.querySelector('.current-time');
-      const durEl    = row.querySelector('.duration');
+      const curEl    = body?.querySelector('.current-time');
+      const durEl    = body?.querySelector('.duration');
       const btn      = row.querySelector('.play-btn');
       const vizWrap  = row.querySelector('.visualizer-wrap');
       const vizId    = vizWrap?.id;
