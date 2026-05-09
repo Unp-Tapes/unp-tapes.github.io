@@ -444,21 +444,17 @@
       if(trackParam){
         setTimeout(()=>{
           const row = document.getElementById(`tr-${trackParam}`);
-          if(row){
-            row.scrollIntoView({behavior:'smooth', block:'center'});
-            const btn = row.querySelector('.play-btn');
-            if(btn){
-              // Esperar a que el audio esté listo
-              const audio = row._audio;
-              if(audio){
-                audio.addEventListener('canplay', ()=> btn.click(), {once:true});
-                audio.load();
-              } else {
-                setTimeout(()=> btn.click(), 800);
-              }
-            }
+          if(!row) return;
+          row.scrollIntoView({behavior:'smooth', block:'center'});
+          const audio = row._audio;
+          if(audio){
+            audio.addEventListener('canplay', ()=>{
+              row.querySelector('.play-btn')?.click();
+            }, {once:true});
+            audio.preload = 'auto';
+            audio.load();
           }
-        }, 800);
+        }, 1000);
       }
     } catch(e){
       document.getElementById('content').innerHTML=`<div class="state-msg">Error: ${e.message}</div>`;
