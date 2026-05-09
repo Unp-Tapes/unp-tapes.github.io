@@ -722,8 +722,10 @@
   window.toggleUpload  = function(){ openModal('upload-modal'); };
 
   function updateStats(singlesCount, albumsCount){
-    document.getElementById('stat-tracks').textContent = singlesCount;
-    document.getElementById('stat-albums').textContent = albumsCount;
+    const el1 = document.getElementById('stat-tracks');
+    const el2 = document.getElementById('stat-albums');
+    if(el1) el1.textContent = singlesCount;
+    if(el2) el2.textContent = albumsCount;
   }
 
   window.previewProfilePhoto = async function(input){
