@@ -406,9 +406,9 @@
       </div>
       <div class="upload-grid" style="margin-top:4px">
         <div class="file-drop" id="audio-drop">
-          <input type="file" id="audio-input" accept=".mp3,audio/mpeg" onchange="setFile(this,'audio')"/>
+          <input type="file" id="audio-input" accept="audio/*" onchange="setFile(this,'audio')"/>
           <div class="file-drop-icon">🎵</div>
-          <div class="file-drop-label">Solo .mp3</div>
+          <div class="file-drop-label">Audio (mp3, wav, flac…)</div>
           <div class="file-drop-name" id="audio-name"></div>
         </div>
         <div class="file-drop" id="cover-drop">
@@ -453,7 +453,7 @@
       <div class="field" style="margin-top:8px">
         <label>Archivos .mp3 (selecciona todos a la vez)</label>
         <div class="file-drop" id="album-audio-drop">
-          <input type="file" id="album-audio-input" accept=".mp3,audio/mpeg" multiple onchange="setAlbumFiles(this)"/>
+          <input type="file" id="album-audio-input" accept="audio/*" multiple onchange="setAlbumFiles(this)"/>
           <div class="file-drop-icon">🎵</div>
           <div class="file-drop-label">Seleccionar varios .mp3</div>
           <div class="file-drop-name" id="album-files-name"></div>
@@ -683,8 +683,8 @@
   };
 
   function validateMp3(file){
-    const ok = file.type==='audio/mpeg' || file.type==='audio/mp3' || file.name.toLowerCase().endsWith('.mp3');
-    if(!ok) showError('upload-error',`"${file.name}" no es un .mp3. Solo se permiten archivos MP3.`);
+    const ok = file.type.startsWith('audio/') || /\.(mp3|wav|flac|aac|ogg|m4a|wma|aiff)$/i.test(file.name);
+    if(!ok) showError('upload-error',`"${file.name}" no es un archivo de audio válido.`);
     return ok;
   }
 
@@ -706,9 +706,9 @@
 
   window.setAlbumFiles = function(input){
     const files = Array.from(input.files);
-    const invalid = files.filter(f => !f.name.toLowerCase().endsWith('.mp3'));
+    const invalid = files.filter(f => !f.type.startsWith('audio/') && !/\.(mp3|wav|flac|aac|ogg|m4a|wma|aiff)$/i.test(f.name));
     if(invalid.length){
-      showError('upload-error', `Solo .mp3: ${invalid.map(f=>f.name).join(', ')}`);
+      showError('upload-error', `Archivos no válidos: ${invalid.map(f=>f.name).join(', ')}`);
       input.value=''; return;
     }
     selectedAlbumFiles = files;
