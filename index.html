@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>UNP Records — Plataforma Musical</title>
   <meta property="og:title" content="UNP Records — Música Independiente"/>
-  <meta property="og:description" content="Escucha música de artistas independientes. Sin algoritmos, sin intermediarios."/>
+  <meta property="og:description" content="Tu plataforma de música independiente. Singles y playlists directo desde la fuente."/>
   <meta property="og:image" content="https://unp-tapes.github.io/logo.png"/>
   <meta property="og:url" content="https://unp-tapes.github.io"/>
   <meta property="og:type" content="website"/>
@@ -30,12 +30,14 @@
       animation:meshMove 20s ease-in-out infinite alternate;
     }
     @keyframes meshMove{from{transform:scale(1)}to{transform:scale(1.2) translate(5%,5%)}}
+
+    /* ── NAV ── */
     nav{
       position:sticky;top:0;z-index:100;
-      background:rgba(0,0,0,.75);backdrop-filter:blur(20px) saturate(180%);
+      background:rgba(0,0,0,.85);backdrop-filter:blur(20px) saturate(180%);
       border-bottom:1px solid rgba(255,255,255,.06);
       display:flex;align-items:center;justify-content:space-between;
-      padding:0 32px;height:60px;
+      padding:0 40px;height:64px;
     }
     .nav-actions{display:flex;gap:12px;align-items:center}
     .btn{
@@ -47,10 +49,33 @@
     .btn-ghost:hover{border-color:var(--accent);color:var(--accent)}
     .btn-solid{background:var(--accent);color:#000;font-weight:500}
     .btn-solid:hover{background:#ff8c00}
-    .hero{position:relative;z-index:1;text-align:center;padding:52px 24px 44px}
-    .hero p{color:var(--muted);font-size:.78rem;letter-spacing:.08em;max-width:400px;margin:0 auto}
-    .wrap{position:relative;z-index:1;max-width:1000px;margin:0 auto;padding:0 24px 80px}
-    .section-label{font-size:.65rem;color:var(--muted);letter-spacing:.15em;text-transform:uppercase;margin-bottom:20px}
+
+    /* ── HERO ── */
+    .hero{
+      position:relative;z-index:1;
+      min-height:45vh;display:flex;flex-direction:column;
+      justify-content:center;align-items:center;
+      text-align:center;padding:60px 24px 40px;
+    }
+    .hero h1{
+      font-family:var(--fh);font-size:clamp(4rem,12vw,8rem);
+      color:var(--accent);margin:0;line-height:.9;
+      text-shadow:0 0 40px rgba(255,106,0,.3);
+    }
+    .hero p{color:var(--muted);max-width:500px;margin:20px auto 0;font-size:.85rem;letter-spacing:.06em;line-height:1.6}
+
+    /* ── WRAP ── */
+    .wrap{position:relative;z-index:1;max-width:1100px;margin:0 auto;padding:0 40px 80px}
+
+    /* ── SECTION HEADER ── */
+    .section-header{
+      font-family:var(--fh);font-size:2rem;letter-spacing:3px;
+      margin-bottom:24px;
+      border-left:4px solid var(--accent);
+      padding-left:16px;
+      display:flex;align-items:center;justify-content:space-between;
+    }
+    .section-header span{font-size:.65rem;color:var(--muted);letter-spacing:.1em;font-family:var(--fb);font-weight:normal}
 
     /* ── SEARCH ── */
     .search-bar{
@@ -66,56 +91,86 @@
     }
     .search-bar input::placeholder{color:var(--muted)}
 
-    /* ── ARTIST GRID ── */
-    .artist-grid{
+    /* ── LATEST TRACKS GRID ── */
+    .tracks-grid{
       display:grid;
-      grid-template-columns:repeat(auto-fill,minmax(200px,1fr));
+      grid-template-columns:repeat(auto-fill,minmax(160px,1fr));
       gap:16px;
+      margin-bottom:56px;
     }
-    .artist-card{
-      background:rgba(255,255,255,.03);
-      border:1px solid rgba(255,255,255,.06);
+    .track-card{
+      background:var(--s1);border:1px solid var(--border);
       border-radius:var(--radius);overflow:hidden;
-      cursor:pointer;
-      transition:transform .3s cubic-bezier(.175,.885,.32,1.275),border-color .3s,box-shadow .3s;
-      animation:fadeUp .4s ease both;
-      text-decoration:none;color:inherit;
-      display:block;
+      cursor:pointer;transition:transform .3s,border-color .3s,box-shadow .3s;
+      animation:fadeUp .4s ease both;position:relative;
     }
-    .artist-card:hover{
-      transform:translateY(-6px) scale(1.02);
-      border-color:var(--accent);
-      box-shadow:0 12px 40px rgba(255,106,0,.15);
-    }
-    @keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
-    .artist-card-img{
-      width:100%;aspect-ratio:1;object-fit:cover;
-      background:var(--s2);
+    .track-card:hover{transform:translateY(-5px);border-color:var(--accent);box-shadow:0 10px 30px rgba(255,106,0,.15)}
+    .track-card.playing{border-color:var(--accent);box-shadow:0 0 20px rgba(255,106,0,.25)}
+    .track-card-img{
+      width:100%;aspect-ratio:1;background:var(--s2);
       display:flex;align-items:center;justify-content:center;
-      font-family:var(--fh);font-size:4rem;color:var(--muted);
-      position:relative;overflow:hidden;
+      font-size:2.5rem;position:relative;overflow:hidden;
     }
-    .artist-card-img img{width:100%;height:100%;object-fit:cover;display:block}
-    .artist-card-img .play-overlay{
-      position:absolute;inset:0;
-      background:rgba(0,0,0,.4);
+    .track-card-img img{width:100%;height:100%;object-fit:cover;display:block}
+    .track-card-overlay{
+      position:absolute;inset:0;background:rgba(0,0,0,.5);
       display:flex;align-items:center;justify-content:center;
       opacity:0;transition:opacity .25s;
     }
-    .artist-card:hover .play-overlay{opacity:1}
-    .play-overlay svg{width:40px;height:40px;fill:var(--accent)}
-    .artist-card-body{padding:14px 16px}
-    .artist-card-name{font-family:var(--fh);font-size:1.3rem;letter-spacing:2px}
-    .artist-card-meta{font-size:.65rem;color:var(--muted);margin-top:4px;letter-spacing:.06em}
-    .artist-card-tags{display:flex;gap:6px;margin-top:10px;flex-wrap:wrap}
-    .tag{
-      font-size:.58rem;padding:2px 8px;border-radius:4px;
+    .track-card:hover .track-card-overlay{opacity:1}
+    .track-card-overlay svg{width:36px;height:36px;fill:var(--accent)}
+    .track-card.playing .track-card-overlay{opacity:1;background:rgba(255,106,0,.15)}
+    .type-badge{
+      position:absolute;top:8px;right:8px;
+      background:var(--accent);color:#000;
+      font-size:.55rem;padding:2px 7px;border-radius:4px;
+      font-weight:bold;text-transform:uppercase;letter-spacing:.08em;
+    }
+    .track-card-body{padding:10px 12px}
+    .track-card-title{font-family:var(--fh);font-size:1rem;letter-spacing:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .track-card-artist{font-size:.62rem;color:var(--muted);margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+    /* ── ARTIST GRID ── */
+    .artist-grid{
+      display:grid;
+      grid-template-columns:repeat(auto-fill,minmax(260px,1fr));
+      gap:14px;
+    }
+    .artist-card{
+      background:var(--s1);
+      border:1px solid var(--border);
+      border-radius:var(--radius);overflow:hidden;
+      cursor:pointer;text-decoration:none;color:inherit;
+      display:flex;align-items:center;gap:16px;
+      padding:16px;
+      transition:transform .3s cubic-bezier(.175,.885,.32,1.275),border-color .3s,box-shadow .3s;
+      animation:fadeUp .4s ease both;
+    }
+    .artist-card:hover{
+      transform:translateY(-4px);
+      border-color:var(--accent);
+      box-shadow:0 8px 28px rgba(255,106,0,.12);
+    }
+    .artist-avatar{
+      width:64px;height:64px;border-radius:50%;
+      background:var(--s2);flex-shrink:0;
+      border:2px solid var(--accent);
+      display:flex;align-items:center;justify-content:center;
+      font-family:var(--fh);font-size:1.8rem;color:var(--muted);
+      overflow:hidden;
+    }
+    .artist-avatar img{width:100%;height:100%;object-fit:cover}
+    .artist-info{flex:1;min-width:0}
+    .artist-name{font-family:var(--fh);font-size:1.4rem;letter-spacing:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .artist-meta{font-size:.62rem;color:var(--muted);margin-top:3px;letter-spacing:.06em}
+    .artist-tag{
+      display:inline-block;margin-top:6px;
+      font-size:.55rem;padding:2px 8px;border-radius:4px;
       background:rgba(255,106,0,.08);color:var(--accent);
       border:1px solid rgba(255,106,0,.18);text-transform:uppercase;letter-spacing:.08em;
     }
 
-    /* ── EMPTY / LOADING ── */
-    .state-msg{text-align:center;padding:60px 0;color:var(--muted);font-size:.78rem;letter-spacing:.1em}
+    /* ── SKELETON ── */
     .skeleton-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:16px}
     .skeleton-card{border-radius:var(--radius);overflow:hidden;background:var(--s1);border:1px solid var(--border)}
     .skeleton-img{width:100%;aspect-ratio:1;background:var(--s2);animation:shimmer 1.4s infinite}
@@ -123,36 +178,59 @@
     .skeleton-line{height:10px;border-radius:4px;background:var(--s2);animation:shimmer 1.4s infinite}
     .skeleton-line.w60{width:60%}.skeleton-line.w40{width:40%}
     @keyframes shimmer{0%,100%{background:var(--s2)}50%{background:#1e1e1e}}
+    @keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+    .state-msg{text-align:center;padding:60px 0;color:var(--muted);font-size:.78rem;letter-spacing:.1em}
 
-    footer{position:relative;z-index:1;text-align:center;padding:28px;border-top:1px solid var(--border);font-size:.65rem;color:var(--muted);letter-spacing:.1em}
+    footer{position:relative;z-index:1;text-align:center;padding:32px;border-top:1px solid var(--border);font-size:.65rem;color:var(--muted);letter-spacing:.1em}
     footer span{color:var(--accent)}
-    @media(max-width:520px){nav{padding:0 16px}.artist-grid{grid-template-columns:repeat(2,1fr);gap:10px}}
+
+    @media(max-width:600px){
+      nav{padding:0 16px}
+      .wrap{padding:0 16px 60px}
+      .artist-grid{grid-template-columns:1fr}
+      .tracks-grid{grid-template-columns:repeat(2,1fr);gap:10px}
+    }
   </style>
 </head>
 <body>
 
 <nav>
   <a href="index.html" style="text-decoration:none">
-    <img src="logo.png" alt="UNP Records" style="height:38px;display:block" onerror="this.style.display='none'"/>
+    <img src="logo.png" alt="UNP Records" style="height:42px;display:block;filter:drop-shadow(0 0 10px rgba(255,106,0,.2))" onerror="this.style.display='none'"/>
   </a>
   <div class="nav-actions">
-    <a href="dashboard.html" class="btn btn-ghost">Mi Panel</a>
+    <a href="dashboard.html" class="btn btn-ghost">Acceso Artista</a>
     <a href="dashboard.html#register" class="btn btn-solid">Unirse</a>
   </div>
 </nav>
 
 <div class="hero">
-  <img src="logo.png" alt="UNP Records" loading="lazy"
-    style="width:240px;max-width:70%;margin:0 auto 14px;display:block;filter:drop-shadow(0 0 28px rgba(255,106,0,.35))"/>
-  <p>Música de artistas independientes. Sin algoritmos, sin intermediarios.</p>
+  <h1>UNP-TAPES</h1>
+  <p>Tu plataforma de música independiente. Singles y playlists directo desde la fuente.</p>
 </div>
 
 <div class="wrap">
+
+  <!-- BÚSQUEDA -->
   <div class="search-bar">
     <svg viewBox="0 0 24 24"><path d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/></svg>
     <input type="text" id="searchInput" placeholder="Buscar artista, género…" oninput="filterArtists()"/>
   </div>
 
+  <!-- ÚLTIMOS LANZAMIENTOS -->
+  <div id="latest-section" style="margin-bottom:56px;display:none">
+    <h2 class="section-header">
+      ÚLTIMOS LANZAMIENTOS
+      <span>Los tracks más recientes</span>
+    </h2>
+    <div class="tracks-grid" id="latest-tracks"></div>
+  </div>
+
+  <!-- ARTISTAS -->
+  <h2 class="section-header">
+    EXPLORA ARTISTAS
+    <span id="artist-count"></span>
+  </h2>
   <div id="content">
     <div class="skeleton-grid">
       <div class="skeleton-card"><div class="skeleton-img"></div><div class="skeleton-body"><div class="skeleton-line w60"></div><div class="skeleton-line w40"></div></div></div>
@@ -161,14 +239,16 @@
       <div class="skeleton-card"><div class="skeleton-img"></div><div class="skeleton-body"><div class="skeleton-line w60"></div><div class="skeleton-line w40"></div></div></div>
     </div>
   </div>
+
 </div>
 
 <footer><p>UNP Records · Música independiente · <span>Santiago, Chile</span></p></footer>
 
 <script type="module">
-  import { initializeApp }           from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { initializeApp }              from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
   import { getFirestore, collection,
-           getDocs, query, orderBy } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+           getDocs, query, orderBy,
+           limit, collectionGroup }     from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyAQeS0wTC4HhRx78uGTvWnfjcZoZCk_zME",
@@ -182,18 +262,35 @@
   const app = initializeApp(firebaseConfig);
   const db  = getFirestore(app);
   let allArtists = [];
+  let artistMap  = {};
 
-  async function loadArtists(){
+  async function loadAll(){
     try{
-      const snap = await getDocs(collection(db,'artists'));
+      // Cargar artistas
+      const aSnap = await getDocs(collection(db,'artists'));
       const artists = [];
-      for(const d of snap.docs){
+      for(const d of aSnap.docs){
         const artist = {id:d.id,...d.data()};
         const tSnap  = await getDocs(collection(db,`artists/${d.id}/tracks`));
         artist.trackCount = tSnap.size;
-        artists.push(artist);
+        artistMap[d.id] = artist;
+        if(tSnap.size > 0) artists.push(artist);
       }
-      allArtists = artists.filter(a => a.trackCount > 0);
+      allArtists = artists;
+
+      // Cargar últimos tracks via collectionGroup
+      try{
+        const tSnap = await getDocs(
+          query(collectionGroup(db,'tracks'), orderBy('createdAt','desc'), limit(8))
+        );
+        const latestTracks = [];
+        tSnap.forEach(d => latestTracks.push({id:d.id,...d.data(), artistId: d.ref.parent.parent.id}));
+        renderLatest(latestTracks);
+      } catch(e){
+        // collectionGroup puede requerir índice — silenciar si falla
+        console.warn('Latest tracks:', e.message);
+      }
+
       renderArtists(allArtists);
     } catch(e){
       document.getElementById('content').innerHTML =
@@ -201,27 +298,43 @@
     }
   }
 
+  function renderLatest(tracks){
+    if(!tracks.length) return;
+    const section = document.getElementById('latest-section');
+    const grid    = document.getElementById('latest-tracks');
+    section.style.display = 'block';
+    grid.innerHTML = tracks.map(t => `
+      <a class="track-card" href="artist.html?id=${t.artistId}" style="animation-delay:${Math.random()*.2}s">
+        <div class="track-card-img">
+          ${t.coverURL ? `<img src="${t.coverURL}" alt="${t.title}" loading="lazy"/>` : '🎵'}
+          <div class="track-card-overlay"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+          <span class="type-badge">${t.type||'single'}</span>
+        </div>
+        <div class="track-card-body">
+          <div class="track-card-title">${t.title||'Sin título'}</div>
+          <div class="track-card-artist">${artistMap[t.artistId]?.name||'Artista'}</div>
+        </div>
+      </a>`).join('');
+  }
+
   function renderArtists(artists){
     const container = document.getElementById('content');
+    document.getElementById('artist-count').textContent = `${artists.length} artista${artists.length!==1?'s':''}`;
     if(!artists.length){
       container.innerHTML = `<div class="state-msg">Aún no hay artistas registrados.</div>`;
       return;
     }
-    container.innerHTML = `<div class="artist-grid">${artists.map(a => `
-      <a class="artist-card" href="artist.html?id=${a.id}" style="animation-delay:${Math.random()*.3}s">
-        <div class="artist-card-img">
-          ${a.photoURL
-            ? `<img src="${a.photoURL}" alt="${a.name}" loading="lazy"/>`
-            : `<span>${(a.name||'?')[0].toUpperCase()}</span>`}
-          <div class="play-overlay">
-            <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
-          </div>
+    container.innerHTML = `<div class="artist-grid">${artists.map((a,i) => `
+      <a class="artist-card" href="artist.html?id=${a.id}" style="animation-delay:${i*.05}s">
+        <div class="artist-avatar">
+          ${a.photoURL ? `<img src="${a.photoURL}" alt="${a.name}" loading="lazy"/>` : (a.name||'?')[0].toUpperCase()}
         </div>
-        <div class="artist-card-body">
-          <div class="artist-card-name">${a.name||'Artista'}</div>
-          <div class="artist-card-meta">${a.trackCount} track${a.trackCount!==1?'s':''} ${a.city?'· '+a.city:''}</div>
-          ${a.genre?`<div class="artist-card-tags"><span class="tag">${a.genre}</span></div>`:''}
+        <div class="artist-info">
+          <div class="artist-name">${a.name||'Artista'}</div>
+          <div class="artist-meta">${a.trackCount} track${a.trackCount!==1?'s':''} ${a.city?'· '+a.city:''}</div>
+          ${a.genre?`<span class="artist-tag">${a.genre}</span>`:''}
         </div>
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="#444" style="flex-shrink:0"><path d="M9 18l6-6-6-6"/></svg>
       </a>`).join('')}</div>`;
   }
 
@@ -239,7 +352,7 @@
     }, 250);
   };
 
-  loadArtists();
+  loadAll();
 </script>
 </body>
 </html>
