@@ -96,14 +96,23 @@
     .artist-section:nth-child(4){animation-delay:.3s}
     .artist-section:nth-child(5){animation-delay:.4s}
     .artist-header{
-      display:flex;align-items:center;gap:16px;
-      padding:20px 0 16px;border-bottom:1px solid var(--border);margin-bottom:20px;
+      display:flex;align-items:center;gap:20px;
+      padding:28px 20px;
+      background:linear-gradient(to right,rgba(255,255,255,.04),transparent);
+      border-radius:14px;
+      border:1px solid rgba(255,255,255,.05);
+      margin-bottom:28px;
+      transition:border-color .3s;
     }
+    .artist-header:hover{border-color:rgba(255,106,0,.2)}
     .artist-avatar{
-      width:52px;height:52px;border-radius:50%;object-fit:cover;flex-shrink:0;
-      border:2px solid var(--border);background:var(--s2);font-size:1.4rem;
+      width:80px;height:80px;border-radius:50%;object-fit:cover;flex-shrink:0;
+      border:3px solid var(--accent);background:var(--s2);font-size:1.8rem;
       display:flex;align-items:center;justify-content:center;
+      box-shadow:0 0 25px rgba(0,0,0,.5),0 0 20px rgba(255,106,0,.15);
+      transition:box-shadow .3s;
     }
+    .artist-header:hover .artist-avatar{box-shadow:0 0 30px rgba(0,0,0,.6),0 0 28px rgba(255,106,0,.3)}
     .artist-info h2{font-family:var(--fh);font-size:1.5rem;letter-spacing:2px}
     .artist-info p{font-size:.68rem;color:var(--muted);letter-spacing:.08em;margin-top:2px}
     .track-count{
@@ -273,6 +282,43 @@
     .track-body{padding:10px 14px;display:flex;flex-direction:column;justify-content:space-between;min-width:0;position:relative}
     .track-meta{display:flex;justify-content:space-between;align-items:center;gap:8px}
     .track-num{font-size:.65rem;color:var(--muted);flex-shrink:0;margin-right:4px}
+
+    /* ── FP BUTTON HARDWARE PRESS ── */
+    .fp-btn{
+      width:36px;height:36px;border-radius:50%;background:var(--accent);
+      border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;
+      box-shadow:0 4px 15px rgba(0,0,0,.4),inset 0 1px 1px rgba(255,255,255,.3);
+      transition:all .2s cubic-bezier(.4,0,.2,1);flex-shrink:0;
+    }
+    .fp-btn:hover{background:#ff8c00;transform:scale(1.08);box-shadow:0 6px 20px rgba(255,106,0,.4)}
+    .fp-btn:active{transform:scale(.9) translateY(2px);box-shadow:0 2px 5px rgba(0,0,0,.2)}
+    .fp-btn svg{width:14px;height:14px;fill:#000}
+
+    /* ── MODO INMERSIVO ── */
+    body.immersive .wrap,
+    body.immersive nav,
+    body.immersive .hero,
+    body.immersive footer{
+      opacity:.08;
+      transition:opacity 1.2s ease;
+      pointer-events:none;
+    }
+    body.immersive #floating-player{
+      opacity:1!important;
+      pointer-events:all;
+    }
+    body.immersive::after{
+      content:'';position:fixed;inset:0;z-index:150;
+      background:rgba(0,0,0,.6);backdrop-filter:blur(2px);
+      pointer-events:none;
+    }
+    .immersive-hint{
+      position:fixed;bottom:90px;left:50%;transform:translateX(-50%);
+      z-index:300;font-size:.62rem;color:rgba(255,255,255,.4);
+      letter-spacing:.15em;text-transform:uppercase;
+      opacity:0;transition:opacity .5s;pointer-events:none;
+    }
+    body.immersive .immersive-hint{opacity:1}
     .track-title{font-family:var(--fh);font-size:1.1rem;letter-spacing:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:1}
     .track-genre{
       font-size:.6rem;color:var(--accent);background:rgba(255,106,0,.08);
@@ -286,13 +332,31 @@
       width:34px;height:34px;border-radius:50%;background:var(--accent);
       border:none;cursor:pointer;flex-shrink:0;
       display:flex;align-items:center;justify-content:center;
-      transition:background .2s,transform .15s;z-index:2;
+      box-shadow:0 4px 15px rgba(0,0,0,.4),inset 0 1px 1px rgba(255,255,255,.3);
+      transition:all .2s cubic-bezier(.4,0,.2,1);z-index:2;
     }
-    .play-btn:hover{background:#ff8c00;transform:scale(1.2)}
-    .play-btn:active{transform:scale(.95)}
+    .play-btn:hover{background:#ff8c00;transform:scale(1.15);box-shadow:0 6px 20px rgba(255,106,0,.4),inset 0 1px 1px rgba(255,255,255,.3)}
+    .play-btn:active{transform:scale(.9) translateY(2px);box-shadow:0 2px 5px rgba(0,0,0,.2)}
     .play-btn svg{width:13px;height:13px;fill:#000}
     .play-btn.loading{background:var(--s2);border:2px solid var(--accent);animation:pulse .8s infinite}
     @keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(255,106,0,.4)}50%{box-shadow:0 0 0 6px rgba(255,106,0,0)}}
+
+    /* ── BORDER GLOW EN TRACK PLAYING ── */
+    .track-card.playing{
+      border-color:var(--accent);
+      box-shadow:0 0 30px rgba(255,106,0,.2);
+      background:rgba(255,106,0,.04);
+    }
+    .track-card.playing::after{
+      content:'';position:absolute;inset:-1px;
+      background:linear-gradient(45deg,var(--accent),transparent,var(--accent));
+      z-index:-1;border-radius:var(--radius);
+      animation:borderGlow 3s linear infinite;opacity:.4;pointer-events:none;
+    }
+    @keyframes borderGlow{
+      0%{filter:hue-rotate(0deg)}
+      100%{filter:hue-rotate(360deg)}
+    }
 
     .seek-wrap{flex:1;height:100%;display:flex;flex-direction:column;justify-content:center;position:relative;min-width:0}
     .visualizer-wrap{
@@ -302,14 +366,28 @@
     .visualizer-wrap.active{opacity:.6}
     .viz-bar{
       flex:1;
-      background:linear-gradient(to top, var(--accent), rgba(255,200,100,.8));
-      box-shadow:0 0 15px rgba(255,106,0,.6);
+      background:linear-gradient(to top, var(--accent) 0%, #fff 100%);
+      box-shadow:0 0 12px var(--accent);
       height:2px;
       transition:height 0.05s linear;
-      border-radius:2px 2px 0 0;
+      border-radius:4px 4px 0 0;
       position:relative;
     }
     .viz-peak{display:none}
+
+    /* ── TIPOGRAFÍA PREMIUM ── */
+    .track-title{
+      font-family:var(--fh);font-size:1.1rem;
+      letter-spacing:.5px;white-space:nowrap;overflow:hidden;
+      text-overflow:ellipsis;flex:1;color:#fff;font-weight:500;
+    }
+    .track-genre{
+      font-size:10px;color:var(--accent);
+      background:rgba(255,106,0,.08);
+      border:1px solid rgba(255,106,0,.2);border-radius:4px;
+      padding:2px 7px;white-space:nowrap;flex-shrink:0;
+      text-transform:uppercase;letter-spacing:1.5px;font-weight:600;
+    }
     input[type="range"].seek{
       -webkit-appearance:none;width:100%;background:transparent;
       outline:none;cursor:pointer;position:relative;z-index:1;height:34px;
@@ -492,6 +570,8 @@
     <input type="range" class="fp-vol" id="fp-vol" value="100" min="0" max="100" oninput="fpVolume(this)"/>
   </div>
 </div>
+
+<div class="immersive-hint">Modo inmersivo · Mueve el mouse para salir</div>
 
 <script type="module">
   import { initializeApp }           from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
@@ -943,7 +1023,7 @@
   };
 
   // ── FLOATING PLAYER ──
-  // ── COLOR DINÁMICO POR PORTADA (ColorThief) ──
+  // ── COLOR DINÁMICO + MESH GRADIENT ──
   const colorThief = new ColorThief();
   function applyDynamicColor(coverURL){
     if(!coverURL){ resetAccent(); return; }
@@ -953,11 +1033,18 @@
     img.onload = ()=>{
       try{
         const [r,g,b] = colorThief.getColor(img);
-        // Solo aplicar si el color es suficientemente saturado
         const max=Math.max(r,g,b), min=Math.min(r,g,b);
         const sat = max===0 ? 0 : (max-min)/max;
-        if(sat > 0.3 && max > 60){
-          document.documentElement.style.setProperty('--accent',`rgb(${r},${g},${b})`);
+        if(sat > 0.25 && max > 50){
+          const color     = `rgb(${r},${g},${b})`;
+          const glow      = `rgba(${r},${g},${b},0.2)`;
+          document.documentElement.style.setProperty('--accent', color);
+          document.documentElement.style.setProperty('--accent-glow', glow);
+          // Actualizar mesh gradient dinámicamente
+          document.body.style.setProperty('--dyn-r', r);
+          document.body.style.setProperty('--dyn-g', g);
+          document.body.style.setProperty('--dyn-b', b);
+          updateMeshGradient(r,g,b);
         } else {
           resetAccent();
         }
@@ -965,9 +1052,45 @@
     };
     img.onerror = resetAccent;
   }
+
+  function updateMeshGradient(r,g,b){
+    // Reemplazar el pseudo-element no es posible, pero sí podemos cambiar el body background
+    document.body.style.background = `
+      radial-gradient(circle at 20% 30%, rgba(${r},${g},${b},0.15) 0%,transparent 40%),
+      radial-gradient(circle at 80% 70%, rgba(${Math.min(r+80,255)},${b},${Math.min(g+80,255)},0.1) 0%,transparent 40%),
+      #000`;
+  }
+
   function resetAccent(){
     document.documentElement.style.setProperty('--accent','#ff6a00');
+    document.documentElement.style.removeProperty('--accent-glow');
+    document.body.style.background = '';
   }
+
+  // ── MODO INMERSIVO ──
+  let immersiveTimer;
+  let isImmersive = false;
+
+  function startImmersiveTimer(){
+    clearTimeout(immersiveTimer);
+    if(currentRowIndex < 0) return; // solo si hay algo sonando
+    immersiveTimer = setTimeout(()=>{
+      isImmersive = true;
+      document.body.classList.add('immersive');
+    }, 5000);
+  }
+
+  function exitImmersive(){
+    if(isImmersive){
+      isImmersive = false;
+      document.body.classList.remove('immersive');
+    }
+    startImmersiveTimer();
+  }
+
+  document.addEventListener('mousemove', exitImmersive);
+  document.addEventListener('keydown', exitImmersive);
+  document.addEventListener('touchstart', exitImmersive);
 
   function showFP(rowIndex){
     const el = globalRows[rowIndex];
@@ -984,6 +1107,7 @@
     document.getElementById('fp-play-btn').innerHTML = `<svg viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>`;
     document.getElementById('floating-player').classList.add('visible');
     applyDynamicColor(cover);
+    startImmersiveTimer();
   }
 
   function hideFP(){
