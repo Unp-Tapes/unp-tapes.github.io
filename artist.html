@@ -234,6 +234,30 @@
     input[type="range"].fp-vol-slider{-webkit-appearance:none;width:70px;height:3px;background:var(--border);border-radius:2px;outline:none;cursor:pointer;accent-color:var(--accent)}
     input[type="range"].fp-vol-slider::-webkit-slider-thumb{-webkit-appearance:none;width:10px;height:10px;border-radius:50%;background:var(--accent);cursor:pointer}
 
+    /* ── VIDEOS ── */
+    .videos-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px}
+    .video-card{background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;cursor:pointer;transition:transform .3s,border-color .3s,box-shadow .3s;animation:fadeUp .4s ease both}
+    .video-card:hover{transform:translateY(-4px);border-color:var(--accent);box-shadow:0 8px 24px rgba(255,106,0,.15)}
+    .video-thumb{position:relative;aspect-ratio:16/9;overflow:hidden;background:var(--s2)}
+    .video-thumb img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .3s}
+    .video-card:hover .video-thumb img{transform:scale(1.04)}
+    .video-overlay{position:absolute;inset:0;background:rgba(0,0,0,.4);display:flex;align-items:center;justify-content:center;transition:background .2s}
+    .video-card:hover .video-overlay{background:rgba(0,0,0,.2)}
+    .video-play-icon{width:50px;height:50px;border-radius:50%;background:rgba(255,106,0,.9);display:flex;align-items:center;justify-content:center;box-shadow:0 4px 20px rgba(255,106,0,.5);transition:transform .2s}
+    .video-card:hover .video-play-icon{transform:scale(1.1)}
+    .video-play-icon svg{width:18px;height:18px;fill:#000}
+    .video-info{padding:12px 14px}
+    .video-title{font-family:var(--fh);font-size:1rem;letter-spacing:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .video-desc{font-size:.62rem;color:var(--muted);margin-top:3px}
+    /* Video modal */
+    .video-modal{position:fixed;inset:0;z-index:500;background:rgba(0,0,0,.92);backdrop-filter:blur(16px);display:none;align-items:center;justify-content:center;padding:20px}
+    .video-modal.open{display:flex}
+    .video-modal-inner{width:100%;max-width:860px;position:relative}
+    .video-modal-close{position:absolute;top:-40px;right:0;background:transparent;border:none;color:#fff;font-size:1.5rem;cursor:pointer;padding:4px 12px;transition:color .2s}
+    .video-modal-close:hover{color:var(--accent)}
+    .video-iframe-wrap{position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:var(--radius)}
+    .video-iframe-wrap iframe{position:absolute;inset:0;width:100%;height:100%;border:none}
+
     /* ── IMMERSIVE ── */
     body.immersive .content,body.immersive .tabs,body.immersive .artist-header{opacity:.05;transition:opacity 1.2s;pointer-events:none}
     body.immersive #floating-player{opacity:1!important;pointer-events:all}
@@ -281,9 +305,9 @@
 
 <!-- TABS -->
 <div class="tabs">
-  <div class="tab active" onclick="switchTab('all',this)">TODO</div>
-  <div class="tab" onclick="switchTab('singles',this)">SINGLES</div>
+  <div class="tab active" onclick="switchTab('singles',this)">SINGLES</div>
   <div class="tab" onclick="switchTab('albums',this)">ÁLBUMES</div>
+  <div class="tab" onclick="switchTab('videos',this)">VIDEOS</div>
 </div>
 
 <!-- CONTENT -->
@@ -319,6 +343,16 @@
 
 <div class="immersive-hint">Modo inmersivo · Mueve el mouse para salir</div>
 
+<!-- VIDEO MODAL -->
+<div class="video-modal" id="video-modal" onclick="if(event.target===this)closeVideo()">
+  <div class="video-modal-inner">
+    <button class="video-modal-close" onclick="closeVideo()">✕</button>
+    <div class="video-iframe-wrap">
+      <iframe id="video-iframe" src="" allowfullscreen allow="autoplay; encrypted-media"></iframe>
+    </div>
+  </div>
+</div>
+
 <script type="module">
   import { initializeApp }         from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
   import { getFirestore, doc,
@@ -344,7 +378,7 @@
 
   function fmt(s){ if(!s||isNaN(s))return'0:00'; return`${Math.floor(s/60)}:${String(Math.floor(s%60)).padStart(2,'0')}`; }
 
-  let artistData = null, allTracks = [], currentTab = 'all';
+  let artistData = null, allTracks = [], allVideos = [], currentTab = 'singles';
   let globalRows = [], currentRowIndex = -1;
   let audioCtx = null, gainNode = null;
   const vizMap = new Map();
@@ -386,6 +420,11 @@
       artistData = {id,...aSnap.data()};
       const tSnap = await getDocs(query(collection(db,`artists/${id}/tracks`), orderBy('createdAt','asc')));
       tSnap.forEach(d => allTracks.push({id:d.id,...d.data()}));
+      // Cargar videos
+      try{
+        const vSnap = await getDocs(query(collection(db,`artists/${id}/videos`), orderBy('createdAt','desc')));
+        vSnap.forEach(d => allVideos.push({id:d.id,...d.data()}));
+      }catch(e){}
       renderHeader();
       renderContent();
     } catch(e){
@@ -400,7 +439,8 @@
     const albums = [...new Set(allTracks.filter(t=>t.type==='album').map(t=>t.albumName))];
     document.getElementById('header-stats').innerHTML = `
       <div class="header-stat"><span>${allTracks.length}</span><label>Tracks</label></div>
-      <div class="header-stat"><span>${albums.length||'—'}</span><label>Álbumes</label></div>`;
+      <div class="header-stat"><span>${albums.length||'—'}</span><label>Álbumes</label></div>
+      ${allVideos.length?`<div class="header-stat"><span>${allVideos.length}</span><label>Videos</label></div>`:''}`;
     if(artistData.photoURL){
       document.getElementById('header-bg').style.backgroundImage=`url('${artistData.photoURL}')`;
       const av=document.getElementById('header-avatar');
@@ -413,6 +453,11 @@
 
   // ── TABS ──
   window.switchTab = function(tab, el){
+    // Detener todo antes de cambiar
+    globalRows.forEach(r=>{ const a=r._audio; if(a){ a.pause(); a.currentTime=0; } });
+    globalRows = [];
+    currentRowIndex = -1;
+    hideFP();
     currentTab = tab;
     document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
     el.classList.add('active');
@@ -428,6 +473,24 @@
   function renderContent(){
     globalRows = [];
     const container = document.getElementById('content');
+
+    if(currentTab === 'videos'){
+      if(!allVideos.length){ container.innerHTML='<div class="state-msg">Sin videos publicados.</div>'; return; }
+      container.innerHTML = `<div class="videos-grid">${allVideos.map((v,i)=>`
+        <div class="video-card" onclick="openVideo('${v.youtubeId}')" style="animation-delay:${i*.05}s">
+          <div class="video-thumb">
+            <img src="https://img.youtube.com/vi/${v.youtubeId}/mqdefault.jpg" alt="${v.title}" loading="lazy"/>
+            <div class="video-overlay">
+              <div class="video-play-icon"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+            </div>
+          </div>
+          <div class="video-info">
+            <div class="video-title">${v.title}</div>
+            ${v.desc?`<div class="video-desc">${v.desc}</div>`:''}
+          </div>
+        </div>`).join('')}</div>`;
+      return;
+    }
     const tracks = getFilteredTracks();
 
     if(!tracks.length){ container.innerHTML='<div class="state-msg">Sin contenido en esta sección.</div>'; return; }
@@ -677,6 +740,17 @@
   document.addEventListener('mousemove',exitImmersive);
   document.addEventListener('keydown',exitImmersive);
   document.addEventListener('touchstart',exitImmersive);
+
+  window.openVideo = function(id){
+    document.getElementById('video-iframe').src=`https://www.youtube.com/embed/${id}?autoplay=1`;
+    document.getElementById('video-modal').classList.add('open');
+    document.body.style.overflow='hidden';
+  };
+  window.closeVideo = function(){
+    document.getElementById('video-iframe').src='';
+    document.getElementById('video-modal').classList.remove('open');
+    document.body.style.overflow='auto';
+  };
 
   window.shareTrack = function(trackId, title, btn){
     const url = `${location.origin}${location.pathname}?id=${new URLSearchParams(location.search).get('id')}&track=${trackId}`;
