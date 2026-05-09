@@ -24,11 +24,57 @@
     body::before{
       content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
       background:
-        radial-gradient(circle at 20% 30%,rgba(255,106,0,.12) 0%,transparent 40%),
-        radial-gradient(circle at 80% 70%,rgba(123,79,255,.08) 0%,transparent 40%);
+        radial-gradient(circle at 20% 30%,rgba(255,106,0,.05) 0%,transparent 40%),
+        radial-gradient(circle at 80% 70%,rgba(123,79,255,.04) 0%,transparent 40%);
       filter:blur(80px);
       animation:meshMove 20s ease-in-out infinite alternate;
     }
+    .btn-ghost{border-color:var(--border);color:var(--muted);background:transparent}
+    .btn-ghost:hover{border-color:rgba(255,255,255,.3);color:#fff}
+    .btn-solid{background:var(--accent);color:#000;font-weight:500}
+    .btn-solid:hover{background:#ff8c00}
+    .hero h1{
+      font-family:var(--fh);font-size:clamp(4rem,12vw,8rem);
+      color:#fff;margin:0;line-height:.9;
+    }
+    .section-header{
+      font-family:var(--fh);font-size:2rem;letter-spacing:3px;
+      margin-bottom:24px;
+      border-left:3px solid var(--accent);
+      padding-left:16px;
+      display:flex;align-items:center;justify-content:space-between;
+    }
+    .track-card:hover{transform:translateY(-5px);border-color:rgba(255,255,255,.15);box-shadow:0 10px 30px rgba(0,0,0,.4)}
+    .track-card.playing{border-color:var(--accent);box-shadow:0 0 16px rgba(255,106,0,.15)}
+    .track-card-overlay svg{width:36px;height:36px;fill:#fff}
+    .track-card.playing .track-card-overlay{opacity:1;background:rgba(0,0,0,.3)}
+    .type-badge{
+      position:absolute;top:8px;right:8px;
+      background:rgba(0,0,0,.7);color:rgba(255,255,255,.7);
+      border:1px solid rgba(255,255,255,.15);
+      font-size:.55rem;padding:2px 7px;border-radius:4px;
+      font-weight:bold;text-transform:uppercase;letter-spacing:.08em;
+    }
+    .artist-card:hover{
+      transform:translateY(-4px);
+      border-color:rgba(255,255,255,.12);
+      box-shadow:0 8px 28px rgba(0,0,0,.4);
+    }
+    .artist-avatar{
+      width:64px;height:64px;border-radius:50%;
+      background:var(--s2);flex-shrink:0;
+      border:2px solid rgba(255,255,255,.1);
+      display:flex;align-items:center;justify-content:center;
+      font-family:var(--fh);font-size:1.8rem;color:var(--muted);
+      overflow:hidden;
+    }
+    .artist-tag{
+      display:inline-block;margin-top:6px;
+      font-size:.55rem;padding:2px 8px;border-radius:4px;
+      background:rgba(255,255,255,.05);color:rgba(255,255,255,.5);
+      border:1px solid rgba(255,255,255,.08);text-transform:uppercase;letter-spacing:.08em;
+    }
+    footer span{color:rgba(255,255,255,.4)}
     @keyframes meshMove{from{transform:scale(1)}to{transform:scale(1.2) translate(5%,5%)}}
 
     /* ── NAV ── */
@@ -46,7 +92,7 @@
       transition:all .25s;border:1px solid transparent;
     }
     .btn-ghost{border-color:var(--border);color:var(--muted);background:transparent}
-    .btn-ghost:hover{border-color:var(--accent);color:var(--accent)}
+    .btn-ghost:hover{border-color:rgba(255,255,255,.3);color:#fff}
     .btn-solid{background:var(--accent);color:#000;font-weight:500}
     .btn-solid:hover{background:#ff8c00}
 
@@ -59,8 +105,7 @@
     }
     .hero h1{
       font-family:var(--fh);font-size:clamp(4rem,12vw,8rem);
-      color:var(--accent);margin:0;line-height:.9;
-      text-shadow:0 0 40px rgba(255,106,0,.3);
+      color:#fff;margin:0;line-height:.9;
     }
     .hero p{color:var(--muted);max-width:500px;margin:20px auto 0;font-size:.85rem;letter-spacing:.06em;line-height:1.6}
 
@@ -71,7 +116,7 @@
     .section-header{
       font-family:var(--fh);font-size:2rem;letter-spacing:3px;
       margin-bottom:24px;
-      border-left:4px solid var(--accent);
+      border-left:3px solid var(--accent);
       padding-left:16px;
       display:flex;align-items:center;justify-content:space-between;
     }
@@ -104,8 +149,8 @@
       cursor:pointer;transition:transform .3s,border-color .3s,box-shadow .3s;
       animation:fadeUp .4s ease both;position:relative;
     }
-    .track-card:hover{transform:translateY(-5px);border-color:var(--accent);box-shadow:0 10px 30px rgba(255,106,0,.15)}
-    .track-card.playing{border-color:var(--accent);box-shadow:0 0 20px rgba(255,106,0,.25)}
+    .track-card:hover{transform:translateY(-5px);border-color:rgba(255,255,255,.15);box-shadow:0 10px 30px rgba(0,0,0,.4)}
+    .track-card.playing{border-color:var(--accent);box-shadow:0 0 16px rgba(255,106,0,.15)}
     .track-card-img{
       width:100%;aspect-ratio:1;background:var(--s2);
       display:flex;align-items:center;justify-content:center;
@@ -118,11 +163,12 @@
       opacity:0;transition:opacity .25s;
     }
     .track-card:hover .track-card-overlay{opacity:1}
-    .track-card-overlay svg{width:36px;height:36px;fill:var(--accent)}
-    .track-card.playing .track-card-overlay{opacity:1;background:rgba(255,106,0,.15)}
+    .track-card-overlay svg{width:36px;height:36px;fill:#fff}
+    .track-card.playing .track-card-overlay{opacity:1;background:rgba(0,0,0,.3)}
     .type-badge{
       position:absolute;top:8px;right:8px;
-      background:var(--accent);color:#000;
+      background:rgba(0,0,0,.7);color:rgba(255,255,255,.7);
+      border:1px solid rgba(255,255,255,.15);
       font-size:.55rem;padding:2px 7px;border-radius:4px;
       font-weight:bold;text-transform:uppercase;letter-spacing:.08em;
     }
@@ -148,13 +194,13 @@
     }
     .artist-card:hover{
       transform:translateY(-4px);
-      border-color:var(--accent);
-      box-shadow:0 8px 28px rgba(255,106,0,.12);
+      border-color:rgba(255,255,255,.12);
+      box-shadow:0 8px 28px rgba(0,0,0,.4);
     }
     .artist-avatar{
       width:64px;height:64px;border-radius:50%;
       background:var(--s2);flex-shrink:0;
-      border:2px solid var(--accent);
+      border:2px solid rgba(255,255,255,.1);
       display:flex;align-items:center;justify-content:center;
       font-family:var(--fh);font-size:1.8rem;color:var(--muted);
       overflow:hidden;
@@ -166,8 +212,8 @@
     .artist-tag{
       display:inline-block;margin-top:6px;
       font-size:.55rem;padding:2px 8px;border-radius:4px;
-      background:rgba(255,106,0,.08);color:var(--accent);
-      border:1px solid rgba(255,106,0,.18);text-transform:uppercase;letter-spacing:.08em;
+      background:rgba(255,255,255,.05);color:rgba(255,255,255,.5);
+      border:1px solid rgba(255,255,255,.08);text-transform:uppercase;letter-spacing:.08em;
     }
 
     /* ── SKELETON ── */
@@ -182,7 +228,7 @@
     .state-msg{text-align:center;padding:60px 0;color:var(--muted);font-size:.78rem;letter-spacing:.1em}
 
     footer{position:relative;z-index:1;text-align:center;padding:32px;border-top:1px solid var(--border);font-size:.65rem;color:var(--muted);letter-spacing:.1em}
-    footer span{color:var(--accent)}
+    footer span{color:rgba(255,255,255,.4)}
 
     @media(max-width:600px){
       nav{padding:0 16px}
