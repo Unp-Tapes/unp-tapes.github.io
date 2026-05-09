@@ -1,143 +1,1183 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Panel Artista — Unp-Tapes</title>
-    <link href="https://fonts.googleapis.com/css2?family=DM+Mono&family=Bebas+Neue&display=swap" rel="stylesheet">
-    <style>
-        :root { --bg: #000; --s1: #0d0d0d; --accent: #ff6a00; --text: #eee; --fb: 'DM Mono'; --fh: 'Bebas Neue'; }
-        body { background: var(--bg); color: var(--text); font-family: var(--fb); margin: 0; }
-        nav { padding: 20px 40px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #222; }
-        .logo img { height: 40px; }
-        .container { padding: 40px; max-width: 1200px; margin: 0 auto; }
-        .header-actions { display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px; }
-        .btn { padding: 12px 24px; border-radius: 8px; cursor: pointer; border: none; font-weight: bold; font-family: var(--fb); text-transform: uppercase; }
-        .btn-accent { background: var(--accent); color: black; }
-        .btn-outline { background: transparent; border: 1px solid #333; color: white; margin-left: 10px; }
-        .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.9); display: none; align-items: center; justify-content: center; z-index: 1000; }
-        .modal-content { background: var(--s1); padding: 40px; border-radius: 20px; width: 100%; max-width: 500px; border: 1px solid #222; }
-        input, select { width: 100%; padding: 12px; background: #000; border: 1px solid #333; color: white; margin-bottom: 20px; border-radius: 8px; }
-        label { display: block; margin-bottom: 8px; font-size: 0.8rem; color: #888; }
-        .track-list { display: grid; gap: 15px; }
-        .track-item { background: var(--s1); padding: 15px; border-radius: 12px; display: flex; align-items: center; justify-content: space-between; border: 1px solid #222; }
-    </style>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Panel de Artista — SNDWV</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet"/>
+  <style>
+    :root{
+      --bg:#000000;--s1:#0d0d0d;--s2:#161616;--border:#222222;
+      --accent:#ff6a00;--accent2:#ff4757;--purple:#7b4fff;
+      --text:#eeeeff;--muted:#5a5a5a;--radius:10px;
+      --fh:'Bebas Neue',sans-serif;--fb:'DM Mono',monospace;
+    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    body{background:var(--bg);color:var(--text);font-family:var(--fb);min-height:100vh}
+    body::before{
+      content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
+      background:
+        radial-gradient(ellipse 60% 50% at 10% 10%,rgba(123,79,255,.12) 0%,transparent 60%),
+        radial-gradient(ellipse 50% 40% at 90% 85%,rgba(232,255,71,.07) 0%,transparent 55%);
+    }
+
+    /* ── NAV ── */
+    nav{
+      position:sticky;top:0;z-index:100;
+      background:rgba(8,8,16,.9);backdrop-filter:blur(16px);
+      border-bottom:1px solid var(--border);
+      display:flex;align-items:center;justify-content:space-between;
+      padding:0 32px;height:60px;
+    }
+    .nav-logo{font-family:var(--fh);font-size:1.6rem;letter-spacing:4px;color:var(--accent);text-decoration:none}
+    .nav-logo em{color:var(--text);font-style:normal}
+    #nav-user{display:flex;align-items:center;gap:12px;font-size:.72rem;color:var(--muted)}
+    .btn{
+      font-family:var(--fb);font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;
+      padding:7px 16px;border-radius:6px;cursor:pointer;text-decoration:none;
+      transition:all .2s;border:1px solid transparent;
+    }
+    .btn-ghost{border-color:var(--border);color:var(--muted);background:transparent}
+    .btn-ghost:hover{border-color:var(--accent);color:var(--accent)}
+    .btn-solid{background:var(--accent);color:#080810;border-color:var(--accent)}
+    .btn-solid:hover{background:#fff;border-color:#fff}
+    .btn-danger{border-color:var(--accent2);color:var(--accent2);background:transparent}
+    .btn-danger:hover{background:var(--accent2);color:#fff}
+    .btn-purple{background:var(--purple);color:#fff;border-color:var(--purple)}
+    .btn-purple:hover{background:#9b6fff}
+
+    /* ── LAYOUT CONTAINERS ── */
+    .page{position:relative;z-index:1;max-width:700px;margin:0 auto;padding:48px 24px 100px}
+
+    /* ── AUTH FORMS ── */
+    .auth-wrap{
+      max-width:420px;margin:0 auto;
+      background:var(--s1);border:1px solid var(--border);
+      border-radius:16px;padding:40px 36px;
+    }
+    .auth-title{font-family:var(--fh);font-size:2.2rem;letter-spacing:3px;margin-bottom:6px}
+    .auth-title span{color:var(--accent)}
+    .auth-sub{font-size:.72rem;color:var(--muted);margin-bottom:28px;letter-spacing:.06em}
+    .auth-tabs{display:flex;gap:0;margin-bottom:28px;border-radius:8px;overflow:hidden;border:1px solid var(--border)}
+    .tab-btn{
+      flex:1;padding:9px;font-family:var(--fb);font-size:.7rem;letter-spacing:.1em;
+      text-transform:uppercase;background:transparent;border:none;
+      color:var(--muted);cursor:pointer;transition:all .2s;
+    }
+    .tab-btn.active{background:var(--accent);color:#080810}
+
+    /* ── FORM FIELDS ── */
+    .field{margin-bottom:16px}
+    .field label{display:block;font-size:.65rem;color:var(--muted);letter-spacing:.12em;text-transform:uppercase;margin-bottom:6px}
+    .field input,.field select,.field textarea{
+      width:100%;background:var(--s2);border:1px solid var(--border);
+      border-radius:6px;color:var(--text);font-family:var(--fb);font-size:.8rem;
+      padding:10px 14px;outline:none;transition:border-color .2s;
+      text-transform:uppercase;letter-spacing:.08em;
+    }
+    .field input:focus,.field select:focus,.field textarea:focus{border-color:var(--purple)}
+    .field input::placeholder,.field textarea::placeholder{color:var(--muted)}
+    .field select{appearance:none;-webkit-appearance:none;cursor:pointer;
+      background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='%235a5a7a'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
+      background-repeat:no-repeat;background-position:right 12px center;padding-right:32px;
+    }
+    .field select option{background:var(--s2);text-transform:uppercase}
+    .field textarea{resize:vertical;min-height:70px}
+    .submit-btn{
+      width:100%;padding:12px;margin-top:8px;font-size:.78rem;letter-spacing:.15em;
+      text-transform:uppercase;background:var(--accent);color:#080810;
+      border:none;border-radius:8px;cursor:pointer;font-family:var(--fb);
+      font-weight:500;transition:all .2s;
+    }
+    .submit-btn:hover{background:#fff}
+    .submit-btn:disabled{opacity:.4;cursor:not-allowed}
+    .error-msg{
+      font-size:.68rem;color:var(--accent2);background:rgba(255,71,87,.08);
+      border:1px solid rgba(255,71,87,.2);border-radius:6px;
+      padding:8px 12px;margin-bottom:16px;display:none;
+    }
+    .success-msg{
+      font-size:.68rem;color:var(--accent);background:rgba(232,255,71,.07);
+      border:1px solid rgba(232,255,71,.2);border-radius:6px;
+      padding:8px 12px;margin-bottom:16px;display:none;
+    }
+
+    /* ── DASHBOARD ── */
+    #dashboard{display:none}
+    .dash-header{
+      display:flex;align-items:center;gap:20px;
+      padding:28px 0 24px;border-bottom:1px solid var(--border);margin-bottom:32px;
+    }
+    .dash-avatar{
+      width:72px;height:72px;border-radius:50%;
+      border:2px solid var(--accent);background:var(--s2);
+      object-fit:cover;flex-shrink:0;
+      display:flex;align-items:center;justify-content:center;
+      font-size:1.8rem;overflow:hidden;
+    }
+    .dash-avatar img{width:100%;height:100%;object-fit:cover}
+    .dash-info h2{font-family:var(--fh);font-size:1.8rem;letter-spacing:2px}
+    .dash-info p{font-size:.68rem;color:var(--muted);margin-top:4px}
+    .dash-actions{margin-left:auto;display:flex;gap:8px}
+
+    /* ── SECTION HEADINGS ── */
+    .section-head{
+      display:flex;align-items:center;justify-content:space-between;
+      margin-bottom:20px;
+    }
+    .section-head h3{font-family:var(--fh);font-size:1.1rem;letter-spacing:3px;color:var(--muted)}
+
+    /* ── UPLOAD PANEL ── */
+    .upload-panel{
+      background:var(--s1);border:1px solid var(--border);
+      border-radius:var(--radius);padding:24px;margin-bottom:32px;
+      display:none;
+    }
+    .upload-panel.open{display:block}
+    .upload-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    @media(max-width:520px){.upload-grid{grid-template-columns:1fr}}
+
+    /* File drop zones */
+    .file-drop{
+      border:2px dashed var(--border);border-radius:8px;
+      padding:20px;text-align:center;cursor:pointer;
+      transition:border-color .2s,background .2s;position:relative;
+    }
+    .file-drop:hover,.file-drop.dragover{border-color:var(--purple);background:rgba(123,79,255,.05)}
+    .file-drop input[type="file"]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+    .file-drop-icon{font-size:1.8rem;margin-bottom:6px}
+    .file-drop-label{font-size:.65rem;color:var(--muted);letter-spacing:.08em;text-transform:uppercase}
+    .file-drop-name{font-size:.72rem;color:var(--accent);margin-top:4px;word-break:break-all}
+
+    /* Upload progress */
+    .progress-wrap{margin-top:16px;display:none}
+    .progress-bar-bg{background:var(--s2);border-radius:4px;height:4px;overflow:hidden}
+    .progress-bar{background:var(--accent);height:100%;width:0;transition:width .3s;border-radius:4px}
+    .progress-label{font-size:.65rem;color:var(--muted);margin-top:4px;letter-spacing:.06em}
+
+    /* ── STATS ROW ── */
+    .stats-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-bottom:28px}
+    .stat-card{background:var(--s1);border:1px solid var(--border);padding:16px;border-radius:var(--radius);text-align:center;transition:border-color .2s}
+    .stat-card:hover{border-color:var(--accent)}
+    .stat-card span{display:block;font-family:var(--fh);font-size:1.6rem;color:var(--accent);letter-spacing:2px}
+    .stat-card label{font-size:.6rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px}
+
+    /* ── MODALES ── */
+    .modal{
+      position:fixed;inset:0;z-index:1000;
+      display:none;align-items:center;justify-content:center;
+      padding:20px;
+      background:rgba(0,0,0,.85);
+      backdrop-filter:blur(10px);
+    }
+    .modal.open{display:flex}
+    .modal-content{
+      background:var(--s1);border:1px solid var(--border);
+      width:100%;max-width:560px;max-height:90vh;overflow-y:auto;
+      border-radius:16px;padding:28px 32px;position:relative;
+      box-shadow:0 20px 50px rgba(0,0,0,.5);
+    }
+    .modal-content::-webkit-scrollbar{width:4px}
+    .modal-content::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+
+    /* ── TRACK LIST ── */
+    .my-tracks{display:flex;flex-direction:column;gap:8px}
+    .my-track-card{
+      background:var(--s1);border:1px solid var(--border);border-radius:var(--radius);
+      display:grid;grid-template-columns:auto 1fr auto;grid-template-rows:auto auto;
+      gap:6px 12px;align-items:center;padding:10px 12px;
+      transition:border-color .2s;animation:fadeUp .3s ease both;
+    }
+    @keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+    .my-track-card:hover{border-color:var(--accent)}
+    .my-cover{width:48px;height:48px;border-radius:6px;object-fit:cover;background:var(--s2);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:1.2rem;grid-row:1}
+    .my-cover img{width:100%;height:100%;border-radius:6px;object-fit:cover}
+    .my-info{flex:1;min-width:0;grid-column:2;grid-row:1}
+    .my-title{font-family:var(--fh);font-size:.95rem;letter-spacing:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .my-meta{font-size:.6rem;color:var(--muted);margin-top:1px}
+    .my-actions{display:flex;gap:6px;flex-shrink:0;grid-column:3;grid-row:1}
+    .my-player{grid-column:1/-1;border-top:1px solid rgba(255,255,255,.05);padding-top:8px;display:flex;align-items:center;gap:8px}
+    .mini-play{width:26px;height:26px;border-radius:50%;background:var(--accent);border:none;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:background .2s}
+    .mini-play:hover{background:#ff8c00}
+    .mini-play svg{width:10px;height:10px;fill:#000}
+    .mini-seek{flex:1;-webkit-appearance:none;appearance:none;height:2px;background:var(--border);border-radius:2px;outline:none;cursor:pointer;accent-color:var(--accent)}
+    .mini-seek::-webkit-slider-thumb{-webkit-appearance:none;width:9px;height:9px;border-radius:50%;background:var(--accent);cursor:pointer}
+    .mini-time{font-size:.58rem;color:var(--muted);white-space:nowrap}
+    .icon-btn{width:28px;height:28px;border-radius:6px;border:1px solid var(--border);background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;color:var(--muted)}
+    .icon-btn:hover{border-color:var(--accent2);color:var(--accent2)}
+
+    /* ── STATES ── */
+    .state-msg{text-align:center;padding:40px 0;color:var(--muted);font-size:.78rem;letter-spacing:.1em}
+    .spinner{width:28px;height:28px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite;margin:0 auto 12px}
+    @keyframes spin{to{transform:rotate(360deg)}}
+  </style>
 </head>
 <body>
-    <nav>
-        <a href="index.html" class="logo"><img src="logo.png" alt="Unp-Tapes"></a>
-        <button class="btn btn-outline" id="logout-btn" style="display:none;">CERRAR SESIÓN</button>
-    </nav>
-    <div class="container">
-        <div id="login-form">
-            <h1 style="font-family: var(--fh); font-size: 3rem;">ENTRAR AL PANEL</h1>
-            <input type="email" id="email" placeholder="Email">
-            <input type="password" id="pass" placeholder="Contraseña">
-            <button class="btn btn-accent" id="login-btn">ENTRAR</button>
-        </div>
-        <div id="panel-content" style="display:none;">
-            <div class="header-actions">
-                <h1 style="font-family: var(--fh); font-size: 3rem; margin:0;">MI CONTENIDO</h1>
-                <div>
-                    <button class="btn btn-outline" onclick="openM('profile-modal')">PERFIL</button>
-                    <button class="btn btn-accent" onclick="openM('upload-modal')">+ SUBIR</button>
-                </div>
-            </div>
-            <div class="track-list" id="my-tracks"></div>
-        </div>
-    </div>
-    <div id="upload-modal" class="modal">
-        <div class="modal-content">
-            <h2 style="font-family: var(--fh);">SUBIR NUEVO</h2>
-            <input type="text" id="t-title" placeholder="Título">
-            <label>Tipo:</label>
-            <select id="t-type"><option value="single">Single</option><option value="playlist">Playlist</option></select>
-            <label>Audio (MP3):</label><input type="file" id="t-audio" accept="audio/*">
-            <label>Portada:</label><input type="file" id="t-cover" accept="image/*">
-            <button class="btn btn-accent" id="up-btn">PUBLICAR</button>
-            <button class="btn btn-outline" onclick="closeM('upload-modal')">CANCELAR</button>
-        </div>
-    </div>
-    <div id="profile-modal" class="modal">
-        <div class="modal-content">
-            <h2 style="font-family: var(--fh);">PERFIL</h2>
-            <input type="text" id="p-name" placeholder="Nombre Artístico">
-            <input type="text" id="p-city" placeholder="Ciudad">
-            <button class="btn btn-accent" id="save-p-btn">GUARDAR</button>
-            <button class="btn btn-outline" onclick="closeM('profile-modal')">CERRAR</button>
-        </div>
-    </div>
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-        import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-        import { getFirestore, doc, setDoc, getDoc, collection, query, where, getDocs, serverTimestamp, deleteDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-        import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
 
-        const firebaseConfig = {
-            apiKey: "AIzaSyAQeS0wTC4HhRx78uGTvWnfjcZoZCk_zME",
-            authDomain: "unp-tapes-e5942.firebaseapp.com",
-            projectId: "unp-tapes-e5942",
-            storageBucket: "unp-tapes-e5942.firebasestorage.app",
-            messagingSenderId: "850772544349",
-            appId: "1:850772544349:web:c70a87db6e32a24d1876b4"
+<nav>
+  <a href="index.html" class="nav-logo">SND<em>WV</em></a>
+  <div id="nav-user">
+    <a href="https://unp-tapes.github.io" target="_blank" class="btn btn-ghost" id="public-btn" style="display:none">🌐 Página pública</a>
+    <span id="nav-email"></span>
+    <button class="btn btn-ghost" id="logout-btn" style="display:none" onclick="logOut()">Salir</button>
+  </div>
+</nav>
+
+<!-- ── AUTH SECTION ── -->
+<div class="page" id="auth-section">
+  <div class="auth-wrap">
+    <div class="auth-title">PANEL <span>ARTISTA</span></div>
+    <p class="auth-sub">Gestiona tu perfil y tus canciones</p>
+
+    <div class="auth-tabs">
+      <button class="tab-btn active" onclick="switchTab('login')">Entrar</button>
+      <button class="tab-btn" onclick="switchTab('register')">Registro</button>
+    </div>
+
+    <div id="auth-error" class="error-msg"></div>
+    <div id="auth-success" class="success-msg"></div>
+
+    <!-- LOGIN -->
+    <div id="tab-login">
+      <div class="field">
+        <label>Email</label>
+        <input type="email" id="login-email" placeholder="tu@email.com"/>
+      </div>
+      <div class="field">
+        <label>Contraseña</label>
+        <input type="password" id="login-pass" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()"/>
+      </div>
+      <button class="submit-btn" onclick="doLogin()">Entrar al panel</button>
+    </div>
+
+    <!-- REGISTER -->
+    <div id="tab-register" style="display:none">
+      <div class="upload-grid">
+        <div class="field">
+          <label>Nombre artístico</label>
+          <input type="text" id="reg-name" placeholder="Tu nombre / alias"/>
+        </div>
+        <div class="field">
+          <label>Género musical</label>
+          <select id="reg-genre">
+            <option value="" disabled selected>— Seleccionar —</option>
+            <option>Hip-Hop</option>
+            <option>Trap</option>
+            <option>Drill</option>
+            <option>R&B</option>
+            <option>Reggaeton</option>
+            <option>Electrónica</option>
+            <option>House</option>
+            <option>Techno</option>
+            <option>Ambient</option>
+            <option>Lo-Fi</option>
+            <option>Jazz</option>
+            <option>Soul</option>
+            <option>Rock</option>
+            <option>Metal</option>
+            <option>Pop</option>
+            <option>Cumbia</option>
+            <option>Salsa</option>
+            <option>Funk</option>
+            <option>Experimental</option>
+            <option>Instrumental</option>
+            <option>Otro</option>
+          </select>
+        </div>
+      </div>
+      <div class="field">
+        <label>Ciudad / País</label>
+        <input type="text" id="reg-city" placeholder="Santiago, Chile"/>
+      </div>
+      <div class="field">
+        <label>Email</label>
+        <input type="email" id="reg-email" placeholder="tu@email.com"/>
+      </div>
+      <div class="field">
+        <label>Contraseña</label>
+        <input type="password" id="reg-pass" placeholder="Mínimo 6 caracteres"/>
+      </div>
+      <button class="submit-btn" onclick="doRegister()">Crear cuenta</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── DASHBOARD ── -->
+<div class="page" id="dashboard" style="display:none">
+
+  <!-- STATS -->
+  <div class="stats-row">
+    <div class="stat-card"><span id="stat-tracks">0</span><label>Canciones</label></div>
+    <div class="stat-card"><span id="stat-albums">0</span><label>Álbumes</label></div>
+    <div class="stat-card"><span>●</span><label>Online</label></div>
+  </div>
+
+  <!-- HEADER DEL ARTISTA -->
+  <div class="dash-header">
+    <div class="dash-avatar" id="dash-avatar-wrap"><span id="dash-avatar-initial">?</span></div>
+    <div class="dash-info">
+      <h2 id="dash-name">—</h2>
+      <p id="dash-genre-city"></p>
+    </div>
+    <div class="dash-actions">
+      <button class="btn btn-ghost" onclick="openModal('profile-modal')">✏ Perfil</button>
+      <button class="btn btn-purple" onclick="openModal('upload-modal')">+ Subir Track</button>
+    </div>
+  </div>
+
+  <!-- MIS TRACKS -->
+  <div class="section-head">
+    <h3>· Mis Canciones ·</h3>
+    <span id="tracks-count" style="font-size:.65rem;color:var(--muted)"></span>
+  </div>
+  <div id="my-tracks-list">
+    <div class="state-msg"><div class="spinner"></div>Cargando…</div>
+  </div>
+
+</div><!-- /dashboard -->
+
+<!-- ── MODAL PERFIL ── -->
+<div class="modal" id="profile-modal" onclick="closeModalOutside(event)">
+  <div class="modal-content">
+    <div class="section-head">
+      <h3>· Editar Perfil ·</h3>
+      <button class="btn btn-ghost" onclick="closeModal('profile-modal')">✕</button>
+    </div>
+    <div id="profile-error" class="error-msg"></div>
+    <div id="profile-success" class="success-msg"></div>
+    <div class="upload-grid">
+      <div class="field">
+        <label>Nombre artístico</label>
+        <input type="text" id="edit-name" placeholder="Tu nombre"/>
+      </div>
+      <div class="field">
+        <label>Género</label>
+        <select id="edit-genre">
+          <option value="" disabled>— Seleccionar —</option>
+          <option>Hip-Hop</option><option>Trap</option><option>Drill</option>
+          <option>R&B</option><option>Reggaeton</option><option>Electrónica</option>
+          <option>House</option><option>Techno</option><option>Ambient</option>
+          <option>Lo-Fi</option><option>Jazz</option><option>Soul</option>
+          <option>Rock</option><option>Metal</option><option>Pop</option>
+          <option>Cumbia</option><option>Salsa</option><option>Funk</option>
+          <option>Experimental</option><option>Instrumental</option><option>Otro</option>
+        </select>
+      </div>
+    </div>
+    <div class="field">
+      <label>Ciudad / País</label>
+      <input type="text" id="edit-city" placeholder="Ciudad, País"/>
+    </div>
+    <div class="field">
+      <label>Foto de perfil</label>
+      <div class="file-drop" id="profile-drop">
+        <input type="file" id="profile-photo-input" accept="image/*" onchange="previewProfilePhoto(this)"/>
+        <div class="file-drop-icon">👤</div>
+        <div class="file-drop-label">Subir foto</div>
+        <div class="file-drop-name" id="profile-photo-name"></div>
+      </div>
+    </div>
+    <div class="progress-wrap" id="profile-progress">
+      <div class="progress-bar-bg"><div class="progress-bar" id="profile-bar"></div></div>
+      <div class="progress-label" id="profile-progress-label">Subiendo…</div>
+    </div>
+    <button class="submit-btn" style="margin-top:16px" onclick="saveProfile()">Guardar cambios</button>
+  </div>
+</div>
+
+<!-- ── MODAL SUBIR TRACK ── -->
+<div class="modal" id="upload-modal" onclick="closeModalOutside(event)">
+  <div class="modal-content">
+    <div class="section-head">
+      <h3>· Nueva Publicación ·</h3>
+      <button class="btn btn-ghost" onclick="closeModal('upload-modal')">✕</button>
+    </div>
+    <div id="upload-error" class="error-msg"></div>
+
+    <!-- TIPO -->
+    <div style="display:flex;gap:8px;margin-bottom:16px">
+      <button class="btn btn-solid" id="type-single" onclick="setType('single')" style="flex:1">🎵 Single</button>
+      <button class="btn btn-ghost" id="type-album" onclick="setType('album')" style="flex:1">💿 Álbum</button>
+    </div>
+
+    <!-- SINGLE FIELDS -->
+    <div id="single-fields">
+      <div class="upload-grid">
+        <div class="field">
+          <label>Título</label>
+          <input type="text" id="track-title" placeholder="Nombre de la canción"/>
+        </div>
+        <div class="field">
+          <label>Género</label>
+          <select id="track-genre">
+            <option value="" disabled selected>— Seleccionar —</option>
+            <option>Hip-Hop</option><option>Trap</option><option>Drill</option>
+            <option>R&B</option><option>Reggaeton</option><option>Electrónica</option>
+            <option>House</option><option>Techno</option><option>Ambient</option>
+            <option>Lo-Fi</option><option>Jazz</option><option>Soul</option>
+            <option>Rock</option><option>Metal</option><option>Pop</option>
+            <option>Cumbia</option><option>Salsa</option><option>Funk</option>
+            <option>Experimental</option><option>Instrumental</option><option>Otro</option>
+          </select>
+        </div>
+      </div>
+      <div class="upload-grid" style="margin-top:4px">
+        <div class="file-drop" id="audio-drop">
+          <input type="file" id="audio-input" accept="audio/*" onchange="setFile(this,'audio')"/>
+          <div class="file-drop-icon">🎵</div>
+          <div class="file-drop-label">Audio (mp3, wav, flac…)</div>
+          <div class="file-drop-name" id="audio-name"></div>
+        </div>
+        <div class="file-drop" id="cover-drop">
+          <input type="file" id="cover-input" accept="image/*" onchange="setFile(this,'cover')"/>
+          <div class="file-drop-icon">🖼</div>
+          <div class="file-drop-label">Portada</div>
+          <div class="file-drop-name" id="cover-name"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ALBUM FIELDS -->
+    <div id="album-fields" style="display:none">
+      <div class="upload-grid">
+        <div class="field">
+          <label>Nombre del Álbum</label>
+          <input type="text" id="album-name" placeholder="Título del álbum"/>
+        </div>
+        <div class="field">
+          <label>Género</label>
+          <select id="album-genre">
+            <option value="" disabled selected>— Seleccionar —</option>
+            <option>Hip-Hop</option><option>Trap</option><option>Drill</option>
+            <option>R&B</option><option>Reggaeton</option><option>Electrónica</option>
+            <option>House</option><option>Techno</option><option>Ambient</option>
+            <option>Lo-Fi</option><option>Jazz</option><option>Soul</option>
+            <option>Rock</option><option>Metal</option><option>Pop</option>
+            <option>Cumbia</option><option>Salsa</option><option>Funk</option>
+            <option>Experimental</option><option>Instrumental</option><option>Otro</option>
+          </select>
+        </div>
+      </div>
+      <div class="field" style="margin-top:8px">
+        <label>Portada del Álbum</label>
+        <div class="file-drop" id="album-cover-drop">
+          <input type="file" id="album-cover-input" accept="image/*" onchange="setFile(this,'albumCover')"/>
+          <div class="file-drop-icon">🖼</div>
+          <div class="file-drop-label">Imagen de portada</div>
+          <div class="file-drop-name" id="album-cover-name"></div>
+        </div>
+      </div>
+      <div class="field" style="margin-top:8px">
+        <label>Archivos de audio (selecciona todos a la vez)</label>
+        <div class="file-drop" id="album-audio-drop">
+          <input type="file" id="album-audio-input" accept="audio/*" multiple onchange="setAlbumFiles(this)"/>
+          <div class="file-drop-icon">🎵</div>
+          <div class="file-drop-label">Seleccionar varios archivos</div>
+          <div class="file-drop-name" id="album-files-name"></div>
+        </div>
+      </div>
+      <div id="album-track-list" style="margin-top:8px;display:none">
+        <div style="font-size:.65rem;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;margin-bottom:8px">Editar títulos de tracks</div>
+        <div id="album-tracks-sortable"></div>
+      </div>
+    </div>
+
+    <div class="progress-wrap" id="upload-progress">
+      <div class="progress-bar-bg"><div class="progress-bar" id="upload-bar"></div></div>
+      <div class="progress-label" id="upload-progress-label">Preparando…</div>
+    </div>
+
+    <!-- TOGGLE DESCARGA -->
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-top:16px;padding:12px 14px;background:var(--s2);border:1px solid var(--border);border-radius:6px;">
+      <div>
+        <div style="font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;">Permitir descarga</div>
+        <div style="font-size:.62rem;color:var(--muted);margin-top:2px;">Los oyentes podrán descargar</div>
+      </div>
+      <label style="position:relative;display:inline-block;width:44px;height:24px;cursor:pointer;">
+        <input type="checkbox" id="track-downloadable" style="opacity:0;width:0;height:0;">
+        <span id="toggle-track" style="position:absolute;inset:0;background:var(--border);border-radius:12px;transition:.2s;"></span>
+        <span id="toggle-thumb" style="position:absolute;left:3px;top:3px;width:18px;height:18px;background:#fff;border-radius:50%;transition:.2s;"></span>
+      </label>
+    </div>
+
+    <button class="submit-btn" style="margin-top:16px" id="upload-btn" onclick="uploadTrack()">Publicar</button>
+  </div>
+</div>
+
+
+<!-- ── FIREBASE ── -->
+<script type="module">
+  import { initializeApp }                   from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getAuth, createUserWithEmailAndPassword,
+           signInWithEmailAndPassword,
+           signOut, onAuthStateChanged }      from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+  import { getFirestore, doc, setDoc, getDoc,
+           collection, getDocs,
+           addDoc, deleteDoc,
+           serverTimestamp, orderBy, query }  from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+  import { getStorage, ref, uploadBytesResumable,
+           getDownloadURL, deleteObject }     from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyAQeS0wTC4HhRx78uGTvWnfjcZoZCk_zME",
+    authDomain: "unp-tapes-e5942.firebaseapp.com",
+    projectId: "unp-tapes-e5942",
+    storageBucket: "unp-tapes-e5942.firebasestorage.app",
+    messagingSenderId: "850772544349",
+    appId: "1:850772544349:web:c70a87db6e32a24d1876b4"
+  };
+
+  const app     = initializeApp(firebaseConfig);
+  const auth    = getAuth(app);
+  const db      = getFirestore(app);
+  const storage = getStorage(app);
+
+  let currentUser   = null;
+  let artistProfile = null;
+  let selectedAudio = null;
+  let selectedCover = null;
+
+  // ──────────────────────────────────────────────
+  //  AUTH STATE
+  // ──────────────────────────────────────────────
+  onAuthStateChanged(auth, async user => {
+    if(user){
+      currentUser = user;
+      document.getElementById('auth-section').style.display  = 'none';
+      document.getElementById('dashboard').style.display     = 'block';
+      document.getElementById('nav-email').textContent       = user.email;
+      document.getElementById('logout-btn').style.display    = 'inline-flex';
+      document.getElementById('public-btn').style.display    = 'inline-flex';
+      await loadProfile();
+      await loadMyTracks();
+    } else {
+      currentUser = null;
+      document.getElementById('auth-section').style.display  = 'block';
+      document.getElementById('dashboard').style.display     = 'none';
+      document.getElementById('nav-email').textContent       = '';
+      document.getElementById('logout-btn').style.display    = 'none';
+    }
+  });
+
+  // ──────────────────────────────────────────────
+  //  AUTH ACTIONS
+  // ──────────────────────────────────────────────
+  window.switchTab = function(tab){
+    document.querySelectorAll('.tab-btn').forEach((b,i)=>b.classList.toggle('active', (tab==='login'?i===0:i===1)));
+    document.getElementById('tab-login').style.display    = tab==='login'   ? 'block':'none';
+    document.getElementById('tab-register').style.display = tab==='register'? 'block':'none';
+    clearMessages();
+  };
+
+  window.doLogin = async function(){
+    const email = document.getElementById('login-email').value.trim();
+    const pass  = document.getElementById('login-pass').value;
+    clearMessages();
+    if(!email||!pass){ showError('auth-error','Completa todos los campos'); return; }
+    try {
+      await signInWithEmailAndPassword(auth, email, pass);
+    } catch(e){
+      showError('auth-error', friendlyError(e.code));
+    }
+  };
+
+  window.doRegister = async function(){
+    const name  = document.getElementById('reg-name').value.trim();
+    const genre = document.getElementById('reg-genre').value.trim();
+    const city  = document.getElementById('reg-city').value.trim();
+    const email = document.getElementById('reg-email').value.trim();
+    const pass  = document.getElementById('reg-pass').value;
+    clearMessages();
+    if(!name||!email||!pass){ showError('auth-error','Nombre, email y contraseña son obligatorios'); return; }
+    try {
+      const cred = await createUserWithEmailAndPassword(auth, email, pass);
+      await setDoc(doc(db,'artists',cred.user.uid),{
+        name, genre, city, email,
+        photoURL:'', createdAt: serverTimestamp()
+      });
+      showSuccess('auth-success','¡Cuenta creada! Iniciando sesión…');
+    } catch(e){
+      showError('auth-error', friendlyError(e.code));
+    }
+  };
+
+  window.logOut = async function(){
+    await signOut(auth);
+  };
+
+  // ──────────────────────────────────────────────
+  //  PROFILE
+  // ──────────────────────────────────────────────
+  async function loadProfile(){
+    const snap = await getDoc(doc(db,'artists',currentUser.uid));
+    if(!snap.exists()) return;
+    artistProfile = snap.data();
+    renderDashHeader();
+    document.getElementById('edit-name').value  = artistProfile.name  || '';
+    document.getElementById('edit-genre').value = artistProfile.genre || '';
+    document.getElementById('edit-city').value  = artistProfile.city  || '';
+  }
+
+  function renderDashHeader(){
+    document.getElementById('dash-name').textContent = artistProfile.name || currentUser.email;
+    document.getElementById('dash-genre-city').textContent =
+      [artistProfile.genre, artistProfile.city].filter(Boolean).join(' · ');
+    const wrap = document.getElementById('dash-avatar-wrap');
+    if(artistProfile.photoURL){
+      wrap.innerHTML = `<img src="${artistProfile.photoURL}" style="width:100%;height:100%;border-radius:50%;object-fit:cover"/>`;
+    } else {
+      wrap.innerHTML = `<span style="font-size:1.8rem">${(artistProfile.name||'?')[0].toUpperCase()}</span>`;
+    }
+  }
+
+  // ── MODAL FUNCTIONS ──
+  window.openModal = function(id){
+    document.getElementById(id).classList.add('open');
+    document.body.style.overflow='hidden';
+  };
+  window.closeModal = function(id){
+    document.getElementById(id).classList.remove('open');
+    document.body.style.overflow='auto';
+  };
+  window.closeModalOutside = function(e){
+    if(e.target.classList.contains('modal')) closeModal(e.target.id);
+  };
+  window.toggleProfile = function(){ openModal('profile-modal'); };
+  window.toggleUpload  = function(){ openModal('upload-modal'); };
+
+  function updateStats(singlesCount, albumsCount){
+    document.getElementById('stat-tracks').textContent = singlesCount;
+    document.getElementById('stat-albums').textContent = albumsCount;
+  }
+
+  window.previewProfilePhoto = async function(input){
+    if(!input.files[0]) return;
+    const compressed = await compressImage(input.files[0], 300, 0.85);
+    const kb = Math.round(compressed.size/1024);
+    document.getElementById('profile-photo-name').textContent = `${input.files[0].name} → ${kb}KB`;
+    // Reemplazar el file en el input con el comprimido
+    input._compressed = compressed;
+  };
+
+  window.saveProfile = async function(){
+    const name  = document.getElementById('edit-name').value.trim();
+    const genre = document.getElementById('edit-genre').value.trim();
+    const city  = document.getElementById('edit-city').value.trim();
+    const input = document.getElementById('profile-photo-input');
+    const file  = input._compressed || input.files[0];
+    clearMessages('profile');
+
+    let photoURL = artistProfile.photoURL || '';
+
+    if(file){
+      document.getElementById('profile-progress').style.display = 'block';
+      photoURL = await uploadFile(
+        file,
+        `artists/${currentUser.uid}/profile/${Date.now()}_${file.name}`,
+        'profile-bar','profile-progress-label'
+      );
+      document.getElementById('profile-progress').style.display = 'none';
+    }
+
+    await setDoc(doc(db,'artists',currentUser.uid),{
+      name, genre, city,
+      email: currentUser.email,
+      photoURL, createdAt: artistProfile.createdAt || serverTimestamp()
+    });
+    artistProfile = {...artistProfile, name, genre, city, photoURL};
+    renderDashHeader();
+    showSuccess('profile-success','Perfil actualizado ✓');
+    setTimeout(()=>closeModal('profile-modal'),1500);
+  };
+
+  // ──────────────────────────────────────────────
+  //  UPLOAD TRACK
+  // ──────────────────────────────────────────────
+  let currentType = 'single';
+  let selectedAlbumFiles = [];
+
+  window.setType = function(type){
+    currentType = type;
+    document.getElementById('single-fields').style.display = type==='single'?'block':'none';
+    document.getElementById('album-fields').style.display  = type==='album' ?'block':'none';
+    document.getElementById('type-single').className = type==='single'?'btn btn-solid':'btn btn-ghost';
+    document.getElementById('type-album').className  = type==='album' ?'btn btn-solid':'btn btn-ghost';
+  };
+
+  function validateMp3(file){
+    const ok = file.type.startsWith('audio/') || /\.(mp3|wav|flac|aac|ogg|m4a|wma|aiff)$/i.test(file.name);
+    if(!ok) showError('upload-error',`"${file.name}" no es un archivo de audio válido.`);
+    return ok;
+  }
+
+  // ── COMPRIMIR IMAGEN ANTES DE SUBIR ──
+  function compressImage(file, maxSize=500, quality=0.8){
+    return new Promise((resolve)=>{
+      const reader = new FileReader();
+      reader.onload = e => {
+        const img = new Image();
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          let w = img.width, h = img.height;
+          // Redimensionar manteniendo proporción
+          if(w > maxSize || h > maxSize){
+            if(w > h){ h = Math.round(h * maxSize/w); w = maxSize; }
+            else{ w = Math.round(w * maxSize/h); h = maxSize; }
+          }
+          canvas.width = w; canvas.height = h;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, w, h);
+          canvas.toBlob(blob => {
+            // Crear nuevo File con el blob comprimido
+            const compressed = new File([blob], file.name.replace(/\.[^/.]+$/,'.jpg'), {type:'image/jpeg'});
+            resolve(compressed);
+          }, 'image/jpeg', quality);
         };
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
-        const storage = getStorage(app);
-        let user = null;
+        img.src = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    });
+  }
 
-        onAuthStateChanged(auth, u => {
-            if(u) {
-                user = u;
-                document.getElementById('login-form').style.display = 'none';
-                document.getElementById('panel-content').style.display = 'block';
-                document.getElementById('logout-btn').style.display = 'block';
-                loadData();
-            }
-        });
+  window.setFile = async function(input, type){
+    if(!input.files[0]) return;
+    const file = input.files[0];
+    if(type==='audio'){
+      if(!validateMp3(file)){ input.value=''; return; }
+      selectedAudio = file;
+      document.getElementById('audio-name').textContent = file.name;
+    } else if(type==='cover'){
+      setLabel('upload-progress-label','Comprimiendo imagen…');
+      document.getElementById('upload-progress').style.display='block';
+      selectedCover = await compressImage(file);
+      document.getElementById('upload-progress').style.display='none';
+      const kb = Math.round(selectedCover.size/1024);
+      document.getElementById('cover-name').textContent = `${file.name} → ${kb}KB`;
+    } else if(type==='albumCover'){
+      selectedCover = await compressImage(file);
+      const kb = Math.round(selectedCover.size/1024);
+      document.getElementById('album-cover-name').textContent = `${file.name} → ${kb}KB`;
+    }
+  };
 
-        document.getElementById('login-btn').onclick = () => signInWithEmailAndPassword(auth, document.getElementById('email').value, document.getElementById('pass').value).catch(e => alert(e.message));
-        document.getElementById('logout-btn').onclick = () => signOut(auth).then(() => location.reload());
-        window.openM = (id) => document.getElementById(id).style.display = 'flex';
-        window.closeM = (id) => document.getElementById(id).style.display = 'none';
+  window.setAlbumFiles = function(input){
+    const files = Array.from(input.files);
+    const invalid = files.filter(f => !f.type.startsWith('audio/') && !/\.(mp3|wav|flac|aac|ogg|m4a|wma|aiff)$/i.test(f.name));
+    if(invalid.length){
+      showError('upload-error', `Archivos no válidos: ${invalid.map(f=>f.name).join(', ')}`);
+      input.value=''; return;
+    }
+    selectedAlbumFiles = files;
+    document.getElementById('album-files-name').textContent = `${files.length} archivo${files.length!==1?'s':''} seleccionado${files.length!==1?'s':''}`;
+    // Mostrar lista ordenable
+    const listWrap = document.getElementById('album-track-list');
+    const sortable = document.getElementById('album-tracks-sortable');
+    listWrap.style.display = 'block';
+    sortable.innerHTML = files.map((f,i)=>`
+      <div style="display:flex;align-items:center;gap:10px;padding:8px 12px;background:var(--s2);border:1px solid var(--border);border-radius:6px;margin-bottom:6px;" data-index="${i}">
+        <span style="color:var(--muted);font-size:.7rem;min-width:20px">${i+1}.</span>
+        <input type="text" value="${f.name.replace(/\.[^/.]+$/,'').replace(/^\d+[-_]\s*/,'')}" data-index="${i}"
+          style="flex:1;background:transparent;border:none;border-bottom:1px solid var(--border);color:var(--text);font-family:var(--fb);font-size:.75rem;outline:none;padding:2px 4px"
+          placeholder="Título del track"/>
+      </div>`).join('');
+  };
 
-        async function loadData() {
-            const q = query(collection(db, 'tracks'), where('artistId', '==', user.uid));
-            const snap = await getDocs(q);
-            const list = document.getElementById('my-tracks');
-            list.innerHTML = '';
-            snap.forEach(d => {
-                list.innerHTML += `<div class="track-item"><span>${d.data().title}</span><button class="btn btn-outline" style="color:red" onclick="window.deleteT('${d.id}')">Eliminar</button></div>`;
-            });
-            const p = await getDoc(doc(db, 'artists', user.uid));
-            if(p.exists()) {
-                document.getElementById('p-name').value = p.data().name;
-                document.getElementById('p-city').value = p.data().city;
-            }
+  // ── EXTRACCIÓN DE WAVEFORM ──
+  async function extractWaveform(file, numPoints=200){
+    return new Promise((resolve)=>{
+      const reader = new FileReader();
+      reader.onload = async (e)=>{
+        try{
+          const audioCtx = new(window.AudioContext||window.webkitAudioContext)();
+          const buffer   = await audioCtx.decodeAudioData(e.target.result);
+          const raw      = buffer.getChannelData(0);
+          const step     = Math.floor(raw.length / numPoints);
+          const wave     = [];
+          for(let i=0;i<numPoints;i++){
+            let max=0;
+            for(let j=0;j<step;j++) max=Math.max(max,Math.abs(raw[i*step+j]||0));
+            wave.push(parseFloat(max.toFixed(3)));
+          }
+          audioCtx.close();
+          resolve(wave);
+        }catch(e){ resolve([]); }
+      };
+      reader.readAsArrayBuffer(file);
+    });
+  }
+
+  window.uploadTrack = async function(){
+    const downloadable = document.getElementById('track-downloadable').checked;
+    clearMessages('upload');
+    const btn = document.getElementById('upload-btn');
+    btn.disabled = true;
+    document.getElementById('upload-progress').style.display = 'block';
+
+    try{
+      const uid = currentUser.uid;
+      const ts  = Date.now();
+
+      if(currentType === 'single'){
+        // ── SINGLE ──
+        const title = document.getElementById('track-title').value.trim();
+        const genre = document.getElementById('track-genre').value.trim();
+        if(!title){ showError('upload-error','El título es obligatorio'); btn.disabled=false; return; }
+        if(!selectedAudio){ showError('upload-error','Selecciona un archivo .mp3'); btn.disabled=false; return; }
+
+        setLabel('upload-progress-label','Subiendo audio…');
+        const audioURL = await uploadFile(selectedAudio, `artists/${uid}/tracks/${ts}_${selectedAudio.name}`, 'upload-bar','upload-progress-label');
+
+        let coverURL = '';
+        if(selectedCover){
+          setLabel('upload-progress-label','Subiendo portada…');
+          coverURL = await uploadFile(selectedCover, `artists/${uid}/covers/${ts}_${selectedCover.name}`, 'upload-bar','upload-progress-label');
         }
 
-        document.getElementById('up-btn').onclick = async () => {
-            const title = document.getElementById('t-title').value;
-            const type = document.getElementById('t-type').value;
-            const aF = document.getElementById('t-audio').files[0];
-            const cF = document.getElementById('t-cover').files[0];
-            if(!title || !aF || !cF) return alert("Faltan archivos");
-            const btn = document.getElementById('up-btn');
-            btn.disabled = true; btn.textContent = "Subiendo...";
-            try {
-                const aRef = ref(storage, `audio/${user.uid}/${Date.now()}`);
-                await uploadBytes(aRef, aF);
-                const aURL = await getDownloadURL(aRef);
-                const cRef = ref(storage, `covers/${user.uid}/${Date.now()}`);
-                await uploadBytes(cRef, cF);
-                const cURL = await getDownloadURL(cRef);
-                await setDoc(doc(collection(db, 'tracks')), { title, type, audioURL: aURL, coverURL: cURL, artistId: user.uid, createdAt: serverTimestamp() });
-                closeM('upload-modal'); loadData();
-            } catch(e) { alert(e.message); } finally { btn.disabled = false; btn.textContent = "PUBLICAR"; }
-        };
+        setLabel('upload-progress-label','Generando forma de onda…');
+        const waveform = await extractWaveform(selectedAudio);
 
-        window.deleteT = async (id) => { if(confirm('¿Borrar?')) { await deleteDoc(doc(db, 'tracks', id)); loadData(); } };
-    </script>
+        setLabel('upload-progress-label','Guardando…');
+        await addDoc(collection(db,`artists/${uid}/tracks`),{
+          title, genre, audioURL, coverURL, downloadable, waveform, type:'single', createdAt: serverTimestamp()
+        });
+
+      } else {
+        // ── ÁLBUM ──
+        const albumName = document.getElementById('album-name').value.trim();
+        const genre     = document.getElementById('album-genre').value.trim();
+        if(!albumName){ showError('upload-error','El nombre del álbum es obligatorio'); btn.disabled=false; return; }
+        if(!selectedAlbumFiles.length){ showError('upload-error','Selecciona al menos un .mp3'); btn.disabled=false; return; }
+
+        // Subir portada del álbum
+        let albumCoverURL = '';
+        if(selectedCover){
+          setLabel('upload-progress-label','Subiendo portada del álbum…');
+          albumCoverURL = await uploadFile(selectedCover, `artists/${uid}/covers/${ts}_album_${selectedCover.name}`, 'upload-bar','upload-progress-label');
+        }
+
+        // Obtener títulos editados
+        const titleInputs = document.querySelectorAll('#album-tracks-sortable input[data-index]');
+        const titles = {};
+        titleInputs.forEach(inp => { titles[inp.dataset.index] = inp.value.trim(); });
+
+        // Subir cada track
+        for(let i=0; i<selectedAlbumFiles.length; i++){
+          const file  = selectedAlbumFiles[i];
+          const title = titles[i] || file.name.replace(/\.mp3$/i,'');
+          setLabel('upload-progress-label',`Subiendo ${i+1}/${selectedAlbumFiles.length}: ${title}…`);
+          document.getElementById('upload-bar').style.width = '0%';
+
+          const audioURL = await uploadFile(file, `artists/${uid}/tracks/${ts}_${i}_${file.name}`, 'upload-bar','upload-progress-label');
+
+          setLabel('upload-progress-label',`Generando forma de onda ${i+1}/${selectedAlbumFiles.length}…`);
+          const waveform = await extractWaveform(file);
+
+          await addDoc(collection(db,`artists/${uid}/tracks`),{
+            title, genre, audioURL,
+            coverURL: albumCoverURL,
+            albumCoverURL, albumName,
+            downloadable, waveform, type:'album',
+            trackNumber: i+1,
+            createdAt: serverTimestamp()
+          });
+        }
+      }
+
+      // Reset
+      document.getElementById('track-title').value = '';
+      document.getElementById('track-genre').value = '';
+      document.getElementById('album-name').value  = '';
+      document.getElementById('album-genre').value = '';
+      document.getElementById('audio-input').value = '';
+      document.getElementById('cover-input').value = '';
+      document.getElementById('album-audio-input').value = '';
+      document.getElementById('album-cover-input').value = '';
+      document.getElementById('audio-name').textContent = '';
+      document.getElementById('cover-name').textContent = '';
+      document.getElementById('album-cover-name').textContent = '';
+      document.getElementById('album-files-name').textContent = '';
+      document.getElementById('album-track-list').style.display = 'none';
+      document.getElementById('track-downloadable').checked = false;
+      updateToggleUI('track-downloadable','toggle-track','toggle-thumb', false);
+      selectedAudio = null; selectedCover = null; selectedAlbumFiles = [];
+
+      document.getElementById('upload-progress').style.display = 'none';
+      closeModal('upload-modal');
+      btn.disabled = false;
+      await loadMyTracks();
+
+    } catch(e){
+      showError('upload-error','Error al subir: '+e.message);
+      document.getElementById('upload-progress').style.display = 'none';
+      btn.disabled = false;
+    }
+  };
+
+  // ──────────────────────────────────────────────
+  //  MY TRACKS
+  // ──────────────────────────────────────────────
+  async function loadMyTracks(){
+    const container = document.getElementById('my-tracks-list');
+    container.innerHTML = '<div class="state-msg"><div class="spinner"></div>Cargando…</div>';
+    try{
+      const uid   = currentUser.uid;
+      const snap  = await getDocs(
+        query(collection(db,`artists/${uid}/tracks`), orderBy('createdAt','asc'))
+      );
+      const tracks = [];
+      snap.forEach(d => tracks.push({id:d.id,...d.data()}));
+      document.getElementById('tracks-count').textContent = `${tracks.length} canción${tracks.length!==1?'es':''}`;
+
+      if(!tracks.length){
+        container.innerHTML = '<div class="state-msg">Aún no tienes canciones. ¡Sube tu primer track!</div>';
+        return;
+      }
+
+      // Separar singles y álbumes
+      const singles = tracks.filter(t => t.type !== 'album');
+      const albumMap = {};
+      tracks.filter(t => t.type === 'album').forEach(t => {
+        const k = t.albumName || 'Sin título';
+        if(!albumMap[k]) albumMap[k] = {name:k, cover:t.albumCoverURL||t.coverURL||'', tracks:[]};
+        albumMap[k].tracks.push(t);
+      });
+      Object.values(albumMap).forEach(a => a.tracks.sort((x,y)=>(x.trackNumber||0)-(y.trackNumber||0)));
+      updateStats(tracks.length, Object.keys(albumMap).length);
+
+      let html = '';
+
+      // Singles
+      if(singles.length){
+        html += `
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px">
+          <div style="font-size:.65rem;color:var(--muted);letter-spacing:.15em;text-transform:uppercase;flex-shrink:0">Singles</div>
+          <div style="flex:1;height:1px;background:var(--border)"></div>
+          <span style="font-size:.62rem;color:var(--muted)">${singles.length} track${singles.length!==1?'s':''}</span>
+        </div>
+        <div class="my-tracks" style="margin-bottom:36px">${singles.map(t=>renderMyTrack(t)).join('')}</div>`;
+      }
+
+      // Álbumes
+      Object.values(albumMap).forEach(album => {
+        html += `
+        <div style="margin-bottom:36px">
+          <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px">
+            <div style="font-size:.65rem;color:var(--muted);letter-spacing:.15em;text-transform:uppercase;flex-shrink:0">Álbum</div>
+            <div style="flex:1;height:1px;background:var(--border)"></div>
+          </div>
+          <div class="my-album-block">
+            <div style="display:flex;align-items:center;gap:12px;padding:12px 14px;background:rgba(255,106,0,.06);border:1px solid rgba(255,106,0,.15);border-radius:10px 10px 0 0;border-bottom:2px solid var(--accent);">
+              ${album.cover
+                ? `<img src="${album.cover}" style="width:44px;height:44px;border-radius:6px;object-fit:cover;flex-shrink:0"/>`
+                : `<div style="width:44px;height:44px;border-radius:6px;background:var(--s2);display:flex;align-items:center;justify-content:center;font-size:1.4rem;flex-shrink:0">💿</div>`}
+              <div style="flex:1;min-width:0">
+                <div style="font-family:var(--fh);font-size:1.1rem;letter-spacing:2px;color:var(--accent);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${album.name}</div>
+                <div style="font-size:.62rem;color:var(--muted);margin-top:2px">${album.tracks.length} tracks · Álbum</div>
+              </div>
+              <button class="btn btn-danger" style="font-size:.62rem;padding:5px 12px;flex-shrink:0" onclick="deleteAlbum('${album.name.replace(/'/g,"\\'")}')">
+                🗑 Eliminar álbum
+              </button>
+            </div>
+            <div class="my-tracks" style="border:1px solid rgba(255,255,255,.05);border-top:none;border-radius:0 0 10px 10px;overflow:hidden">
+              ${album.tracks.map(t=>renderMyTrack(t, true)).join('')}
+            </div>
+          </div>
+        </div>`;
+      });
+
+      container.innerHTML = html;
+      initDashPlayers();
+    } catch(e){
+      container.innerHTML = `<div class="state-msg">Error: ${e.message}</div>`;
+    }
+  }
+
+  function renderMyTrack(track, inAlbum=false){
+    const coverHTML = track.coverURL
+      ? `<div class="my-cover"><img src="${track.coverURL}" alt="${track.title}"/></div>`
+      : `<div class="my-cover">🎵</div>`;
+    const playerHTML = track.audioURL ? `
+    <div class="my-player">
+      <button class="mini-play" data-playing="false">
+        <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+      </button>
+      <audio preload="none" src="${track.audioURL}"></audio>
+      <input type="range" class="mini-seek" value="0" min="0" step="0.1"/>
+      <span class="mini-time">0:00 / —:——</span>
+    </div>` : '';
+    return `
+    <div class="my-track-card" id="track-${track.id}" style="${inAlbum?'border-radius:0;border-left:none;border-right:none;border-bottom:1px solid rgba(255,255,255,.05);':''}">
+      ${coverHTML}
+      <div class="my-info">
+        <div class="my-title">${inAlbum&&track.trackNumber?`<span style="color:var(--muted);margin-right:6px;font-size:.7rem">${track.trackNumber}.</span>`:''}${(track.title||'Sin título').replace(/\.[^/.]+$/,'')}</div>
+        <div class="my-meta">${track.genre||''}</div>
+      </div>
+      <div class="my-actions">
+        <button class="icon-btn delete" title="Eliminar track" onclick="deleteTrack('${track.id}','${track.audioURL||''}','${track.coverURL||''}')">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M9 3v1H4v2h1v13a2 2 0 002 2h10a2 2 0 002-2V6h1V4h-5V3H9zm0 5h2v9H9V8zm4 0h2v9h-2V8z"/></svg>
+        </button>
+      </div>
+      ${playerHTML}
+    </div>`;
+  }
+
+  function initDashPlayers(){
+    const PLAY  = `<svg viewBox="0 0 24 24" width="11" height="11" fill="#080810"><path d="M8 5v14l11-7z"/></svg>`;
+    const PAUSE = `<svg viewBox="0 0 24 24" width="11" height="11" fill="#080810"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>`;
+    function fmt(s){if(!s||isNaN(s))return'0:00';return`${Math.floor(s/60)}:${String(Math.floor(s%60)).padStart(2,'0')}`;}
+
+    document.querySelectorAll('.my-player').forEach(row=>{
+      const audio = row.querySelector('audio');
+      const seek  = row.querySelector('.mini-seek');
+      const time  = row.querySelector('.mini-time');
+      const btn   = row.querySelector('.mini-play');
+      if(!audio) return;
+
+      audio.addEventListener('loadedmetadata',()=>{ seek.max=audio.duration; time.textContent=`0:00 / ${fmt(audio.duration)}`; });
+      audio.addEventListener('timeupdate',()=>{ seek.value=audio.currentTime; time.textContent=`${fmt(audio.currentTime)} / ${fmt(audio.duration)}`; });
+      audio.addEventListener('ended',()=>{ btn.dataset.playing='false'; btn.innerHTML=PLAY; seek.value=0; });
+
+      btn.addEventListener('click',()=>{
+        const playing = btn.dataset.playing==='true';
+        document.querySelectorAll('.my-player audio').forEach(a=>{ if(a!==audio){ a.pause(); const b=a.closest('.my-player').querySelector('.mini-play'); b.dataset.playing='false'; b.innerHTML=PLAY; }});
+        if(playing){ audio.pause(); btn.dataset.playing='false'; btn.innerHTML=PLAY; }
+        else{ audio.play(); btn.dataset.playing='true'; btn.innerHTML=PAUSE; }
+      });
+      seek.addEventListener('input',()=>{ audio.currentTime=seek.value; });
+    });
+  }
+
+  window.deleteTrack = async function(trackId, audioURL, coverURL){
+    if(!confirm('¿Eliminar esta canción? Esta acción no se puede deshacer.')) return;
+    try{
+      const uid = currentUser.uid;
+      await deleteDoc(doc(db,`artists/${uid}/tracks`,trackId));
+      // Intentar borrar archivos de Storage (best effort)
+      if(audioURL) try{ await deleteObject(ref(storage, audioURL.split('?')[0].split('/o/')[1].replace(/%2F/g,'/'))); }catch(e){}
+      if(coverURL) try{ await deleteObject(ref(storage, coverURL.split('?')[0].split('/o/')[1].replace(/%2F/g,'/'))); }catch(e){}
+      document.getElementById(`track-${trackId}`)?.remove();
+      // Si era el último track de un álbum, recargar para limpiar el bloque
+      await loadMyTracks();
+    } catch(e){
+      alert('Error al eliminar: '+e.message);
+    }
+  };
+
+  window.deleteAlbum = async function(albumName){
+    if(!confirm(`¿Eliminar el álbum "${albumName}" completo? Se borrarán todos sus tracks. Esta acción no se puede deshacer.`)) return;
+    try{
+      const uid  = currentUser.uid;
+      const snap = await getDocs(collection(db,`artists/${uid}/tracks`));
+      const toDelete = [];
+      snap.forEach(d => { if(d.data().albumName === albumName) toDelete.push({id:d.id,...d.data()}); });
+
+      for(const track of toDelete){
+        await deleteDoc(doc(db,`artists/${uid}/tracks`,track.id));
+        if(track.audioURL) try{ await deleteObject(ref(storage, track.audioURL.split('?')[0].split('/o/')[1].replace(/%2F/g,'/'))); }catch(e){}
+      }
+      // Borrar portada del álbum una vez (best effort)
+      const cover = toDelete[0]?.albumCoverURL;
+      if(cover) try{ await deleteObject(ref(storage, cover.split('?')[0].split('/o/')[1].replace(/%2F/g,'/'))); }catch(e){}
+
+      await loadMyTracks();
+    } catch(e){
+      alert('Error al eliminar álbum: '+e.message);
+    }
+  };
+
+  // ──────────────────────────────────────────────
+  //  STORAGE UPLOAD HELPER
+  // ──────────────────────────────────────────────
+  function uploadFile(file, path, barId, labelId){
+    return new Promise((resolve, reject)=>{
+      const storRef  = ref(storage, path);
+      const task     = uploadBytesResumable(storRef, file);
+      task.on('state_changed',
+        snap => {
+          const pct = Math.round(snap.bytesTransferred/snap.totalBytes*100);
+          document.getElementById(barId).style.width  = pct+'%';
+          document.getElementById(labelId).textContent = `${pct}%`;
+        },
+        reject,
+        async () => resolve(await getDownloadURL(task.snapshot.ref))
+      );
+    });
+  }
+
+  // ──────────────────────────────────────────────
+  //  HELPERS
+  // ──────────────────────────────────────────────
+  function showError(id, msg){
+    const el = document.getElementById(id);
+    el.textContent = msg; el.style.display = 'block';
+  }
+  function showSuccess(id, msg){
+    const el = document.getElementById(id);
+    el.textContent = msg; el.style.display = 'block';
+  }
+  function clearMessages(scope){
+    ['auth-error','auth-success','profile-error','profile-success','upload-error']
+      .filter(id => !scope || id.startsWith(scope))
+      .forEach(id=>{ const el=document.getElementById(id); if(el) el.style.display='none'; });
+  }
+  function setLabel(id,txt){ const el=document.getElementById(id); if(el) el.textContent=txt; }
+  function friendlyError(code){
+    const map={
+      'auth/email-already-in-use':'Ese email ya está registrado.',
+      'auth/invalid-email':'Email no válido.',
+      'auth/weak-password':'La contraseña debe tener al menos 6 caracteres.',
+      'auth/user-not-found':'No existe cuenta con ese email.',
+      'auth/wrong-password':'Contraseña incorrecta.',
+      'auth/invalid-credential':'Email o contraseña incorrectos.',
+    };
+    return map[code] || 'Error: '+code;
+  }
+
+  // ── TOGGLE UI ──
+  function updateToggleUI(checkId, trackId, thumbId, checked){
+    const track = document.getElementById(trackId);
+    const thumb = document.getElementById(thumbId);
+    if(!track||!thumb) return;
+    track.style.background = checked ? 'var(--accent)' : 'var(--border)';
+    thumb.style.transform  = checked ? 'translateX(20px)' : 'translateX(0)';
+    thumb.style.background = checked ? '#080810' : '#fff';
+  }
+
+  document.getElementById('track-downloadable')?.addEventListener('change', function(){
+    updateToggleUI('track-downloadable','toggle-track','toggle-thumb', this.checked);
+  });
+
+  // ── MODALES ──
+  window.openModal = function(id){
+    document.getElementById(id)?.classList.add('open');
+    document.body.style.overflow = 'hidden';
+  };
+  window.closeModal = function(id){
+    document.getElementById(id)?.classList.remove('open');
+    document.body.style.overflow = 'auto';
+  };
+  window.closeModalOutside = function(e){
+    if(e.target.classList.contains('modal')) closeModal(e.target.id);
+  };
+
+  // ── STATS ──
+  function updateStats(singles, albums){
+    const el1 = document.getElementById('stat-tracks');
+    const el2 = document.getElementById('stat-albums');
+    if(el1) el1.textContent = singles;
+    if(el2) el2.textContent = albums;
+  }
+
+  // Drag-over visual feedback
+  document.querySelectorAll('.file-drop').forEach(zone=>{
+    zone.addEventListener('dragover', e=>{ e.preventDefault(); zone.classList.add('dragover'); });
+    zone.addEventListener('dragleave', ()=> zone.classList.remove('dragover'));
+    zone.addEventListener('drop', ()=> zone.classList.remove('dragover'));
+  });
+
+  // handle #register anchor from index.html
+  if(location.hash==='#register') switchTab('register');
+</script>
 </body>
 </html>

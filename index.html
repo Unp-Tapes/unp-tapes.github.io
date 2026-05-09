@@ -1,166 +1,245 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Unp-Tapes — Explore Sound</title>
-    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --bg: #000;
-            --s1: #0d0d0d;
-            --accent: #ff6a00;
-            --purple: #7b4fff;
-            --text: #eee;
-            --fh: 'Bebas Neue';
-            --fb: 'DM Mono';
-        }
-        * { box-sizing: border-box; }
-        body { background: var(--bg); color: var(--text); font-family: var(--fb); margin: 0; overflow-x: hidden; padding-bottom: 120px; }
-        
-        nav { padding: 18px 40px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #222; background: rgba(0,0,0,0.85); backdrop-filter: blur(10px); position: sticky; top: 0; z-index: 100; }
-        .logo img { height: 60px; width: auto; display: block; filter: drop-shadow(0 0 10px rgba(255,106,0,0.2)); }
-        .login-btn { color: white; text-decoration: none; border: 1px solid #333; padding: 10px 18px; border-radius: 10px; transition: 0.3s; font-size: 0.75rem; letter-spacing: 2px; }
-        .login-btn:hover { border-color: var(--accent); color: var(--accent); }
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>UNP Records — Plataforma Musical</title>
+  <meta property="og:title" content="UNP Records — Música Independiente"/>
+  <meta property="og:description" content="Escucha música de artistas independientes. Sin algoritmos, sin intermediarios."/>
+  <meta property="og:image" content="https://unp-tapes.github.io/logo.png"/>
+  <meta property="og:url" content="https://unp-tapes.github.io"/>
+  <meta property="og:type" content="website"/>
+  <meta name="twitter:card" content="summary_large_image"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <style>
+    :root{
+      --bg:#000;--s1:#0d0d0d;--s2:#161616;--border:#222;
+      --accent:#ff6a00;--muted:#5a5a5a;--text:#eeeeff;--radius:12px;
+      --fh:'Bebas Neue',sans-serif;--fb:'DM Mono',monospace;
+    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    html{scroll-behavior:smooth}
+    body{background:var(--bg);color:var(--text);font-family:var(--fb);min-height:100vh;overflow-x:hidden}
+    body::before{
+      content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
+      background:
+        radial-gradient(circle at 20% 30%,rgba(255,106,0,.12) 0%,transparent 40%),
+        radial-gradient(circle at 80% 70%,rgba(123,79,255,.08) 0%,transparent 40%);
+      filter:blur(80px);
+      animation:meshMove 20s ease-in-out infinite alternate;
+    }
+    @keyframes meshMove{from{transform:scale(1)}to{transform:scale(1.2) translate(5%,5%)}}
+    nav{
+      position:sticky;top:0;z-index:100;
+      background:rgba(0,0,0,.75);backdrop-filter:blur(20px) saturate(180%);
+      border-bottom:1px solid rgba(255,255,255,.06);
+      display:flex;align-items:center;justify-content:space-between;
+      padding:0 32px;height:60px;
+    }
+    .nav-actions{display:flex;gap:12px;align-items:center}
+    .btn{
+      font-family:var(--fb);font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;
+      padding:8px 18px;border-radius:6px;cursor:pointer;text-decoration:none;
+      transition:all .25s;border:1px solid transparent;
+    }
+    .btn-ghost{border-color:var(--border);color:var(--muted);background:transparent}
+    .btn-ghost:hover{border-color:var(--accent);color:var(--accent)}
+    .btn-solid{background:var(--accent);color:#000;font-weight:500}
+    .btn-solid:hover{background:#ff8c00}
+    .hero{position:relative;z-index:1;text-align:center;padding:52px 24px 44px}
+    .hero p{color:var(--muted);font-size:.78rem;letter-spacing:.08em;max-width:400px;margin:0 auto}
+    .wrap{position:relative;z-index:1;max-width:1000px;margin:0 auto;padding:0 24px 80px}
+    .section-label{font-size:.65rem;color:var(--muted);letter-spacing:.15em;text-transform:uppercase;margin-bottom:20px}
 
-        .hero { min-height: 50vh; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 60px 20px; }
-        .hero h1 { font-family: var(--fh); font-size: clamp(4rem, 12vw, 8rem); color: var(--accent); margin: 0; line-height: 0.9; }
-        .hero p { color: #888; max-width: 600px; margin: 20px 0; font-size: 1.1rem; }
+    /* ── SEARCH ── */
+    .search-bar{
+      display:flex;align-items:center;gap:12px;margin-bottom:36px;
+      background:rgba(255,255,255,.03);border:1px solid var(--border);
+      border-radius:8px;padding:0 16px;
+    }
+    .search-bar svg{width:16px;height:16px;fill:var(--muted);flex-shrink:0}
+    .search-bar input{
+      flex:1;background:transparent;border:none;outline:none;
+      color:var(--text);font-family:var(--fb);font-size:.8rem;
+      padding:12px 0;letter-spacing:.04em;
+    }
+    .search-bar input::placeholder{color:var(--muted)}
 
-        .section { padding: 40px; }
-        .section-header { font-family: var(--fh); font-size: 2.5rem; margin-bottom: 30px; letter-spacing: 2px; border-left: 4px solid var(--accent); padding-left: 15px; }
-        
-        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 25px; }
-        
-        .artist-card { background: var(--s1); padding: 20px; border-radius: 15px; border: 1px solid #222; text-decoration: none; color: white; display: flex; align-items: center; gap: 15px; transition: 0.3s; }
-        .artist-card:hover { border-color: var(--purple); transform: translateY(-5px); }
-        .artist-card img { width: 70px; height: 70px; border-radius: 50%; object-fit: cover; border: 2px solid var(--accent); }
-        .artist-card h3 { font-family: var(--fh); font-size: 1.5rem; margin: 0; }
+    /* ── ARTIST GRID ── */
+    .artist-grid{
+      display:grid;
+      grid-template-columns:repeat(auto-fill,minmax(200px,1fr));
+      gap:16px;
+    }
+    .artist-card{
+      background:rgba(255,255,255,.03);
+      border:1px solid rgba(255,255,255,.06);
+      border-radius:var(--radius);overflow:hidden;
+      cursor:pointer;
+      transition:transform .3s cubic-bezier(.175,.885,.32,1.275),border-color .3s,box-shadow .3s;
+      animation:fadeUp .4s ease both;
+      text-decoration:none;color:inherit;
+      display:block;
+    }
+    .artist-card:hover{
+      transform:translateY(-6px) scale(1.02);
+      border-color:var(--accent);
+      box-shadow:0 12px 40px rgba(255,106,0,.15);
+    }
+    @keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+    .artist-card-img{
+      width:100%;aspect-ratio:1;object-fit:cover;
+      background:var(--s2);
+      display:flex;align-items:center;justify-content:center;
+      font-family:var(--fh);font-size:4rem;color:var(--muted);
+      position:relative;overflow:hidden;
+    }
+    .artist-card-img img{width:100%;height:100%;object-fit:cover;display:block}
+    .artist-card-img .play-overlay{
+      position:absolute;inset:0;
+      background:rgba(0,0,0,.4);
+      display:flex;align-items:center;justify-content:center;
+      opacity:0;transition:opacity .25s;
+    }
+    .artist-card:hover .play-overlay{opacity:1}
+    .play-overlay svg{width:40px;height:40px;fill:var(--accent)}
+    .artist-card-body{padding:14px 16px}
+    .artist-card-name{font-family:var(--fh);font-size:1.3rem;letter-spacing:2px}
+    .artist-card-meta{font-size:.65rem;color:var(--muted);margin-top:4px;letter-spacing:.06em}
+    .artist-card-tags{display:flex;gap:6px;margin-top:10px;flex-wrap:wrap}
+    .tag{
+      font-size:.58rem;padding:2px 8px;border-radius:4px;
+      background:rgba(255,106,0,.08);color:var(--accent);
+      border:1px solid rgba(255,106,0,.18);text-transform:uppercase;letter-spacing:.08em;
+    }
 
-        .track-card { background: var(--s1); padding: 15px; border-radius: 12px; border: 1px solid #222; transition: 0.3s; cursor: pointer; position: relative; }
-        .track-card.playing { border-color: var(--accent); box-shadow: 0 0 15px rgba(255, 106, 0, 0.3); background: #141414; }
-        .track-card:hover { border-color: var(--accent); }
-        .track-card img { width: 100%; aspect-ratio: 1; border-radius: 8px; object-fit: cover; margin-bottom: 10px; }
-        .track-card h4 { margin: 5px 0; font-family: var(--fb); font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .track-card .type-badge { position: absolute; top: 10px; right: 10px; background: var(--accent); color: black; font-size: 0.6rem; padding: 2px 8px; border-radius: 4px; font-weight: bold; text-transform: uppercase; }
+    /* ── EMPTY / LOADING ── */
+    .state-msg{text-align:center;padding:60px 0;color:var(--muted);font-size:.78rem;letter-spacing:.1em}
+    .skeleton-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:16px}
+    .skeleton-card{border-radius:var(--radius);overflow:hidden;background:var(--s1);border:1px solid var(--border)}
+    .skeleton-img{width:100%;aspect-ratio:1;background:var(--s2);animation:shimmer 1.4s infinite}
+    .skeleton-body{padding:14px 16px;display:flex;flex-direction:column;gap:8px}
+    .skeleton-line{height:10px;border-radius:4px;background:var(--s2);animation:shimmer 1.4s infinite}
+    .skeleton-line.w60{width:60%}.skeleton-line.w40{width:40%}
+    @keyframes shimmer{0%,100%{background:var(--s2)}50%{background:#1e1e1e}}
 
-        /* Global Player Bar */
-        .player-bar { position: fixed; bottom: 0; left: 0; right: 0; background: rgba(5, 5, 5, 0.98); border-top: 1px solid var(--accent); padding: 10px 40px; display: none; align-items: center; justify-content: space-between; z-index: 1000; backdrop-filter: blur(25px); height: 90px; }
-        .player-info { display: flex; align-items: center; gap: 15px; width: 25%; }
-        .player-info img { width: 60px; height: 60px; border-radius: 5px; object-fit: cover; border: 1px solid #333; }
-        .player-info div h5 { margin: 0; font-size: 1rem; color: var(--accent); }
-        .player-info div p { margin: 0; font-size: 0.75rem; color: #888; }
-        .player-controls { width: 50%; display: flex; flex-direction: column; align-items: center; gap: 5px; }
-        audio { width: 100%; filter: invert(1) hue-rotate(180deg) brightness(1.2); height: 35px; }
-        .player-actions { width: 25%; display: flex; justify-content: flex-end; align-items: center; gap: 20px; }
-        .download-link { color: #888; text-decoration: none; font-size: 0.8rem; border: 1px solid #333; padding: 5px 12px; border-radius: 5px; transition: 0.3s; }
-        .download-link:hover { color: white; border-color: white; background: #222; }
-
-        footer { padding: 60px 40px; text-align: center; color: #444; border-top: 1px solid #111; font-size: 0.8rem; }
-    </style>
+    footer{position:relative;z-index:1;text-align:center;padding:28px;border-top:1px solid var(--border);font-size:.65rem;color:var(--muted);letter-spacing:.1em}
+    footer span{color:var(--accent)}
+    @media(max-width:520px){nav{padding:0 16px}.artist-grid{grid-template-columns:repeat(2,1fr);gap:10px}}
+  </style>
 </head>
 <body>
-    <nav>
-        <a href="index.html" class="logo"><img src="logo.png" alt="Unp-Tapes"></a>
-        <a href="dashboard.html" class="login-btn">ACCESO ARTISTA</a>
-    </nav>
 
-    <div class="hero">
-        <h1>UNP-TAPES</h1>
-        <p>Tu plataforma de música independiente. Singles y Playlists directo desde la fuente.</p>
+<nav>
+  <a href="index.html" style="text-decoration:none">
+    <img src="logo.png" alt="UNP Records" style="height:38px;display:block" onerror="this.style.display='none'"/>
+  </a>
+  <div class="nav-actions">
+    <a href="dashboard.html" class="btn btn-ghost">Mi Panel</a>
+    <a href="dashboard.html#register" class="btn btn-solid">Unirse</a>
+  </div>
+</nav>
+
+<div class="hero">
+  <img src="logo.png" alt="UNP Records" loading="lazy"
+    style="width:240px;max-width:70%;margin:0 auto 14px;display:block;filter:drop-shadow(0 0 28px rgba(255,106,0,.35))"/>
+  <p>Música de artistas independientes. Sin algoritmos, sin intermediarios.</p>
+</div>
+
+<div class="wrap">
+  <div class="search-bar">
+    <svg viewBox="0 0 24 24"><path d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/></svg>
+    <input type="text" id="searchInput" placeholder="Buscar artista, género…" oninput="filterArtists()"/>
+  </div>
+
+  <div id="content">
+    <div class="skeleton-grid">
+      <div class="skeleton-card"><div class="skeleton-img"></div><div class="skeleton-body"><div class="skeleton-line w60"></div><div class="skeleton-line w40"></div></div></div>
+      <div class="skeleton-card"><div class="skeleton-img"></div><div class="skeleton-body"><div class="skeleton-line w60"></div><div class="skeleton-line w40"></div></div></div>
+      <div class="skeleton-card"><div class="skeleton-img"></div><div class="skeleton-body"><div class="skeleton-line w60"></div><div class="skeleton-line w40"></div></div></div>
+      <div class="skeleton-card"><div class="skeleton-img"></div><div class="skeleton-body"><div class="skeleton-line w60"></div><div class="skeleton-line w40"></div></div></div>
     </div>
+  </div>
+</div>
 
-    <div class="section">
-        <h2 class="section-header">ÚLTIMOS LANZAMIENTOS</h2>
-        <div class="grid" id="tracks-recent"></div>
-    </div>
+<footer><p>UNP Records · Música independiente · <span>Santiago, Chile</span></p></footer>
 
-    <div class="section">
-        <h2 class="section-header">EXPLORA ARTISTAS</h2>
-        <div class="grid" id="artist-list"></div>
-    </div>
+<script type="module">
+  import { initializeApp }           from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getFirestore, collection,
+           getDocs, query, orderBy } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-    <!-- REPRODUCTOR MODERNO -->
-    <div class="player-bar" id="global-player">
-        <div class="player-info">
-            <img id="p-img" src="">
-            <div><h5 id="p-title"></h5><p id="p-artist"></p></div>
+  const firebaseConfig = {
+    apiKey: "AIzaSyAQeS0wTC4HhRx78uGTvWnfjcZoZCk_zME",
+    authDomain: "unp-tapes-e5942.firebaseapp.com",
+    projectId: "unp-tapes-e5942",
+    storageBucket: "unp-tapes-e5942.firebasestorage.app",
+    messagingSenderId: "850772544349",
+    appId: "1:850772544349:web:c70a87db6e32a24d1876b4"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db  = getFirestore(app);
+  let allArtists = [];
+
+  async function loadArtists(){
+    try{
+      const snap = await getDocs(collection(db,'artists'));
+      const artists = [];
+      for(const d of snap.docs){
+        const artist = {id:d.id,...d.data()};
+        const tSnap  = await getDocs(collection(db,`artists/${d.id}/tracks`));
+        artist.trackCount = tSnap.size;
+        artists.push(artist);
+      }
+      allArtists = artists.filter(a => a.trackCount > 0);
+      renderArtists(allArtists);
+    } catch(e){
+      document.getElementById('content').innerHTML =
+        `<div class="state-msg">Error al cargar: ${e.message}</div>`;
+    }
+  }
+
+  function renderArtists(artists){
+    const container = document.getElementById('content');
+    if(!artists.length){
+      container.innerHTML = `<div class="state-msg">Aún no hay artistas registrados.</div>`;
+      return;
+    }
+    container.innerHTML = `<div class="artist-grid">${artists.map(a => `
+      <a class="artist-card" href="artist.html?id=${a.id}" style="animation-delay:${Math.random()*.3}s">
+        <div class="artist-card-img">
+          ${a.photoURL
+            ? `<img src="${a.photoURL}" alt="${a.name}" loading="lazy"/>`
+            : `<span>${(a.name||'?')[0].toUpperCase()}</span>`}
+          <div class="play-overlay">
+            <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+          </div>
         </div>
-        <div class="player-controls">
-            <audio id="main-audio" controls autoplay controlsList="nodownload"></audio>
+        <div class="artist-card-body">
+          <div class="artist-card-name">${a.name||'Artista'}</div>
+          <div class="artist-card-meta">${a.trackCount} track${a.trackCount!==1?'s':''} ${a.city?'· '+a.city:''}</div>
+          ${a.genre?`<div class="artist-card-tags"><span class="tag">${a.genre}</span></div>`:''}
         </div>
-        <div class="player-actions">
-            <a href="#" id="p-download" class="download-link" download>DESCARGAR MP3</a>
-        </div>
-    </div>
+      </a>`).join('')}</div>`;
+  }
 
-    <footer>UNP-TAPES RECORDS &copy; 2026</footer>
+  let filterTimeout;
+  window.filterArtists = function(){
+    clearTimeout(filterTimeout);
+    filterTimeout = setTimeout(()=>{
+      const q = document.getElementById('searchInput').value.toLowerCase().trim();
+      if(!q){ renderArtists(allArtists); return; }
+      renderArtists(allArtists.filter(a =>
+        (a.name||'').toLowerCase().includes(q) ||
+        (a.genre||'').toLowerCase().includes(q) ||
+        (a.city||'').toLowerCase().includes(q)
+      ));
+    }, 250);
+  };
 
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-        import { getFirestore, collection, getDocs, orderBy, query, limit, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-
-        const firebaseConfig = {
-            apiKey: "AIzaSyAQeS0wTC4HhRx78uGTvWnfjcZoZCk_zME",
-            authDomain: "unp-tapes-e5942.firebaseapp.com",
-            projectId: "unp-tapes-e5942",
-            storageBucket: "unp-tapes-e5942.firebasestorage.app",
-            messagingSenderId: "850772544349",
-            appId: "1:850772544349:web:c70a87db6e32a24d1876b4"
-        };
-
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
-
-        async function loadContent() {
-            const aSnap = await getDocs(query(collection(db, 'artists'), limit(10)));
-            const aList = document.getElementById('artist-list');
-            aList.innerHTML = '';
-            aSnap.forEach(d => {
-                const data = d.data();
-                aList.innerHTML += `
-                    <a href="artist.html?id=${d.id}" class="artist-card">
-                        <img src="${data.photoURL || 'https://ui-avatars.com/api/?name='+data.name}">
-                        <h3>${data.name}</h3>
-                    </a>`;
-            });
-
-            const tSnap = await getDocs(query(collection(db, 'tracks'), orderBy('createdAt', 'desc'), limit(12)));
-            const tList = document.getElementById('tracks-recent');
-            tList.innerHTML = '';
-            tSnap.forEach(d => {
-                const t = d.data();
-                const card = document.createElement('div');
-                card.className = 'track-card';
-                card.id = `card-${d.id}`;
-                card.innerHTML = `
-                    <span class="type-badge">${t.type || 'single'}</span>
-                    <img src="${t.coverURL}">
-                    <h4>${t.title}</h4>
-                `;
-                card.onclick = () => playTrack(t.audioURL, t.title, t.coverURL, t.artistId, d.id);
-                tList.appendChild(card);
-            });
-        }
-
-        async function playTrack(url, title, cover, artistId, trackId) {
-            document.querySelectorAll('.track-card').forEach(c => c.classList.remove('playing'));
-            const activeCard = document.getElementById(`card-${trackId}`);
-            if(activeCard) activeCard.classList.add('playing');
-
-            const player = document.getElementById('global-player');
-            const audio = document.getElementById('main-audio');
-            player.style.display = 'flex';
-            audio.src = url;
-            document.getElementById('p-img').src = cover;
-            document.getElementById('p-title').textContent = title;
-            document.getElementById('p-download').href = url;
-            
-            const aDoc = await getDoc(doc(db, 'artists', artistId));
-            document.getElementById('p-artist').textContent = aDoc.exists() ? aDoc.data().name : 'Artista';
-        }
-
-        loadContent();
-    </script>
+  loadArtists();
+</script>
 </body>
 </html>
