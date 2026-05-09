@@ -8,9 +8,9 @@
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet"/>
   <style>
     :root{
-      --bg:#080810;--s1:#0f0f1c;--s2:#161626;--border:#1e1e38;
-      --accent:#e8ff47;--accent2:#ff4757;--purple:#7b4fff;
-      --text:#eeeeff;--muted:#5a5a7a;--radius:10px;
+      --bg:#000000;--s1:#0d0d0d;--s2:#161616;--border:#222222;
+      --accent:#ff6a00;--accent2:#ff4757;--purple:#7b4fff;
+      --text:#eeeeff;--muted:#5a5a5a;--radius:10px;
       --fh:'Bebas Neue',sans-serif;--fb:'DM Mono',monospace;
     }
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -377,58 +377,92 @@
     </div>
     <div id="upload-error" class="error-msg"></div>
 
-    <div class="upload-grid">
-      <div class="field">
-        <label>Título</label>
-        <input type="text" id="track-title" placeholder="Nombre de la canción"/>
-      </div>
-      <div class="field">
-        <label>Género</label>
-        <select id="track-genre">
-          <option value="" disabled selected>— Seleccionar —</option>
-          <option>Hip-Hop</option>
-          <option>Trap</option>
-          <option>Drill</option>
-          <option>R&B</option>
-          <option>Reggaeton</option>
-          <option>Electrónica</option>
-          <option>House</option>
-          <option>Techno</option>
-          <option>Ambient</option>
-          <option>Lo-Fi</option>
-          <option>Jazz</option>
-          <option>Soul</option>
-          <option>Rock</option>
-          <option>Metal</option>
-          <option>Pop</option>
-          <option>Cumbia</option>
-          <option>Salsa</option>
-          <option>Funk</option>
-          <option>Experimental</option>
-          <option>Instrumental</option>
-          <option>Otro</option>
-        </select>
-      </div>
+    <!-- TIPO: SINGLE O ÁLBUM -->
+    <div style="display:flex;gap:8px;margin-bottom:16px;">
+      <button class="btn btn-solid" id="type-single" onclick="setType('single')" style="flex:1">🎵 Single</button>
+      <button class="btn btn-ghost" id="type-album" onclick="setType('album')" style="flex:1">💿 Álbum</button>
     </div>
 
-    <div class="upload-grid" style="margin-top:4px">
-      <!-- AUDIO DROP -->
-      <div>
-        <div class="file-drop" id="audio-drop">
-          <input type="file" id="audio-input" accept="audio/mp3,audio/mpeg,audio/*" onchange="setFile(this,'audio')"/>
-          <div class="file-drop-icon">🎵</div>
-          <div class="file-drop-label">Archivo .mp3</div>
-          <div class="file-drop-name" id="audio-name"></div>
+    <!-- CAMPOS SINGLE -->
+    <div id="single-fields">
+      <div class="upload-grid">
+        <div class="field">
+          <label>Título</label>
+          <input type="text" id="track-title" placeholder="Nombre de la canción"/>
+        </div>
+        <div class="field">
+          <label>Género</label>
+          <select id="track-genre">
+            <option value="" disabled selected>— Seleccionar —</option>
+            <option>Hip-Hop</option><option>Trap</option><option>Drill</option>
+            <option>R&B</option><option>Reggaeton</option><option>Electrónica</option>
+            <option>House</option><option>Techno</option><option>Ambient</option>
+            <option>Lo-Fi</option><option>Jazz</option><option>Soul</option>
+            <option>Rock</option><option>Metal</option><option>Pop</option>
+            <option>Cumbia</option><option>Salsa</option><option>Funk</option>
+            <option>Experimental</option><option>Instrumental</option><option>Otro</option>
+          </select>
         </div>
       </div>
-      <!-- COVER DROP -->
-      <div>
+      <div class="upload-grid" style="margin-top:4px">
+        <div class="file-drop" id="audio-drop">
+          <input type="file" id="audio-input" accept=".mp3,audio/mpeg" onchange="setFile(this,'audio')"/>
+          <div class="file-drop-icon">🎵</div>
+          <div class="file-drop-label">Solo .mp3</div>
+          <div class="file-drop-name" id="audio-name"></div>
+        </div>
         <div class="file-drop" id="cover-drop">
           <input type="file" id="cover-input" accept="image/*" onchange="setFile(this,'cover')"/>
           <div class="file-drop-icon">🖼</div>
-          <div class="file-drop-label">Portada (imagen)</div>
+          <div class="file-drop-label">Portada</div>
           <div class="file-drop-name" id="cover-name"></div>
         </div>
+      </div>
+    </div>
+
+    <!-- CAMPOS ÁLBUM -->
+    <div id="album-fields" style="display:none">
+      <div class="upload-grid">
+        <div class="field">
+          <label>Nombre del Álbum</label>
+          <input type="text" id="album-name" placeholder="Título del álbum"/>
+        </div>
+        <div class="field">
+          <label>Género</label>
+          <select id="album-genre">
+            <option value="" disabled selected>— Seleccionar —</option>
+            <option>Hip-Hop</option><option>Trap</option><option>Drill</option>
+            <option>R&B</option><option>Reggaeton</option><option>Electrónica</option>
+            <option>House</option><option>Techno</option><option>Ambient</option>
+            <option>Lo-Fi</option><option>Jazz</option><option>Soul</option>
+            <option>Rock</option><option>Metal</option><option>Pop</option>
+            <option>Cumbia</option><option>Salsa</option><option>Funk</option>
+            <option>Experimental</option><option>Instrumental</option><option>Otro</option>
+          </select>
+        </div>
+      </div>
+      <div class="field" style="margin-top:8px">
+        <label>Portada del Álbum</label>
+        <div class="file-drop" id="album-cover-drop">
+          <input type="file" id="album-cover-input" accept="image/*" onchange="setFile(this,'albumCover')"/>
+          <div class="file-drop-icon">🖼</div>
+          <div class="file-drop-label">Imagen de portada</div>
+          <div class="file-drop-name" id="album-cover-name"></div>
+        </div>
+      </div>
+      <div class="field" style="margin-top:8px">
+        <label>Archivos .mp3 (selecciona todos a la vez)</label>
+        <div class="file-drop" id="album-audio-drop">
+          <input type="file" id="album-audio-input" accept=".mp3,audio/mpeg" multiple onchange="setAlbumFiles(this)"/>
+          <div class="file-drop-icon">🎵</div>
+          <div class="file-drop-label">Seleccionar varios .mp3</div>
+          <div class="file-drop-name" id="album-files-name"></div>
+        </div>
+      </div>
+      <!-- Lista de tracks del álbum -->
+      <div id="album-track-list" style="margin-top:8px;display:none">
+        <div style="font-size:.65rem;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;margin-bottom:8px">Tracks del álbum (arrastra para reordenar)</div>
+        <div id="album-tracks-sortable"></div>
       </div>
     </div>
 
@@ -441,7 +475,7 @@
     <div style="display:flex;align-items:center;justify-content:space-between;margin-top:16px;padding:12px 14px;background:var(--s2);border:1px solid var(--border);border-radius:6px;">
       <div>
         <div style="font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;">Permitir descarga</div>
-        <div style="font-size:.62rem;color:var(--muted);margin-top:2px;">Los oyentes podrán descargar este track</div>
+        <div style="font-size:.62rem;color:var(--muted);margin-top:2px;">Los oyentes podrán descargar</div>
       </div>
       <label style="position:relative;display:inline-block;width:44px;height:24px;cursor:pointer;">
         <input type="checkbox" id="track-downloadable" style="opacity:0;width:0;height:0;">
@@ -450,7 +484,7 @@
       </label>
     </div>
 
-    <button class="submit-btn" style="margin-top:16px" id="upload-btn" onclick="uploadTrack()">Publicar canción</button>
+    <button class="submit-btn" style="margin-top:16px" id="upload-btn" onclick="uploadTrack()">Publicar</button>
   </div>
 
   <!-- MIS TRACKS -->
@@ -632,75 +666,155 @@
   // ──────────────────────────────────────────────
   //  UPLOAD TRACK
   // ──────────────────────────────────────────────
+  let currentType = 'single';
+  let selectedAlbumFiles = [];
+
+  window.setType = function(type){
+    currentType = type;
+    document.getElementById('single-fields').style.display = type==='single'?'block':'none';
+    document.getElementById('album-fields').style.display  = type==='album' ?'block':'none';
+    document.getElementById('type-single').className = type==='single'?'btn btn-solid':'btn btn-ghost';
+    document.getElementById('type-album').className  = type==='album' ?'btn btn-solid':'btn btn-ghost';
+  };
+
   window.toggleUpload = function(){
     document.getElementById('upload-panel').classList.toggle('open');
     document.getElementById('profile-panel').classList.remove('open');
   };
 
+  function validateMp3(file){
+    const ok = file.type==='audio/mpeg' || file.type==='audio/mp3' || file.name.toLowerCase().endsWith('.mp3');
+    if(!ok) showError('upload-error',`"${file.name}" no es un .mp3. Solo se permiten archivos MP3.`);
+    return ok;
+  }
+
   window.setFile = function(input, type){
     if(!input.files[0]) return;
+    const file = input.files[0];
     if(type==='audio'){
-      selectedAudio = input.files[0];
-      document.getElementById('audio-name').textContent = input.files[0].name;
-    } else {
-      selectedCover = input.files[0];
-      document.getElementById('cover-name').textContent = input.files[0].name;
+      if(!validateMp3(file)){ input.value=''; return; }
+      selectedAudio = file;
+      document.getElementById('audio-name').textContent = file.name;
+    } else if(type==='cover'){
+      selectedCover = file;
+      document.getElementById('cover-name').textContent = file.name;
+    } else if(type==='albumCover'){
+      selectedCover = file;
+      document.getElementById('album-cover-name').textContent = file.name;
     }
   };
 
+  window.setAlbumFiles = function(input){
+    const files = Array.from(input.files);
+    const invalid = files.filter(f => !f.name.toLowerCase().endsWith('.mp3'));
+    if(invalid.length){
+      showError('upload-error', `Solo .mp3: ${invalid.map(f=>f.name).join(', ')}`);
+      input.value=''; return;
+    }
+    selectedAlbumFiles = files;
+    document.getElementById('album-files-name').textContent = `${files.length} archivo${files.length!==1?'s':''} seleccionado${files.length!==1?'s':''}`;
+    // Mostrar lista ordenable
+    const listWrap = document.getElementById('album-track-list');
+    const sortable = document.getElementById('album-tracks-sortable');
+    listWrap.style.display = 'block';
+    sortable.innerHTML = files.map((f,i)=>`
+      <div style="display:flex;align-items:center;gap:10px;padding:8px 12px;background:var(--s2);border:1px solid var(--border);border-radius:6px;margin-bottom:6px;cursor:grab" data-index="${i}">
+        <span style="color:var(--muted);font-size:.7rem;min-width:20px">${i+1}.</span>
+        <input type="text" value="${f.name.replace(/\.mp3$/i,'')}" data-index="${i}"
+          style="flex:1;background:transparent;border:none;border-bottom:1px solid var(--border);color:var(--text);font-family:var(--fb);font-size:.75rem;outline:none;padding:2px 4px"
+          placeholder="Título del track"/>
+        <span style="font-size:.62rem;color:var(--muted)">≡</span>
+      </div>`).join('');
+  };
+
   window.uploadTrack = async function(){
-    const title        = document.getElementById('track-title').value.trim();
-    const genre        = document.getElementById('track-genre').value.trim();
     const downloadable = document.getElementById('track-downloadable').checked;
     clearMessages('upload');
-
-    if(!title){ showError('upload-error','El título es obligatorio'); return; }
-    if(!selectedAudio){ showError('upload-error','Selecciona un archivo de audio'); return; }
-
     const btn = document.getElementById('upload-btn');
     btn.disabled = true;
     document.getElementById('upload-progress').style.display = 'block';
 
     try{
-      const uid  = currentUser.uid;
-      const ts   = Date.now();
+      const uid = currentUser.uid;
+      const ts  = Date.now();
 
-      // 1. Subir audio
-      setLabel('upload-progress-label','Subiendo audio…');
-      const audioURL = await uploadFile(
-        selectedAudio,
-        `artists/${uid}/tracks/${ts}_${selectedAudio.name}`,
-        'upload-bar','upload-progress-label'
-      );
+      if(currentType === 'single'){
+        // ── SINGLE ──
+        const title = document.getElementById('track-title').value.trim();
+        const genre = document.getElementById('track-genre').value.trim();
+        if(!title){ showError('upload-error','El título es obligatorio'); btn.disabled=false; return; }
+        if(!selectedAudio){ showError('upload-error','Selecciona un archivo .mp3'); btn.disabled=false; return; }
 
-      // 2. Subir portada (opcional)
-      let coverURL = '';
-      if(selectedCover){
-        setLabel('upload-progress-label','Subiendo portada…');
-        coverURL = await uploadFile(
-          selectedCover,
-          `artists/${uid}/covers/${ts}_${selectedCover.name}`,
-          'upload-bar','upload-progress-label'
-        );
+        setLabel('upload-progress-label','Subiendo audio…');
+        const audioURL = await uploadFile(selectedAudio, `artists/${uid}/tracks/${ts}_${selectedAudio.name}`, 'upload-bar','upload-progress-label');
+
+        let coverURL = '';
+        if(selectedCover){
+          setLabel('upload-progress-label','Subiendo portada…');
+          coverURL = await uploadFile(selectedCover, `artists/${uid}/covers/${ts}_${selectedCover.name}`, 'upload-bar','upload-progress-label');
+        }
+
+        setLabel('upload-progress-label','Guardando…');
+        await addDoc(collection(db,`artists/${uid}/tracks`),{
+          title, genre, audioURL, coverURL, downloadable, type:'single', createdAt: serverTimestamp()
+        });
+
+      } else {
+        // ── ÁLBUM ──
+        const albumName = document.getElementById('album-name').value.trim();
+        const genre     = document.getElementById('album-genre').value.trim();
+        if(!albumName){ showError('upload-error','El nombre del álbum es obligatorio'); btn.disabled=false; return; }
+        if(!selectedAlbumFiles.length){ showError('upload-error','Selecciona al menos un .mp3'); btn.disabled=false; return; }
+
+        // Subir portada del álbum
+        let albumCoverURL = '';
+        if(selectedCover){
+          setLabel('upload-progress-label','Subiendo portada del álbum…');
+          albumCoverURL = await uploadFile(selectedCover, `artists/${uid}/covers/${ts}_album_${selectedCover.name}`, 'upload-bar','upload-progress-label');
+        }
+
+        // Obtener títulos editados
+        const titleInputs = document.querySelectorAll('#album-tracks-sortable input[data-index]');
+        const titles = {};
+        titleInputs.forEach(inp => { titles[inp.dataset.index] = inp.value.trim(); });
+
+        // Subir cada track
+        for(let i=0; i<selectedAlbumFiles.length; i++){
+          const file  = selectedAlbumFiles[i];
+          const title = titles[i] || file.name.replace(/\.mp3$/i,'');
+          setLabel('upload-progress-label',`Subiendo ${i+1}/${selectedAlbumFiles.length}: ${title}…`);
+          document.getElementById('upload-bar').style.width = '0%';
+
+          const audioURL = await uploadFile(file, `artists/${uid}/tracks/${ts}_${i}_${file.name}`, 'upload-bar','upload-progress-label');
+
+          await addDoc(collection(db,`artists/${uid}/tracks`),{
+            title, genre, audioURL,
+            coverURL: albumCoverURL,
+            albumCoverURL, albumName,
+            downloadable, type:'album',
+            trackNumber: i+1,
+            createdAt: serverTimestamp()
+          });
+        }
       }
-
-      // 3. Guardar en Firestore
-      setLabel('upload-progress-label','Guardando…');
-      await addDoc(collection(db,`artists/${uid}/tracks`),{
-        title, genre, audioURL, coverURL, downloadable,
-        createdAt: serverTimestamp()
-      });
 
       // Reset
       document.getElementById('track-title').value = '';
       document.getElementById('track-genre').value = '';
+      document.getElementById('album-name').value  = '';
+      document.getElementById('album-genre').value = '';
       document.getElementById('audio-input').value = '';
       document.getElementById('cover-input').value = '';
+      document.getElementById('album-audio-input').value = '';
+      document.getElementById('album-cover-input').value = '';
       document.getElementById('audio-name').textContent = '';
       document.getElementById('cover-name').textContent = '';
+      document.getElementById('album-cover-name').textContent = '';
+      document.getElementById('album-files-name').textContent = '';
+      document.getElementById('album-track-list').style.display = 'none';
       document.getElementById('track-downloadable').checked = false;
       updateToggleUI('track-downloadable','toggle-track','toggle-thumb', false);
-      selectedAudio = null; selectedCover = null;
+      selectedAudio = null; selectedCover = null; selectedAlbumFiles = [];
 
       document.getElementById('upload-progress').style.display = 'none';
       document.getElementById('upload-panel').classList.remove('open');

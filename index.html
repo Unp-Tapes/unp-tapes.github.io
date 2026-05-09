@@ -3,46 +3,41 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>SNDWV — Plataforma Musical</title>
+  <title>UNP Records — Plataforma Musical</title>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet"/>
   <style>
     :root {
-      --bg:       #080810;
-      --s1:       #0f0f1c;
-      --s2:       #161626;
-      --border:   #1e1e38;
-      --accent:   #e8ff47;
-      --accent2:  #ff4757;
-      --purple:   #7b4fff;
-      --text:     #eeeeff;
-      --muted:    #5a5a7a;
-      --radius:   10px;
-      --fh:       'Bebas Neue', sans-serif;
-      --fb:       'DM Mono', monospace;
+      --bg:      #000000;
+      --s1:      #0d0d0d;
+      --s2:      #161616;
+      --border:  #222222;
+      --accent:  #ff6a00;
+      --accent2: #ff4757;
+      --purple:  #7b4fff;
+      --text:    #eeeeff;
+      --muted:   #5a5a5a;
+      --radius:  10px;
+      --fh:      'Bebas Neue', sans-serif;
+      --fb:      'DM Mono', monospace;
     }
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
     html{scroll-behavior:smooth}
     body{background:var(--bg);color:var(--text);font-family:var(--fb);min-height:100vh;overflow-x:hidden}
-
-    /* ── AMBIENT BACKGROUND ── */
     body::before{
       content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
       background:
-        radial-gradient(ellipse 70% 50% at 15% 5%,  rgba(123,79,255,.10) 0%,transparent 60%),
-        radial-gradient(ellipse 50% 40% at 85% 90%, rgba(232,255,71,.07) 0%,transparent 55%),
-        radial-gradient(ellipse 40% 30% at 50% 50%, rgba(255,71,87,.05) 0%,transparent 60%);
+        radial-gradient(ellipse 60% 40% at 15% 5%, rgba(255,106,0,.08) 0%,transparent 60%),
+        radial-gradient(ellipse 50% 40% at 85% 90%,rgba(123,79,255,.07) 0%,transparent 55%);
     }
-
-    /* ── NAV ── */
     nav{
       position:sticky;top:0;z-index:100;
-      background:rgba(8,8,16,.85);backdrop-filter:blur(16px);
+      background:rgba(0,0,0,.92);backdrop-filter:blur(16px);
       border-bottom:1px solid var(--border);
       display:flex;align-items:center;justify-content:space-between;
       padding:0 32px;height:60px;
     }
-    .nav-logo{font-family:var(--fh);font-size:1.6rem;letter-spacing:4px;color:var(--accent)}
+    .nav-logo{font-family:var(--fh);font-size:1.6rem;letter-spacing:4px;color:var(--accent);text-decoration:none}
     .nav-logo em{color:var(--text);font-style:normal}
     .nav-actions{display:flex;gap:12px;align-items:center}
     .btn{
@@ -52,228 +47,167 @@
     }
     .btn-ghost{border-color:var(--border);color:var(--muted);background:transparent}
     .btn-ghost:hover{border-color:var(--accent);color:var(--accent)}
-    .btn-solid{background:var(--accent);color:#080810;border-color:var(--accent);font-weight:500}
-    .btn-solid:hover{background:#fff;border-color:#fff}
-
-    /* ── HERO ── */
-    .hero{
-      position:relative;z-index:1;
-      text-align:center;padding:80px 24px 60px;
-    }
-    .hero-tag{
-      display:inline-block;font-size:.65rem;letter-spacing:.2em;text-transform:uppercase;
-      color:var(--accent);border:1px solid rgba(232,255,71,.3);border-radius:20px;
-      padding:4px 16px;margin-bottom:20px;
-    }
-    .hero h1{
-      font-family:var(--fh);font-size:clamp(3rem,10vw,7rem);
-      letter-spacing:4px;line-height:.9;margin-bottom:16px;
-    }
-    .hero h1 span{color:var(--accent)}
-    .hero p{color:var(--muted);font-size:.8rem;letter-spacing:.08em;max-width:400px;margin:0 auto}
-
-    /* ── WRAPPER ── */
+    .btn-solid{background:var(--accent);color:#000;border-color:var(--accent);font-weight:500}
+    .btn-solid:hover{background:#ff8c00;border-color:#ff8c00}
+    .hero{position:relative;z-index:1;text-align:center;padding:48px 24px 40px}
+    .hero p{color:var(--muted);font-size:.78rem;letter-spacing:.08em;max-width:400px;margin:0 auto}
     .wrap{position:relative;z-index:1;max-width:900px;margin:0 auto;padding:0 24px 100px}
-
-    /* ── FILTER BAR ── */
-    .filter-bar{
-      display:flex;align-items:center;gap:12px;margin-bottom:40px;
-      flex-wrap:wrap;
-    }
+    .filter-bar{display:flex;align-items:center;gap:12px;margin-bottom:40px;flex-wrap:wrap}
     .filter-label{font-size:.65rem;color:var(--muted);letter-spacing:.12em;text-transform:uppercase}
     .filter-input{
-      flex:1;min-width:200px;
-      background:var(--s1);border:1px solid var(--border);border-radius:6px;
-      color:var(--text);font-family:var(--fb);font-size:.78rem;
+      flex:1;min-width:200px;background:var(--s1);border:1px solid var(--border);
+      border-radius:6px;color:var(--text);font-family:var(--fb);font-size:.78rem;
       padding:8px 14px;outline:none;transition:border-color .2s;
     }
-    .filter-input:focus{border-color:var(--purple)}
+    .filter-input:focus{border-color:var(--accent)}
     .filter-input::placeholder{color:var(--muted)}
-
-    /* ── ARTIST SECTION ── */
     .artist-section{margin-bottom:56px}
     .artist-header{
       display:flex;align-items:center;gap:16px;
-      padding:20px 0 16px;
-      border-bottom:1px solid var(--border);
-      margin-bottom:20px;
+      padding:20px 0 16px;border-bottom:1px solid var(--border);margin-bottom:20px;
     }
     .artist-avatar{
-      width:52px;height:52px;border-radius:50%;
-      object-fit:cover;flex-shrink:0;
-      border:2px solid var(--border);
-      background:var(--s2);
-      font-size:1.4rem;display:flex;align-items:center;justify-content:center;
+      width:52px;height:52px;border-radius:50%;object-fit:cover;flex-shrink:0;
+      border:2px solid var(--border);background:var(--s2);font-size:1.4rem;
+      display:flex;align-items:center;justify-content:center;
     }
     .artist-info h2{font-family:var(--fh);font-size:1.5rem;letter-spacing:2px}
     .artist-info p{font-size:.68rem;color:var(--muted);letter-spacing:.08em;margin-top:2px}
     .track-count{
       margin-left:auto;font-size:.65rem;color:var(--muted);
-      background:var(--s2);border:1px solid var(--border);
-      border-radius:4px;padding:3px 10px;
+      background:var(--s2);border:1px solid var(--border);border-radius:4px;padding:3px 10px;
     }
-
-    /* ── TRACK CARD (REDiseñado) ── */
-    .track-list{display:flex;flex-direction:column;gap:12px}
+    /* ALBUM */
+    .album-section{margin-bottom:24px}
+    .album-header{
+      display:flex;align-items:center;gap:12px;padding:10px 14px;
+      background:var(--s1);border:1px solid var(--border);
+      border-radius:var(--radius) var(--radius) 0 0;
+      border-bottom:2px solid var(--accent);
+    }
+    .album-cover{
+      width:48px;height:48px;border-radius:6px;object-fit:cover;
+      background:var(--s2);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:1.4rem;
+    }
+    .album-cover img{width:100%;height:100%;border-radius:6px;object-fit:cover}
+    .album-info .album-title{font-family:var(--fh);font-size:1.1rem;letter-spacing:2px;color:var(--accent)}
+    .album-info .album-meta{font-size:.62rem;color:var(--muted);margin-top:2px}
+    .album-tracks{border:1px solid var(--border);border-top:none;border-radius:0 0 var(--radius) var(--radius);overflow:hidden}
+    /* TRACKS */
+    .track-list{display:flex;flex-direction:column;gap:10px}
     .track-card{
       background:var(--s1);border:1px solid var(--border);
       border-radius:var(--radius);overflow:hidden;
       display:grid;grid-template-columns:100px 1fr;
       transition:border-color .25s,box-shadow .25s;
-      animation:fadeUp .4s ease both;
-      height:100px;
+      animation:fadeUp .4s ease both;height:100px;
     }
-    @keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
-    .track-card:hover{border-color:var(--purple);box-shadow:0 0 20px rgba(123,79,255,.12)}
-
-    .track-cover{
-      width:100px;height:100px;object-fit:cover;display:block;
-      background:var(--s2);flex-shrink:0;border-right:1px solid var(--border);
+    .album-tracks .track-card{
+      border-radius:0;border:none;border-bottom:1px solid var(--border);height:72px;
     }
-    .track-body{
-      padding:12px 16px;display:flex;flex-direction:column;
-      justify-content:space-between;min-width:0;position:relative;
-    }
-    .track-meta{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:4px}
-    .track-title{font-family:var(--fh);font-size:1.2rem;letter-spacing:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .album-tracks .track-card:last-child{border-bottom:none}
+    .album-tracks .track-card .track-cover{width:72px;height:72px}
+    .album-tracks .track-card{grid-template-columns:72px 1fr}
+    @keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+    .track-card:hover{border-color:var(--accent);box-shadow:0 0 16px rgba(255,106,0,.1)}
+    .track-cover{width:100px;height:100px;object-fit:cover;display:block;background:var(--s2);flex-shrink:0;border-right:1px solid var(--border)}
+    .track-body{padding:10px 14px;display:flex;flex-direction:column;justify-content:space-between;min-width:0;position:relative}
+    .track-meta{display:flex;justify-content:space-between;align-items:center;gap:8px}
+    .track-num{font-size:.65rem;color:var(--muted);flex-shrink:0;margin-right:4px}
+    .track-title{font-family:var(--fh);font-size:1.1rem;letter-spacing:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:1}
     .track-genre{
-      font-size:.6rem;color:var(--accent);background:rgba(232,255,71,.07);
-      border:1px solid rgba(232,255,71,.18);border-radius:4px;
-      padding:2px 7px;white-space:nowrap;flex-shrink:0;
-      text-transform:uppercase;letter-spacing:.08em;
+      font-size:.6rem;color:var(--accent);background:rgba(255,106,0,.08);
+      border:1px solid rgba(255,106,0,.2);border-radius:4px;
+      padding:2px 7px;white-space:nowrap;flex-shrink:0;text-transform:uppercase;letter-spacing:.08em;
     }
-
-    /* Row Principal del Reproductor */
-    .audio-row{display:flex;align-items:center;gap:12px;flex:1;position:relative}
+    .audio-row{display:flex;align-items:center;gap:10px;flex:1;position:relative}
     .play-btn{
-      width:36px;height:36px;border-radius:50%;background:var(--accent);
+      width:34px;height:34px;border-radius:50%;background:var(--accent);
       border:none;cursor:pointer;flex-shrink:0;
       display:flex;align-items:center;justify-content:center;
       transition:background .2s,transform .15s;z-index:2;
     }
-    .play-btn:hover{background:#fff;transform:scale(1.08)}
-    .play-btn svg{width:14px;height:14px;fill:#080810}
-
-    /* Contenedor central */
-    .seek-wrap{
-      flex:1;height:100%;display:flex;flex-direction:column;
-      justify-content:center;position:relative;min-width:0;
-    }
-
-    /* WINAMP VISUALIZER como fondo */
+    .play-btn:hover{background:#ff8c00;transform:scale(1.08)}
+    .play-btn svg{width:13px;height:13px;fill:#000}
+    .seek-wrap{flex:1;height:100%;display:flex;flex-direction:column;justify-content:center;position:relative;min-width:0}
     .visualizer-wrap{
-      position:absolute;inset:0;
-      display:flex;align-items:center;gap:1px;
-      padding:0;opacity:0;transition:opacity .3s;
-      z-index:0;pointer-events:none;
+      position:absolute;inset:0;display:flex;align-items:center;gap:1px;
+      opacity:0;transition:opacity .3s;z-index:0;pointer-events:none;
     }
-    .visualizer-wrap.active{opacity:.4}
-    .viz-bar{
-      flex:1;background:var(--muted);height:2px;
-      transition:background .2s,height 0.05s linear;
-      border-radius:1px;position:relative;
-    }
+    .visualizer-wrap.active{opacity:.45}
+    .viz-bar{flex:1;background:rgba(255,106,0,.45);height:2px;transition:height 0.05s linear;border-radius:1px;position:relative}
     .viz-peak{display:none}
-
-    /* Seekbar */
     input[type="range"].seek{
-      -webkit-appearance:none;width:100%;
-      background:transparent;outline:none;cursor:pointer;
-      position:relative;z-index:1;height:40px;
+      -webkit-appearance:none;width:100%;background:transparent;
+      outline:none;cursor:pointer;position:relative;z-index:1;height:34px;
     }
-    input[type="range"].seek::-webkit-slider-runnable-track{
-      width:100%;height:2px;background:rgba(255,255,255,.1);
-    }
+    input[type="range"].seek::-webkit-slider-runnable-track{width:100%;height:2px;background:rgba(255,255,255,.08)}
     input[type="range"].seek::-webkit-slider-thumb{
-      -webkit-appearance:none;width:10px;height:10px;
-      border-radius:50%;background:var(--accent);cursor:pointer;
-      margin-top:-4px;box-shadow:0 0 5px rgba(0,0,0,.5);
+      -webkit-appearance:none;width:10px;height:10px;border-radius:50%;
+      background:var(--accent);cursor:pointer;margin-top:-4px;
     }
-
-    /* Tiempos */
     .controls-meta{
       display:flex;justify-content:space-between;align-items:center;
       font-size:.6rem;color:var(--muted);font-family:var(--fb);
-      margin-top:-8px;position:relative;z-index:2;
+      position:relative;z-index:2;margin-top:-2px;
     }
-    .time-row{display:flex;gap:4px;}
+    .time-row{display:flex;gap:4px}
     .dl-btn{
       display:flex;align-items:center;gap:5px;flex-shrink:0;
       background:transparent;border:1px solid var(--border);border-radius:5px;
-      color:var(--muted);font-family:var(--fb);font-size:.62rem;
-      letter-spacing:.08em;text-transform:uppercase;padding:4px 10px;
+      color:var(--muted);font-family:var(--fb);font-size:.6rem;
+      letter-spacing:.06em;text-transform:uppercase;padding:3px 10px;
       cursor:pointer;transition:border-color .2s,color .2s;
     }
     .dl-btn:hover{border-color:var(--accent);color:var(--accent)}
     .dl-btn svg{width:10px;height:10px;fill:currentColor}
-
-    @media(max-width:520px){
-      .track-card{grid-template-columns:70px 1fr;height:70px}
-      .track-cover{width:70px;height:70px}
-      .track-title{font-size:1rem}
-      .play-btn{width:30px;height:30px}
-    }
     .state-msg{text-align:center;padding:60px 0;color:var(--muted);font-size:.78rem;letter-spacing:.1em}
-    .spinner{
-      width:32px;height:32px;border:2px solid var(--border);
-      border-top-color:var(--accent);border-radius:50%;
-      animation:spin .7s linear infinite;margin:0 auto 16px;
-    }
+    .spinner{width:32px;height:32px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite;margin:0 auto 16px}
     @keyframes spin{to{transform:rotate(360deg)}}
-
-    /* ── FOOTER ── */
-    footer{
-      position:relative;z-index:1;text-align:center;
-      padding:32px 0;border-top:1px solid var(--border);
-      font-size:.65rem;color:var(--muted);letter-spacing:.1em;
-    }
+    footer{position:relative;z-index:1;text-align:center;padding:32px 0;border-top:1px solid var(--border);font-size:.65rem;color:var(--muted);letter-spacing:.1em}
     footer span{color:var(--accent)}
-
     @media(max-width:520px){
       nav{padding:0 16px}
-      .track-card{grid-template-columns:70px 1fr}
-      .track-cover{width:70px;height:70px}
+      .track-card{grid-template-columns:72px 1fr;height:80px}
+      .track-cover{width:72px;height:80px}
     }
   </style>
 </head>
 <body>
 
-<!-- NAV -->
 <nav>
-  <div class="nav-logo">SND<em>WV</em></div>
+  <a href="index.html" class="nav-logo">
+    <img src="logo.png" alt="UNP Records" style="height:38px;display:block" onerror="this.style.display='none'"/>
+  </a>
   <div class="nav-actions">
     <a href="dashboard.html" class="btn btn-ghost">Mi Panel</a>
     <a href="dashboard.html#register" class="btn btn-solid">Unirse</a>
   </div>
 </nav>
 
-<!-- HERO -->
 <div class="hero">
-  <img src="logo.png" alt="UNP Records" style="width:280px;max-width:80%;margin:0 auto 16px;display:block;filter:drop-shadow(0 0 24px rgba(123,79,255,.4))"/>
+  <img src="logo.png" alt="UNP Records" style="width:260px;max-width:75%;margin:0 auto 14px;display:block;filter:drop-shadow(0 0 28px rgba(255,106,0,.35))"/>
   <p>Música de artistas independientes. Sin algoritmos, sin intermediarios.</p>
 </div>
 
-<!-- CONTENIDO PRINCIPAL -->
 <div class="wrap">
   <div class="filter-bar">
     <span class="filter-label">Buscar</span>
-    <input type="text" class="filter-input" id="searchInput" placeholder="Artista, canción, género…" oninput="filterTracks()"/>
+    <input type="text" class="filter-input" id="searchInput" placeholder="Artista, canción, álbum, género…" oninput="filterTracks()"/>
   </div>
-
   <div id="content">
     <div class="state-msg"><div class="spinner"></div>Cargando artistas…</div>
   </div>
 </div>
 
 <footer>
-  <p>SNDWV · Música independiente · <span>Hecho con Firebase</span></p>
+  <p>UNP Records · Música independiente · <span>Santiago, Chile</span></p>
 </footer>
 
-<!-- FIREBASE SDK -->
 <script type="module">
-  import { initializeApp }              from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { initializeApp }           from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
   import { getFirestore, collection,
-           getDocs, query, orderBy }    from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+           getDocs, query, orderBy } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyAQeS0wTC4HhRx78uGTvWnfjcZoZCk_zME",
@@ -287,60 +221,69 @@
   const app = initializeApp(firebaseConfig);
   const db  = getFirestore(app);
 
-  // ── ÍCONOS ──
   const ICON_PLAY  = `<svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>`;
   const ICON_PAUSE = `<svg viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>`;
 
-  function fmt(s){
-    if(!s||isNaN(s))return'0:00';
-    return`${Math.floor(s/60)}:${String(Math.floor(s%60)).padStart(2,'0')}`;
-  }
+  function fmt(s){ if(!s||isNaN(s))return'0:00'; return`${Math.floor(s/60)}:${String(Math.floor(s%60)).padStart(2,'0')}`; }
 
-  // ── CARGAR DATOS ──
-  let allData = []; // [{artist, tracks:[]}]
+  let allData = [];
+  let globalRows = [];
 
   async function loadAll(){
     try{
-      // 1. Obtener todos los artistas
       const artistsSnap = await getDocs(collection(db,'artists'));
       const artists = [];
       artistsSnap.forEach(d => artists.push({id:d.id,...d.data()}));
-
-      // 2. Para cada artista, obtener sus tracks
       for(const artist of artists){
-        const tSnap = await getDocs(
-          query(collection(db,`artists/${artist.id}/tracks`), orderBy('createdAt','desc'))
-        );
+        const tSnap = await getDocs(query(collection(db,`artists/${artist.id}/tracks`), orderBy('createdAt','asc')));
         const tracks = [];
         tSnap.forEach(d => tracks.push({id:d.id,...d.data()}));
         allData.push({artist, tracks});
       }
-
       renderAll(allData);
     } catch(e){
-      document.getElementById('content').innerHTML =
-        `<div class="state-msg">Error al cargar: ${e.message}</div>`;
+      document.getElementById('content').innerHTML = `<div class="state-msg">Error al cargar: ${e.message}</div>`;
     }
   }
 
   function renderAll(data){
     const container = document.getElementById('content');
-    if(!data.length){
-      container.innerHTML = `<div class="state-msg">Aún no hay artistas registrados.<br/>¡Sé el primero en unirte!</div>`;
-      return;
-    }
-    container.innerHTML = data
-      .filter(d => d.tracks.length > 0)
-      .map(({artist, tracks}) => renderArtistSection(artist, tracks))
-      .join('') || `<div class="state-msg">Aún no hay canciones publicadas.</div>`;
-
+    const filtered  = data.filter(d => d.tracks.length > 0);
+    if(!filtered.length){ container.innerHTML = `<div class="state-msg">Aún no hay canciones publicadas.</div>`; return; }
+    container.innerHTML = filtered.map(({artist,tracks}) => renderArtistSection(artist,tracks)).join('');
     initPlayers();
   }
 
   function renderArtistSection(artist, tracks){
     const avatarHTML = artist.photoURL
-      ? `<img class="artist-avatar" src="${artist.photoURL}" alt="${artist.name}" style="display:block;"/>`
+      ? `<img class="artist-avatar" src="${artist.photoURL}" alt="${artist.name}" style="display:block"/>`
       : `<div class="artist-avatar">${(artist.name||'?')[0].toUpperCase()}</div>`;
+
+    const singles = tracks.filter(t => t.type !== 'album');
+    const albumMap = {};
+    tracks.filter(t => t.type === 'album').forEach(t => {
+      const key = t.albumName || 'Sin título';
+      if(!albumMap[key]) albumMap[key] = {name:key, coverURL:t.albumCoverURL||t.coverURL||'', tracks:[]};
+      albumMap[key].tracks.push(t);
+    });
+    const albums = Object.values(albumMap);
+
+    const singlesHTML = singles.length
+      ? `<div class="track-list">${singles.map(t => renderTrackCard(t,null)).join('')}</div>` : '';
+
+    const albumsHTML = albums.map(album => `
+      <div class="album-section">
+        <div class="album-header">
+          ${album.coverURL
+            ? `<div class="album-cover"><img src="${album.coverURL}" alt="${album.name}"/></div>`
+            : `<div class="album-cover">💿</div>`}
+          <div class="album-info">
+            <div class="album-title">${album.name}</div>
+            <div class="album-meta">${album.tracks.length} track${album.tracks.length!==1?'s':''} · Álbum</div>
+          </div>
+        </div>
+        <div class="album-tracks">${album.tracks.map((t,i) => renderTrackCard(t,i+1)).join('')}</div>
+      </div>`).join('');
 
     return `
     <div class="artist-section" data-artist="${(artist.name||'').toLowerCase()}">
@@ -352,13 +295,12 @@
         </div>
         <span class="track-count">${tracks.length} track${tracks.length!==1?'s':''}</span>
       </div>
-      <div class="track-list">
-        ${tracks.map(t => renderTrackCard(t)).join('')}
-      </div>
+      ${singlesHTML}
+      ${albumsHTML}
     </div>`;
   }
 
-  function renderTrackCard(track){
+  function renderTrackCard(track, num){
     const cover = track.coverURL
       ? `<img class="track-cover" src="${track.coverURL}" alt="${track.title}"/>`
       : `<div class="track-cover" style="display:flex;align-items:center;justify-content:center;font-size:2rem;background:var(--s2)">🎵</div>`;
@@ -367,13 +309,12 @@
       ${cover}
       <div class="track-body">
         <div class="track-meta">
+          ${num?`<span class="track-num">${num}.</span>`:''}
           <span class="track-title">${track.title||'Sin título'}</span>
           ${track.genre?`<span class="track-genre">${track.genre}</span>`:''}
         </div>
         <div class="audio-row">
-          <button class="play-btn" data-playing="false">
-            ${ICON_PLAY}
-          </button>
+          <button class="play-btn" data-playing="false">${ICON_PLAY}</button>
           <div class="seek-wrap">
             <div class="visualizer-wrap" id="viz-${track.id}"></div>
             <input type="range" class="seek" value="0" min="0" step="0.1"/>
@@ -386,208 +327,124 @@
             <span class="duration">—:——</span>
           </div>
           ${track.downloadable?`
-          <button class="dl-btn" onclick="downloadTrack('${track.audioURL}','${(track.title||'track').replace(/'/g,"\\'")}',this)" title="Descargar MP3">
+          <button class="dl-btn" onclick="downloadTrack('${track.audioURL}','${(track.title||'track').replace(/'/g,"\\'")}',this)">
             <svg viewBox="0 0 24 24"><path d="M5 20h14v-2H5v2zm7-18v10.59l-3.3-3.3-1.41 1.41L12 15.41l4.71-4.71-1.41-1.41L13 12.59V2h-1z"/></svg>
-            <span class="dl-text">DESCARGAR</span>
+            Descargar
           </button>`:''}
         </div>
       </div>
     </div>`;
   }
 
-  // ── WINAMP VISUALIZER ENGINE ──
-  const NUM_BARS   = 32;
-  const PEAK_HOLD  = 18;  // frames que el peak se mantiene
-  const PEAK_FALL  = 0.8; // px que cae por frame
-
+  // ── VISUALIZER ──
+  const NUM_BARS = 32, PEAK_HOLD = 18, PEAK_FALL = 0.8;
   let audioCtx = null;
-  const vizMap = new Map(); // audio element → {analyser, bars, peaks, peakTimers, rafId}
-
-  function getAudioCtx(){
-    if(!audioCtx) audioCtx = new (window.AudioContext||window.webkitAudioContext)();
-    return audioCtx;
-  }
-
+  const vizMap = new Map();
+  function getAudioCtx(){ if(!audioCtx) audioCtx=new(window.AudioContext||window.webkitAudioContext)(); return audioCtx; }
   function buildBars(container){
-    container.innerHTML = '';
-    const bars = [], peaks = [], peakTimers = [];
+    container.innerHTML='';
+    const bars=[],peaks=[];
     for(let i=0;i<NUM_BARS;i++){
-      const bar  = document.createElement('div');
-      bar.className = 'viz-bar';
-      const peak = document.createElement('div');
-      peak.className = 'viz-peak';
-      bar.appendChild(peak);
-      container.appendChild(bar);
-      bars.push(bar); peaks.push(peak); peakTimers.push(0);
+      const bar=document.createElement('div'); bar.className='viz-bar';
+      const peak=document.createElement('div'); peak.className='viz-peak';
+      bar.appendChild(peak); container.appendChild(bar);
+      bars.push(bar); peaks.push(peak);
     }
-    return {bars, peaks, peakTimers};
+    return{bars,peaks};
   }
 
-  function startViz(audio, vizId){
-    if(vizMap.has(audio)) return;
-    const ctx      = getAudioCtx();
-    const analyser = ctx.createAnalyser();
-    analyser.fftSize = 128;
-    analyser.smoothingTimeConstant = 0.75;
-    const src = ctx.createMediaElementSource(audio);
-    src.connect(analyser);
-    analyser.connect(ctx.destination);
-
-    const container = document.getElementById(vizId);
-    if(!container) return;
-    container.classList.add('active');
-    const {bars, peaks, peakTimers} = buildBars(container);
-    const data = new Uint8Array(analyser.frequencyBinCount);
-    const maxH = 40;
-
-    // Color gradient per bar: green → yellow → red (Winamp style)
-    bars.forEach((b, i) => {
-      const pct = i / NUM_BARS;
-      const r = Math.round(pct < .5 ? pct*2*200 : 200);
-      const g = Math.round(pct < .5 ? 255 : (1-pct)*2*255);
-      b.style.background = `rgb(${r},${g},50)`;
-    });
-
-    function draw(){
-      const rafId = requestAnimationFrame(draw);
-      vizMap.get(audio).rafId = rafId;
-      analyser.getByteFrequencyData(data);
-      const step = Math.floor(data.length / NUM_BARS);
-      for(let i=0;i<NUM_BARS;i++){
-        let val = 0;
-        for(let j=0;j<step;j++) val += data[i*step+j];
-        val = val/step;
-        const h = Math.max(2, (val/255)*maxH);
-        bars[i].style.height = h+'px';
-        // peak
-        const entry = vizMap.get(audio);
-        if(h >= entry.peakH[i]){
-          entry.peakH[i] = h;
-          entry.peakT[i] = PEAK_HOLD;
-        } else {
-          if(entry.peakT[i] > 0) entry.peakT[i]--;
-          else entry.peakH[i] = Math.max(2, entry.peakH[i]-PEAK_FALL);
-        }
-        peaks[i].style.bottom = (entry.peakH[i] - 2)+'px';
-      }
-    }
-
-    vizMap.set(audio, {analyser, bars, peaks, rafId:null, peakH:new Array(NUM_BARS).fill(2), peakT:new Array(NUM_BARS).fill(0)});
-    draw();
-  }
-
-  function stopViz(audio){
-    const entry = vizMap.get(audio);
-    if(!entry) return;
-    cancelAnimationFrame(entry.rafId);
-    entry.bars.forEach(b=>b.style.height='2px');
-    entry.peaks.forEach(p=>p.style.top='36px');
-  }
-
+  // ── INIT PLAYERS + AUTOPLAY ──
   function initPlayers(){
-    document.querySelectorAll('.audio-row').forEach(row=>{
+    globalRows = Array.from(document.querySelectorAll('.audio-row'));
+    globalRows.forEach((row, rowIndex) => {
       const card     = row.closest('.track-card');
       const body     = row.closest('.track-body');
-      const audioURL = card?.dataset.url || '';
+      const audioURL = card?.dataset.url||'';
       const seek     = row.querySelector('.seek');
       const curEl    = body?.querySelector('.current-time');
       const durEl    = body?.querySelector('.duration');
       const btn      = row.querySelector('.play-btn');
-      const vizWrap  = row.querySelector('.visualizer-wrap');
-      const vizId    = vizWrap?.id;
+      const vizId    = row.querySelector('.visualizer-wrap')?.id;
       if(!audioURL) return;
 
-      // ── Crear audio con crossOrigin ANTES de asignar src ──
       const audio = new Audio();
       audio.crossOrigin = 'anonymous';
       audio.preload = 'metadata';
       audio.src = audioURL;
       row._audio = audio;
 
-      // ── Estado del visualizador para este track (init una sola vez) ──
       let vizReady = false;
-
       function initVizOnce(){
-        if(vizReady || !vizId) return;
-        vizReady = true;
-        try {
-          const ctx      = getAudioCtx();
-          const analyser = ctx.createAnalyser();
-          analyser.fftSize = 128;
-          analyser.smoothingTimeConstant = 0.75;
-          const src = ctx.createMediaElementSource(audio);
-          src.connect(analyser);
-          analyser.connect(ctx.destination);
-
-          const container = document.getElementById(vizId);
-          if(!container) return;
-          const {bars, peaks} = buildBars(container);
-          const data  = new Uint8Array(analyser.frequencyBinCount);
-          const maxH  = 25;
-          let rafId   = null;
-          const peakH = new Array(NUM_BARS).fill(2);
-          const peakT = new Array(NUM_BARS).fill(0);
-
-          // Color morado sutil para visualizador de fondo
-          bars.forEach(b=>{
-            b.style.background = `rgba(123,79,255,0.5)`;
-          });
-
+        if(vizReady||!vizId) return; vizReady=true;
+        try{
+          const ctx=getAudioCtx(), analyser=ctx.createAnalyser();
+          analyser.fftSize=128; analyser.smoothingTimeConstant=0.75;
+          const src=ctx.createMediaElementSource(audio);
+          src.connect(analyser); analyser.connect(ctx.destination);
+          const container=document.getElementById(vizId); if(!container)return;
+          const{bars,peaks}=buildBars(container);
+          const data=new Uint8Array(analyser.frequencyBinCount);
+          const maxH=25; let rafId=null;
+          const peakH=new Array(NUM_BARS).fill(2), peakT=new Array(NUM_BARS).fill(0);
+          bars.forEach(b=>{ b.style.background='rgba(255,106,0,0.5)'; });
           function draw(){
-            rafId = requestAnimationFrame(draw);
+            rafId=requestAnimationFrame(draw);
             analyser.getByteFrequencyData(data);
-            const len = data.length;
+            const len=data.length;
             for(let i=0;i<NUM_BARS;i++){
-              // Escala logarítmica — más resolución en graves
-              const start = Math.floor(Math.pow(i/NUM_BARS, 2) * len);
-              const end   = Math.floor(Math.pow((i+1)/NUM_BARS, 2) * len) || start+1;
-              let val=0;
-              for(let j=start;j<end;j++) val+=data[j];
-              val=val/(end-start);
-              const h=Math.max(2,(val/255)*maxH);
-              bars[i].style.height=h+'px';
+              const start=Math.floor(Math.pow(i/NUM_BARS,2)*len);
+              const end=Math.floor(Math.pow((i+1)/NUM_BARS,2)*len)||start+1;
+              let val=0; for(let j=start;j<end;j++) val+=data[j]; val/=(end-start);
+              const h=Math.max(2,(val/255)*maxH); bars[i].style.height=h+'px';
               if(h>=peakH[i]){peakH[i]=h;peakT[i]=PEAK_HOLD;}
-              else{ if(peakT[i]>0)peakT[i]--; else peakH[i]=Math.max(2,peakH[i]-PEAK_FALL); }
-              peaks[i].style.bottom = (peakH[i] - 2)+'px';
+              else{if(peakT[i]>0)peakT[i]--;else peakH[i]=Math.max(2,peakH[i]-PEAK_FALL);}
+              peaks[i].style.bottom=(peakH[i]-2)+'px';
             }
           }
-
-          // Guardar en vizMap para stop/start
-          vizMap.set(audio,{rafId:null, start:()=>{ container.classList.add('active'); rafId=requestAnimationFrame(draw); vizMap.get(audio).rafId=rafId; }, stop:()=>{ cancelAnimationFrame(rafId); container.classList.remove('active'); bars.forEach(b=>b.style.height='2px'); }});
-
-        } catch(e){ console.warn('Viz error:', e.message); }
+          vizMap.set(audio,{
+            rafId:null,
+            start:()=>{ container.classList.add('active'); rafId=requestAnimationFrame(draw); vizMap.get(audio).rafId=rafId; },
+            stop: ()=>{ cancelAnimationFrame(rafId); container.classList.remove('active'); bars.forEach(b=>b.style.height='2px'); }
+          });
+        }catch(e){ console.warn('Viz:',e.message); }
       }
 
-      audio.addEventListener('loadedmetadata',()=>{
-        durEl.textContent = fmt(audio.duration);
-        seek.max = audio.duration;
-      });
-      audio.addEventListener('timeupdate',()=>{
-        seek.value = audio.currentTime;
-        curEl.textContent = fmt(audio.currentTime);
-      });
+      audio.addEventListener('loadedmetadata',()=>{ if(durEl)durEl.textContent=fmt(audio.duration); seek.max=audio.duration; });
+      audio.addEventListener('timeupdate',()=>{ seek.value=audio.currentTime; if(curEl)curEl.textContent=fmt(audio.currentTime); });
+
+      // ── AUTOPLAY ──
       audio.addEventListener('ended',()=>{
         btn.dataset.playing='false'; btn.innerHTML=ICON_PLAY;
-        seek.value=0; curEl.textContent='0:00';
+        seek.value=0; if(curEl)curEl.textContent='0:00';
         vizMap.get(audio)?.stop();
+        // Buscar siguiente track
+        for(let i=rowIndex+1;i<globalRows.length;i++){
+          const nr=globalRows[i]; const na=nr?._audio; const nb=nr?.querySelector('.play-btn');
+          if(na&&nb){
+            // Pausar todos
+            globalRows.forEach(r=>{ const a=r._audio,b=r.querySelector('.play-btn'); if(a&&a!==na){a.pause();b.dataset.playing='false';b.innerHTML=ICON_PLAY;vizMap.get(a)?.stop();} });
+            getAudioCtx().resume();
+            // Init viz del siguiente si no está listo
+            nr._initVizOnce?.();
+            na.play();
+            nb.dataset.playing='true'; nb.innerHTML=ICON_PAUSE;
+            vizMap.get(na)?.start();
+            nr.closest('.track-card')?.scrollIntoView({behavior:'smooth',block:'nearest'});
+            return;
+          }
+        }
       });
 
+      // Guardar referencia a initVizOnce para autoplay
+      row._initVizOnce = initVizOnce;
+
       btn.addEventListener('click',()=>{
-        const playing = btn.dataset.playing==='true';
-        // Pausar todos los demás
-        document.querySelectorAll('.audio-row').forEach(r=>{
-          const a=r._audio;
-          const b=r.querySelector('.play-btn');
-          if(a&&a!==audio){ a.pause(); b.dataset.playing='false'; b.innerHTML=ICON_PLAY; vizMap.get(a)?.stop(); }
-        });
+        const playing=btn.dataset.playing==='true';
+        globalRows.forEach(r=>{ const a=r._audio,b=r.querySelector('.play-btn'); if(a&&a!==audio){a.pause();b.dataset.playing='false';b.innerHTML=ICON_PLAY;vizMap.get(a)?.stop();} });
         if(playing){
-          audio.pause();
-          btn.dataset.playing='false'; btn.innerHTML=ICON_PLAY;
-          vizMap.get(audio)?.stop();
+          audio.pause(); btn.dataset.playing='false'; btn.innerHTML=ICON_PLAY; vizMap.get(audio)?.stop();
         } else {
-          getAudioCtx().resume();
-          initVizOnce(); // init una sola vez
-          audio.play();
+          getAudioCtx().resume(); initVizOnce(); audio.play();
           btn.dataset.playing='true'; btn.innerHTML=ICON_PAUSE;
           vizMap.get(audio)?.start();
         }
@@ -597,57 +454,23 @@
     });
   }
 
-  // ── BÚSQUEDA ──
   window.filterTracks = function(){
-    const q = document.getElementById('searchInput').value.toLowerCase();
+    const q=document.getElementById('searchInput').value.toLowerCase();
     if(!q){ renderAll(allData); return; }
-
-    const filtered = allData.map(({artist,tracks})=>({
+    const filtered=allData.map(({artist,tracks})=>({
       artist,
-      tracks: tracks.filter(t =>
-        (t.title||'').toLowerCase().includes(q) ||
-        (t.genre||'').toLowerCase().includes(q) ||
-        (artist.name||'').toLowerCase().includes(q)
-      )
+      tracks:tracks.filter(t=>(t.title||'').toLowerCase().includes(q)||(t.genre||'').toLowerCase().includes(q)||(t.albumName||'').toLowerCase().includes(q)||(artist.name||'').toLowerCase().includes(q))
     })).filter(d=>d.tracks.length>0);
-
     renderAll(filtered);
   };
 
-  // ── DESCARGA DIRECTA ──
-  window.downloadTrack = async function(url, title){
+  window.downloadTrack = async function(url,title,btn){
     try{
-      const btn = event.currentTarget;
-      btn.textContent = '…';
-      const res  = await fetch(url);
-      const blob = await res.blob();
-      const a    = document.createElement('a');
-      a.href     = URL.createObjectURL(blob);
-      a.download = title+'.mp3';
-      a.click();
-      URL.revokeObjectURL(a.href);
-      btn.innerHTML = `<svg viewBox="0 0 24 24"><path d="M5 20h14v-2H5v2zm7-18v10.59l-3.3-3.3-1.41 1.41L12 15.41l4.71-4.71-1.41-1.41L13 12.59V2h-1z"/></svg> DL`;
-    } catch(e){
-      alert('Error al descargar: '+e.message);
-    }
-  };
-
-  // ── DESCARGA DIRECTA ──
-  window.downloadTrack = async function(url, title, btn){
-    try{
-      const orig = btn.innerHTML;
-      btn.textContent = '…';
-      const res  = await fetch(url);
-      const blob = await res.blob();
-      const a    = document.createElement('a');
-      a.href     = URL.createObjectURL(blob);
-      a.download = title+'.mp3';
-      a.click();
-      URL.revokeObjectURL(a.href);
-      btn.innerHTML = orig;
-    } catch(e){
-      alert('Error al descargar: '+e.message);
-    }
+      const orig=btn.innerHTML; btn.textContent='…';
+      const res=await fetch(url); const blob=await res.blob();
+      const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=title+'.mp3'; a.click();
+      URL.revokeObjectURL(a.href); btn.innerHTML=orig;
+    }catch(e){ alert('Error al descargar: '+e.message); }
   };
 
   loadAll();
