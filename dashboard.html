@@ -629,15 +629,21 @@
     document.getElementById('upload-panel').classList.remove('open');
   };
 
-  window.previewProfilePhoto = function(input){
-    if(input.files[0]) document.getElementById('profile-photo-name').textContent = input.files[0].name;
+  window.previewProfilePhoto = async function(input){
+    if(!input.files[0]) return;
+    const compressed = await compressImage(input.files[0], 300, 0.85);
+    const kb = Math.round(compressed.size/1024);
+    document.getElementById('profile-photo-name').textContent = `${input.files[0].name} → ${kb}KB`;
+    // Reemplazar el file en el input con el comprimido
+    input._compressed = compressed;
   };
 
   window.saveProfile = async function(){
     const name  = document.getElementById('edit-name').value.trim();
     const genre = document.getElementById('edit-genre').value.trim();
     const city  = document.getElementById('edit-city').value.trim();
-    const file  = document.getElementById('profile-photo-input').files[0];
+    const input = document.getElementById('profile-photo-input');
+    const file  = input._compressed || input.files[0];
     clearMessages('profile');
 
     let photoURL = artistProfile.photoURL || '';
@@ -688,7 +694,36 @@
     return ok;
   }
 
-  window.setFile = function(input, type){
+  // ── COMPRIMIR IMAGEN ANTES DE SUBIR ──
+  function compressImage(file, maxSize=500, quality=0.8){
+    return new Promise((resolve)=>{
+      const reader = new FileReader();
+      reader.onload = e => {
+        const img = new Image();
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          let w = img.width, h = img.height;
+          // Redimensionar manteniendo proporción
+          if(w > maxSize || h > maxSize){
+            if(w > h){ h = Math.round(h * maxSize/w); w = maxSize; }
+            else{ w = Math.round(w * maxSize/h); h = maxSize; }
+          }
+          canvas.width = w; canvas.height = h;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, w, h);
+          canvas.toBlob(blob => {
+            // Crear nuevo File con el blob comprimido
+            const compressed = new File([blob], file.name.replace(/\.[^/.]+$/,'.jpg'), {type:'image/jpeg'});
+            resolve(compressed);
+          }, 'image/jpeg', quality);
+        };
+        img.src = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+
+  window.setFile = async function(input, type){
     if(!input.files[0]) return;
     const file = input.files[0];
     if(type==='audio'){
@@ -696,11 +731,16 @@
       selectedAudio = file;
       document.getElementById('audio-name').textContent = file.name;
     } else if(type==='cover'){
-      selectedCover = file;
-      document.getElementById('cover-name').textContent = file.name;
+      setLabel('upload-progress-label','Comprimiendo imagen…');
+      document.getElementById('upload-progress').style.display='block';
+      selectedCover = await compressImage(file);
+      document.getElementById('upload-progress').style.display='none';
+      const kb = Math.round(selectedCover.size/1024);
+      document.getElementById('cover-name').textContent = `${file.name} → ${kb}KB`;
     } else if(type==='albumCover'){
-      selectedCover = file;
-      document.getElementById('album-cover-name').textContent = file.name;
+      selectedCover = await compressImage(file);
+      const kb = Math.round(selectedCover.size/1024);
+      document.getElementById('album-cover-name').textContent = `${file.name} → ${kb}KB`;
     }
   };
 
@@ -944,7 +984,7 @@
       <button class="mini-play" data-playing="false">
         <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
       </button>
-      <audio preload="metadata" src="${track.audioURL}"></audio>
+      <audio preload="none" src="${track.audioURL}"></audio>
       <input type="range" class="mini-seek" value="0" min="0" step="0.1"/>
       <span class="mini-time">0:00 / —:——</span>
     </div>` : '';
