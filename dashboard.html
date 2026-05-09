@@ -1148,19 +1148,6 @@
     updateToggleUI('track-downloadable','toggle-track','toggle-thumb', this.checked);
   });
 
-  // ── MODALES ──
-  window.openModal = function(id){
-    document.getElementById(id)?.classList.add('open');
-    document.body.style.overflow = 'hidden';
-  };
-  window.closeModal = function(id){
-    document.getElementById(id)?.classList.remove('open');
-    document.body.style.overflow = 'auto';
-  };
-  window.closeModalOutside = function(e){
-    if(e.target.classList.contains('modal')) closeModal(e.target.id);
-  };
-
   // ── STATS ──
   function updateStats(singles, albums){
     const el1 = document.getElementById('stat-tracks');
