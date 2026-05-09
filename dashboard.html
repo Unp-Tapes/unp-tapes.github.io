@@ -138,12 +138,9 @@
 
     /* ── ALBUM COLAPSABLE ── */
     .my-album-tracks{
-      max-height:300px;overflow-y:auto;
       transition:max-height .3s ease;
     }
     .my-album-tracks.collapsed{max-height:0;overflow:hidden}
-    .my-album-tracks::-webkit-scrollbar{width:3px}
-    .my-album-tracks::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
     .album-toggle-btn{
       background:transparent;border:none;color:var(--muted);
       cursor:pointer;font-size:.65rem;letter-spacing:.08em;
@@ -1004,8 +1001,7 @@
       );
       const tracks = [];
       snap.forEach(d => tracks.push({id:d.id,...d.data()}));
-      const tcEl = document.getElementById('tracks-count');
-      if(tcEl) tcEl.textContent = `${tracks.length} canción${tracks.length!==1?'es':''}`;
+      document.getElementById('tracks-count').textContent = `${tracks.length} canción${tracks.length!==1?'es':''}`;
 
       if(!tracks.length){
         container.innerHTML = '<div class="state-msg">Aún no tienes canciones. ¡Sube tu primer track!</div>';
@@ -1343,6 +1339,14 @@
   document.getElementById('track-downloadable')?.addEventListener('change', function(){
     updateToggleUI('track-downloadable','toggle-track','toggle-thumb', this.checked);
   });
+
+  // ── STATS ──
+  function updateStats(singles, albums){
+    const el1 = document.getElementById('stat-tracks');
+    const el2 = document.getElementById('stat-albums');
+    if(el1) el1.textContent = singles;
+    if(el2) el2.textContent = albums;
+  }
 
   // Drag-over visual feedback
   document.querySelectorAll('.file-drop').forEach(zone=>{
