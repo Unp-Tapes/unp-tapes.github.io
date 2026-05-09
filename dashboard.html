@@ -1148,14 +1148,6 @@
     updateToggleUI('track-downloadable','toggle-track','toggle-thumb', this.checked);
   });
 
-  // ── STATS ──
-  function updateStats(singles, albums){
-    const el1 = document.getElementById('stat-tracks');
-    const el2 = document.getElementById('stat-albums');
-    if(el1) el1.textContent = singles;
-    if(el2) el2.textContent = albums;
-  }
-
   // Drag-over visual feedback
   document.querySelectorAll('.file-drop').forEach(zone=>{
     zone.addEventListener('dragover', e=>{ e.preventDefault(); zone.classList.add('dragover'); });
