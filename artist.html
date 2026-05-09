@@ -426,7 +426,30 @@
         vSnap.forEach(d => allVideos.push({id:d.id,...d.data()}));
       }catch(e){}
       renderHeader();
+
+      // ── Detectar tab y track desde URL antes de renderContent ──
+      const params     = new URLSearchParams(location.search);
+      const trackParam = params.get('track');
+      const tabParam   = params.get('tab');
+      if(tabParam && ['singles','albums','videos'].includes(tabParam)){
+        currentTab = tabParam;
+        document.querySelectorAll('.tab').forEach(t=>{
+          t.classList.toggle('active', t.getAttribute('onclick')?.includes(`'${tabParam}'`));
+        });
+      }
+
       renderContent();
+
+      // Auto-play después de renderizar
+      if(trackParam){
+        setTimeout(()=>{
+          const row = document.getElementById(`tr-${trackParam}`);
+          if(row){
+            row.scrollIntoView({behavior:'smooth', block:'center'});
+            setTimeout(()=> row.querySelector('.play-btn')?.click(), 500);
+          }
+        }, 600);
+      }
     } catch(e){
       document.getElementById('content').innerHTML=`<div class="state-msg">Error: ${e.message}</div>`;
     }
@@ -522,25 +545,6 @@
       container.innerHTML = `<div class="tracks-list">${tracks.map(t=>renderTrackRow(t)).join('')}</div>`;
     }
     initPlayers();
-
-    // ── AUTO-PLAY si viene ?track=ID en la URL ──
-    const params     = new URLSearchParams(location.search);
-    const trackParam = params.get('track');
-    const tabParam   = params.get('tab');
-    if(trackParam){
-      // Cambiar a la pestaña correcta primero
-      if(tabParam && tabParam !== currentTab){
-        const tabEl = document.querySelector(`.tab[onclick*="${tabParam}"]`);
-        if(tabEl){ currentTab=tabParam; document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active')); tabEl.classList.add('active'); renderContent(); }
-      }
-      setTimeout(()=>{
-        const row = document.getElementById(`tr-${trackParam}`);
-        if(row){
-          row.scrollIntoView({behavior:'smooth', block:'center'});
-          setTimeout(()=> row.querySelector('.play-btn')?.click(), 600);
-        }
-      }, 400);
-    }
   }
 
   function renderTrackRow(track, num){
