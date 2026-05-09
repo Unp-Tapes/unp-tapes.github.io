@@ -867,7 +867,7 @@
     try{
       const uid   = currentUser.uid;
       const snap  = await getDocs(
-        query(collection(db,`artists/${uid}/tracks`), orderBy('createdAt','desc'))
+        query(collection(db,`artists/${uid}/tracks`), orderBy('createdAt','asc'))
       );
       const tracks = [];
       snap.forEach(d => tracks.push({id:d.id,...d.data()}));
@@ -877,14 +877,55 @@
         container.innerHTML = '<div class="state-msg">Aún no tienes canciones. ¡Sube tu primer track!</div>';
         return;
       }
-      container.innerHTML = `<div class="my-tracks">${tracks.map(t=>renderMyTrack(t)).join('')}</div>`;
+
+      // Separar singles y álbumes
+      const singles = tracks.filter(t => t.type !== 'album');
+      const albumMap = {};
+      tracks.filter(t => t.type === 'album').forEach(t => {
+        const k = t.albumName || 'Sin título';
+        if(!albumMap[k]) albumMap[k] = {name:k, cover:t.albumCoverURL||t.coverURL||'', tracks:[]};
+        albumMap[k].tracks.push(t);
+      });
+      Object.values(albumMap).forEach(a => a.tracks.sort((x,y)=>(x.trackNumber||0)-(y.trackNumber||0)));
+
+      let html = '';
+
+      // Singles
+      if(singles.length){
+        html += `<div style="font-size:.65rem;color:var(--muted);letter-spacing:.12em;text-transform:uppercase;margin-bottom:10px;">· Singles ·</div>`;
+        html += `<div class="my-tracks" style="margin-bottom:24px">${singles.map(t=>renderMyTrack(t)).join('')}</div>`;
+      }
+
+      // Álbumes
+      Object.values(albumMap).forEach(album => {
+        html += `
+        <div class="my-album-block" id="album-block-${album.name.replace(/\s+/g,'-')}">
+          <div style="display:flex;align-items:center;gap:12px;padding:12px 14px;background:rgba(255,106,0,.06);border:1px solid rgba(255,106,0,.15);border-radius:10px 10px 0 0;border-bottom:2px solid var(--accent);margin-bottom:0;">
+            ${album.cover
+              ? `<img src="${album.cover}" style="width:44px;height:44px;border-radius:6px;object-fit:cover;flex-shrink:0"/>`
+              : `<div style="width:44px;height:44px;border-radius:6px;background:var(--s2);display:flex;align-items:center;justify-content:center;font-size:1.4rem;flex-shrink:0">💿</div>`}
+            <div style="flex:1">
+              <div style="font-family:var(--fh);font-size:1.1rem;letter-spacing:2px;color:var(--accent)">${album.name}</div>
+              <div style="font-size:.62rem;color:var(--muted);margin-top:2px">${album.tracks.length} tracks · Álbum</div>
+            </div>
+            <button class="btn btn-danger" style="font-size:.62rem;padding:5px 12px" onclick="deleteAlbum('${album.name.replace(/'/g,"\\'")}')">
+              🗑 Eliminar álbum
+            </button>
+          </div>
+          <div class="my-tracks" style="border:1px solid rgba(255,255,255,.05);border-top:none;border-radius:0 0 10px 10px;overflow:hidden;margin-bottom:24px">
+            ${album.tracks.map(t=>renderMyTrack(t, true)).join('')}
+          </div>
+        </div>`;
+      });
+
+      container.innerHTML = html;
       initDashPlayers();
     } catch(e){
       container.innerHTML = `<div class="state-msg">Error: ${e.message}</div>`;
     }
   }
 
-  function renderMyTrack(track){
+  function renderMyTrack(track, inAlbum=false){
     const coverHTML = track.coverURL
       ? `<div class="my-cover"><img src="${track.coverURL}" alt="${track.title}"/></div>`
       : `<div class="my-cover">🎵</div>`;
@@ -898,17 +939,15 @@
       <span class="mini-time">0:00 / —:——</span>
     </div>` : '';
     return `
-    <div class="my-track-card" id="track-${track.id}">
+    <div class="my-track-card" id="track-${track.id}" style="${inAlbum?'border-radius:0;border-left:none;border-right:none;border-bottom:1px solid rgba(255,255,255,.05);':''}">
       ${coverHTML}
       <div class="my-info">
-        <div class="my-title">${track.title||'Sin título'}</div>
+        <div class="my-title">${inAlbum&&track.trackNumber?`<span style="color:var(--muted);margin-right:6px;font-size:.7rem">${track.trackNumber}.</span>`:''}${track.title||'Sin título'}</div>
         <div class="my-meta">${track.genre||''}</div>
       </div>
       <div class="my-actions">
-        <button class="icon-btn delete" title="Eliminar" onclick="deleteTrack('${track.id}','${track.audioURL||''}','${track.coverURL||''}')">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M9 3v1H4v2h1v13a2 2 0 002 2h10a2 2 0 002-2V6h1V4h-5V3H9zm0 5h2v9H9V8zm4 0h2v9h-2V8z"/>
-          </svg>
+        <button class="icon-btn delete" title="Eliminar track" onclick="deleteTrack('${track.id}','${track.audioURL||''}','${track.coverURL||''}')">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M9 3v1H4v2h1v13a2 2 0 002 2h10a2 2 0 002-2V6h1V4h-5V3H9zm0 5h2v9H9V8zm4 0h2v9h-2V8z"/></svg>
         </button>
       </div>
       ${playerHTML}
@@ -950,8 +989,32 @@
       if(audioURL) try{ await deleteObject(ref(storage, audioURL.split('?')[0].split('/o/')[1].replace(/%2F/g,'/'))); }catch(e){}
       if(coverURL) try{ await deleteObject(ref(storage, coverURL.split('?')[0].split('/o/')[1].replace(/%2F/g,'/'))); }catch(e){}
       document.getElementById(`track-${trackId}`)?.remove();
+      // Si era el último track de un álbum, recargar para limpiar el bloque
+      await loadMyTracks();
     } catch(e){
       alert('Error al eliminar: '+e.message);
+    }
+  };
+
+  window.deleteAlbum = async function(albumName){
+    if(!confirm(`¿Eliminar el álbum "${albumName}" completo? Se borrarán todos sus tracks. Esta acción no se puede deshacer.`)) return;
+    try{
+      const uid  = currentUser.uid;
+      const snap = await getDocs(collection(db,`artists/${uid}/tracks`));
+      const toDelete = [];
+      snap.forEach(d => { if(d.data().albumName === albumName) toDelete.push({id:d.id,...d.data()}); });
+
+      for(const track of toDelete){
+        await deleteDoc(doc(db,`artists/${uid}/tracks`,track.id));
+        if(track.audioURL) try{ await deleteObject(ref(storage, track.audioURL.split('?')[0].split('/o/')[1].replace(/%2F/g,'/'))); }catch(e){}
+      }
+      // Borrar portada del álbum una vez (best effort)
+      const cover = toDelete[0]?.albumCoverURL;
+      if(cover) try{ await deleteObject(ref(storage, cover.split('?')[0].split('/o/')[1].replace(/%2F/g,'/'))); }catch(e){}
+
+      await loadMyTracks();
+    } catch(e){
+      alert('Error al eliminar álbum: '+e.message);
     }
   };
 
