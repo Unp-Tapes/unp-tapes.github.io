@@ -1004,7 +1004,8 @@
       );
       const tracks = [];
       snap.forEach(d => tracks.push({id:d.id,...d.data()}));
-      document.getElementById('tracks-count').textContent = `${tracks.length} canción${tracks.length!==1?'es':''}`;
+      const tcEl = document.getElementById('tracks-count');
+      if(tcEl) tcEl.textContent = `${tracks.length} canción${tracks.length!==1?'es':''}`;
 
       if(!tracks.length){
         container.innerHTML = '<div class="state-msg">Aún no tienes canciones. ¡Sube tu primer track!</div>';
