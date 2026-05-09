@@ -439,16 +439,10 @@
     <input type="text" class="filter-input" id="searchInput" placeholder="Artista, canción, álbum, género…" oninput="filterTracks()"/>
   </div>
   <div id="content">
-    <!-- Skeleton loader -->
     <div class="skeleton-wrap">
-      ${[1,2,3].map(()=>`
-      <div class="skeleton-card">
-        <div class="skeleton-cover"></div>
-        <div class="skeleton-body">
-          <div class="skeleton-line wide"></div>
-          <div class="skeleton-line narrow"></div>
-        </div>
-      </div>`).join('')}
+      <div class="skeleton-card"><div class="skeleton-cover"></div><div class="skeleton-body"><div class="skeleton-line wide"></div><div class="skeleton-line narrow"></div></div></div>
+      <div class="skeleton-card"><div class="skeleton-cover"></div><div class="skeleton-body"><div class="skeleton-line wide"></div><div class="skeleton-line narrow"></div></div></div>
+      <div class="skeleton-card"><div class="skeleton-cover"></div><div class="skeleton-body"><div class="skeleton-line wide"></div><div class="skeleton-line narrow"></div></div></div>
     </div>
   </div>
 </div>
