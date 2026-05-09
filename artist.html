@@ -234,6 +234,24 @@
     input[type="range"].fp-vol-slider{-webkit-appearance:none;width:70px;height:3px;background:var(--border);border-radius:2px;outline:none;cursor:pointer;accent-color:var(--accent)}
     input[type="range"].fp-vol-slider::-webkit-slider-thumb{-webkit-appearance:none;width:10px;height:10px;border-radius:50%;background:var(--accent);cursor:pointer}
 
+    /* ── PLAY BANNER ── */
+    .play-banner{
+      position:fixed;top:50%;left:50%;
+      transform:translate(-50%,-50%);
+      z-index:400;
+      background:var(--accent);color:#000;
+      font-family:var(--fh);font-size:1.4rem;letter-spacing:3px;
+      padding:20px 40px;border-radius:50px;
+      cursor:pointer;border:none;
+      box-shadow:0 0 60px rgba(255,106,0,.6);
+      display:flex;align-items:center;gap:12px;
+      animation:bannerIn .4s cubic-bezier(.175,.885,.32,1.275);
+    }
+    .play-banner:hover{background:#ff8c00;transform:translate(-50%,-50%) scale(1.05)}
+    .play-banner svg{width:20px;height:20px;fill:#000}
+    .play-banner-bg{position:fixed;inset:0;z-index:399;background:rgba(0,0,0,.5);backdrop-filter:blur(4px)}
+    @keyframes bannerIn{from{opacity:0;transform:translate(-50%,-50%) scale(.7)}to{opacity:1;transform:translate(-50%,-50%) scale(1)}}
+
     /* ── VIDEOS ── */
     .videos-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px}
     .video-card{background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;cursor:pointer;transition:transform .3s,border-color .3s,box-shadow .3s;animation:fadeUp .4s ease both}
@@ -446,15 +464,9 @@
           const row = document.getElementById(`tr-${trackParam}`);
           if(!row) return;
           row.scrollIntoView({behavior:'smooth', block:'center'});
-          const audio = row._audio;
-          if(audio){
-            audio.addEventListener('canplay', ()=>{
-              row.querySelector('.play-btn')?.click();
-            }, {once:true});
-            audio.preload = 'auto';
-            audio.load();
-          }
-        }, 1000);
+          // Mostrar banner — el navegador bloquea autoplay sin interacción
+          showPlayBanner(()=> row.querySelector('.play-btn')?.click());
+        }, 800);
       }
     } catch(e){
       document.getElementById('content').innerHTML=`<div class="state-msg">Error: ${e.message}</div>`;
@@ -757,6 +769,19 @@
   document.addEventListener('mousemove',exitImmersive);
   document.addEventListener('keydown',exitImmersive);
   document.addEventListener('touchstart',exitImmersive);
+
+  function showPlayBanner(onPlay){
+    const bg  = document.createElement('div');
+    bg.className = 'play-banner-bg';
+    const btn = document.createElement('button');
+    btn.className = 'play-banner';
+    btn.innerHTML = `<svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg> REPRODUCIR`;
+    const remove = ()=>{ bg.remove(); btn.remove(); };
+    btn.onclick = ()=>{ remove(); onPlay(); };
+    bg.onclick  = ()=> remove();
+    document.body.appendChild(bg);
+    document.body.appendChild(btn);
+  }
 
   window.openVideo = function(id){
     document.getElementById('video-iframe').src=`https://www.youtube.com/embed/${id}?autoplay=1`;
