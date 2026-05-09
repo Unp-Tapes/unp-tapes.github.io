@@ -3,101 +3,109 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SNDWV — Dashboard</title>
+    <title>SNDWV — Artist Panel</title>
     <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono&display=swap" rel="stylesheet">
     <style>
-        :root {
-            --bg: #000; --s1: #0d0d0d; --s2: #161616; --accent: #ff6a00; --purple: #7b4fff; --text: #eee; --border: #222; --fh: 'Bebas Neue'; --fb: 'DM Mono';
-        }
+        :root { --bg: #000; --s1: #0d0d0d; --s2: #161616; --accent: #ff6a00; --purple: #7b4fff; --text: #eee; --border: #222; --fh: 'Bebas Neue'; --fb: 'DM Mono'; --radius: 12px; }
         body { background: var(--bg); color: var(--text); font-family: var(--fb); margin: 0; }
         nav { padding: 0 40px; height: 70px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); }
-        .btn { padding: 10px 20px; border-radius: 8px; cursor: pointer; border: 1px solid transparent; font-family: var(--fb); font-size: 0.7rem; text-transform: uppercase; transition: 0.3s; }
+        .btn { padding: 12px 24px; border-radius: 8px; cursor: pointer; border: 1px solid transparent; font-family: var(--fb); font-size: 0.7rem; text-transform: uppercase; transition: 0.3s; font-weight: bold; }
         .btn-purple { background: var(--purple); color: white; }
         .btn-ghost { background: transparent; border-color: var(--border); color: #888; }
+        .btn-ghost:hover { border-color: var(--accent); color: var(--accent); }
         
-        .page { max-width: 900px; margin: 40px auto; padding: 0 20px; }
+        .page { max-width: 800px; margin: 40px auto; padding: 0 20px; }
         .stats-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-bottom: 30px; }
-        .stat-card { background: var(--s1); padding: 20px; border-radius: 12px; text-align: center; border: 1px solid var(--border); }
-        .stat-card span { display: block; font-family: var(--fh); font-size: 2rem; color: var(--accent); }
+        .stat-card { background: var(--s1); padding: 20px; border-radius: var(--radius); text-align: center; border: 1px solid var(--border); }
+        .stat-card span { display: block; font-family: var(--fh); font-size: 2.2rem; color: var(--text); line-height: 1; }
+        .stat-card label { font-size: 0.6rem; color: #555; letter-spacing: 2px; margin-top: 5px; display: block; }
         
-        .dash-header { display: flex; align-items: center; gap: 20px; background: var(--s1); padding: 30px; border-radius: 15px; border: 1px solid var(--border); }
-        .avatar { width: 80px; height: 80px; border-radius: 50%; background: var(--s2); border: 2px solid var(--accent); object-fit: cover; }
+        .dash-header { display: flex; align-items: center; gap: 25px; background: var(--s1); padding: 30px; border-radius: 20px; border: 1px solid var(--border); }
+        .avatar { width: 90px; height: 90px; border-radius: 50%; background: var(--s2); border: 2px solid var(--accent); object-fit: cover; box-shadow: 0 10px 20px rgba(0,0,0,0.5); }
         
         /* MODALES */
-        .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.9); backdrop-filter: blur(10px); display: none; align-items: center; justify-content: center; z-index: 1000; }
+        .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.95); backdrop-filter: blur(10px); display: none; align-items: center; justify-content: center; z-index: 1000; padding: 20px; }
         .modal.open { display: flex; }
-        .modal-content { background: var(--s1); width: 100%; max-width: 500px; padding: 40px; border-radius: 20px; border: 1px solid var(--border); }
+        .modal-content { background: var(--s1); width: 100%; max-width: 500px; padding: 40px; border-radius: 24px; border: 1px solid var(--border); position: relative; }
         
-        .track-item { display: flex; align-items: center; gap: 15px; background: var(--s1); padding: 15px; border-radius: 12px; margin-bottom: 10px; border: 1px solid var(--border); }
-        .track-item img { width: 50px; height: 50px; border-radius: 6px; }
+        .track-item { display: grid; grid-template-columns: 60px 1fr auto; align-items: center; gap: 20px; background: var(--s1); padding: 15px; border-radius: 12px; margin-bottom: 12px; border: 1px solid var(--border); transition: 0.3s; }
+        .track-item:hover { border-color: var(--purple); background: var(--s2); }
+        .track-item img { width: 60px; height: 60px; border-radius: 8px; object-fit: cover; }
         
-        input, select { width: 100%; padding: 12px; background: var(--s2); border: 1px solid var(--border); color: white; border-radius: 8px; margin-top: 10px; margin-bottom: 20px; }
+        input, select { width: 100%; padding: 14px; background: var(--s2); border: 1px solid var(--border); color: white; border-radius: 10px; margin-top: 8px; margin-bottom: 20px; outline: none; }
+        input:focus { border-color: var(--accent); }
     </style>
 </head>
 <body>
 
     <nav>
-        <a href="index.html" style="font-family: var(--fh); color: var(--accent); text-decoration: none; font-size: 1.5rem;">SNDWV</a>
-        <div id="nav-actions" style="display:none">
-            <a href="" id="public-link" target="_blank" class="btn btn-ghost">Página Pública</a>
+        <a href="index.html" style="font-family: var(--fh); color: var(--accent); text-decoration: none; font-size: 1.8rem; letter-spacing: 2px;">SNDWV</a>
+        <div id="nav-actions" style="display:none; gap: 10px;">
+            <a href="" id="public-link" target="_blank" class="btn btn-ghost">🌐 Ver mi página</a>
             <button class="btn btn-ghost" onclick="logOut()">Salir</button>
         </div>
     </nav>
 
     <div class="page">
-        <div id="auth-section" style="text-align: center; margin-top: 100px;">
-            <h2 style="font-family: var(--fh); font-size: 3rem;">ARTISTA LOGIN</h2>
-            <input type="email" id="email" placeholder="Email" style="max-width: 300px;">
-            <input type="password" id="pass" placeholder="Password" style="max-width: 300px;"><br>
-            <button class="btn btn-purple" onclick="doLogin()">Entrar al Panel</button>
+        <div id="auth-section" style="max-width: 350px; margin: 100px auto; text-align: center;">
+            <h2 style="font-family: var(--fh); font-size: 4rem; margin-bottom: 30px;">ARTIST <span style="color:var(--accent)">LOGIN</span></h2>
+            <input type="email" id="email" placeholder="Email del artista">
+            <input type="password" id="pass" placeholder="Contraseña">
+            <button class="btn btn-purple" style="width: 100%; margin-top: 10px;" onclick="doLogin()">Entrar al Panel</button>
         </div>
 
         <div id="dashboard" style="display:none">
             <div class="stats-row">
-                <div class="stat-card"><span id="count-tracks">0</span><label>TRACKS</label></div>
-                <div class="stat-card"><span>LIVE</span><label>STATUS</label></div>
-                <div class="stat-card"><span>0</span><label>PLAYS</label></div>
+                <div class="stat-card"><span id="count-tracks">0</span><label>CANCIONES</label></div>
+                <div class="stat-card"><span>ONLINE</span><label>ESTADO</label></div>
+                <div class="stat-card"><span>LIVE</span><label>SERVER</label></div>
             </div>
 
             <div class="dash-header">
-                <img id="dash-avatar" src="https://via.placeholder.com/80" class="avatar">
-                <div>
-                    <h2 id="dash-name" style="font-family: var(--fh); margin: 0; font-size: 2rem;">Cargando...</h2>
-                    <p id="dash-meta" style="color: #666; margin: 5px 0 0; font-size: 0.8rem;"></p>
+                <img id="dash-avatar" src="https://via.placeholder.com/90" class="avatar">
+                <div style="flex:1">
+                    <h2 id="dash-name" style="font-family: var(--fh); margin: 0; font-size: 2.5rem; letter-spacing: 1px;">...</h2>
+                    <p id="dash-meta" style="color: #555; margin: 5px 0 0; font-size: 0.75rem; text-transform: uppercase;"></p>
                 </div>
-                <div style="margin-left: auto; display: flex; gap: 10px;">
-                    <button class="btn btn-purple" onclick="openModal('upload-modal')">Subir</button>
-                    <button class="btn btn-ghost" onclick="openModal('profile-modal')">Perfil</button>
+                <div style="display: flex; flex-direction: column; gap: 8px;">
+                    <button class="btn btn-purple" onclick="openModal('upload-modal')">＋ SUBIR MP3</button>
+                    <button class="btn btn-ghost" onclick="openModal('profile-modal')">⚙ PERFIL</button>
                 </div>
             </div>
 
-            <h3 style="font-family: var(--fh); margin-top: 40px; letter-spacing: 2px;">MIS LANZAMIENTOS</h3>
-            <div id="my-tracks-list"></div>
+            <div style="margin-top: 50px; border-left: 4px solid var(--purple); padding-left: 20px;">
+                <h3 style="font-family: var(--fh); margin: 0; letter-spacing: 3px; font-size: 1.5rem;">MI BIBLIOTECA</h3>
+            </div>
+            <div id="my-tracks-list" style="margin-top: 25px;"></div>
         </div>
     </div>
 
     <div class="modal" id="upload-modal">
         <div class="modal-content">
-            <h3 style="font-family: var(--fh);">SUBIR NUEVO TRACK</h3>
-            <input type="text" id="track-title" placeholder="Título">
+            <h3 style="font-family: var(--fh); font-size: 2rem;">NUEVO LANZAMIENTO</h3>
+            <label style="font-size: 0.6rem; color: #555;">TÍTULO</label>
+            <input type="text" id="track-title" placeholder="Nombre del track">
+            <label style="font-size: 0.6rem; color: #555;">GÉNERO</label>
             <select id="track-genre">
-                <option>Hip-Hop</option><option>Electronic</option><option>Pop</option>
+                <option>Hip-Hop</option><option>Electronic</option><option>Trap</option><option>Lo-Fi</option><option>Pop</option>
             </select>
-            <label style="font-size: 0.6rem; color: #555;">AUDIO (MP3)</label>
-            <input type="file" id="audio-file" accept="audio/*">
-            <label style="font-size: 0.6rem; color: #555;">PORTADA (JPG)</label>
+            <label style="font-size: 0.6rem; color: #555;">ARCHIVO AUDIO (.MP3)</label>
+            <input type="file" id="audio-file" accept="audio/mpeg">
+            <label style="font-size: 0.6rem; color: #555;">PORTADA (.JPG / .PNG)</label>
             <input type="file" id="cover-file" accept="image/*">
-            <button class="btn btn-purple" id="up-btn" style="width: 100%;" onclick="uploadContent()">Publicar Lanzamiento</button>
+            <button class="btn btn-purple" id="up-btn" style="width: 100%; margin-top: 10px;" onclick="uploadContent()">Publicar ahora</button>
             <button class="btn btn-ghost" style="width: 100%; margin-top: 10px;" onclick="closeModal('upload-modal')">Cancelar</button>
         </div>
     </div>
 
     <div class="modal" id="profile-modal">
         <div class="modal-content">
-            <h3 style="font-family: var(--fh);">EDITAR PERFIL</h3>
-            <input type="text" id="edit-name" placeholder="Nombre Artístico">
-            <input type="text" id="edit-city" placeholder="Ciudad / País">
-            <button class="btn btn-purple" style="width: 100%;" onclick="saveProfile()">Guardar</button>
+            <h3 style="font-family: var(--fh); font-size: 2rem;">AJUSTES ARTISTA</h3>
+            <label style="font-size: 0.6rem; color: #555;">NOMBRE PÚBLICO</label>
+            <input type="text" id="edit-name">
+            <label style="font-size: 0.6rem; color: #555;">CIUDAD / PAÍS</label>
+            <input type="text" id="edit-city">
+            <button class="btn btn-purple" style="width: 100%;" onclick="saveProfile()">Guardar Cambios</button>
             <button class="btn btn-ghost" style="width: 100%; margin-top: 10px;" onclick="closeModal('profile-modal')">Cerrar</button>
         </div>
     </div>
@@ -122,16 +130,14 @@
         const db = getFirestore(app);
         const storage = getStorage(app);
 
-        let user = null;
+        let currentUser = null;
 
-        // MODALES
         window.openModal = (id) => document.getElementById(id).classList.add('open');
         window.closeModal = (id) => document.getElementById(id).classList.remove('open');
 
-        // AUTH
         onAuthStateChanged(auth, u => {
             if(u) {
-                user = u;
+                currentUser = u;
                 document.getElementById('auth-section').style.display = 'none';
                 document.getElementById('dashboard').style.display = 'block';
                 document.getElementById('nav-actions').style.display = 'flex';
@@ -140,46 +146,44 @@
             } else {
                 document.getElementById('auth-section').style.display = 'block';
                 document.getElementById('dashboard').style.display = 'none';
-                document.getElementById('nav-actions').style.display = 'none';
             }
         });
 
         window.doLogin = () => {
             const e = document.getElementById('email').value;
             const p = document.getElementById('pass').value;
-            signInWithEmailAndPassword(auth, e, p).catch(err => alert(err.message));
+            signInWithEmailAndPassword(auth, e, p).catch(err => alert("Acceso denegado: " + err.message));
         };
 
         window.logOut = () => signOut(auth);
 
-        // DATA
         async function loadData() {
-            const aDoc = await getDoc(doc(db, 'artists', user.uid));
+            const aDoc = await getDoc(doc(db, 'artists', currentUser.uid));
             if(aDoc.exists()) {
                 const data = aDoc.data();
-                document.getElementById('dash-name').textContent = data.name;
+                document.getElementById('dash-name').textContent = data.name || 'Sin nombre';
                 document.getElementById('dash-meta').textContent = `${data.genre || ''} · ${data.city || ''}`;
-                if(data.photoURL) document.getElementById('dash-avatar').src = data.photoURL;
+                document.getElementById('edit-name').value = data.name || '';
+                document.getElementById('edit-city').value = data.city || '';
             }
 
-            const q = query(collection(db, 'tracks'), where('artistId', '==', user.uid));
+            const q = query(collection(db, 'tracks'), where('artistId', '==', currentUser.uid));
             const snap = await getDocs(q);
             const list = document.getElementById('my-tracks-list');
-            list.innerHTML = '';
+            list.innerHTML = snap.empty ? '<p style="color:#333; font-size:0.8rem;">No has subido música todavía.</p>' : '';
             document.getElementById('count-tracks').textContent = snap.size;
 
             snap.forEach(d => {
                 const t = d.data();
                 list.innerHTML += `
                     <div class="track-item">
-                        <img src="${t.coverURL}">
-                        <div style="flex:1">
-                            <div style="font-weight:bold">${t.title}</div>
-                            <div style="font-size:0.6rem; color:#555">${t.genre}</div>
+                        <img src="${t.coverURL || 'https://via.placeholder.com/60'}">
+                        <div>
+                            <div style="font-weight:bold; letter-spacing:1px;">${t.title}</div>
+                            <div style="font-size:0.6rem; color:#555; text-transform:uppercase;">${t.genre}</div>
                         </div>
-                        <audio src="${t.audioURL}" controls style="height:25px;"></audio>
-                    </div>
-                `;
+                        <audio src="${t.audioURL}" controls style="height:30px;"></audio>
+                    </div>`;
             });
         }
 
@@ -189,31 +193,32 @@
             const aFile = document.getElementById('audio-file').files[0];
             const cFile = document.getElementById('cover-file').files[0];
 
-            if(!title || !aFile || !cFile) return alert("Completa todos los campos");
+            if(!title || !aFile || !cFile) return alert("Faltan archivos");
 
-            btn.disabled = true; btn.textContent = "Subiendo...";
+            btn.disabled = true; btn.textContent = "Procesando...";
 
-            const aRef = ref(storage, `tracks/${user.uid}/${Date.now()}_audio`);
-            const cRef = ref(storage, `covers/${user.uid}/${Date.now()}_cover`);
+            try {
+                const aRef = ref(storage, `tracks/${currentUser.uid}/${Date.now()}_audio`);
+                await uploadBytes(aRef, aFile);
+                const aURL = await getDownloadURL(aRef);
 
-            await uploadBytes(aRef, aFile);
-            const aURL = await getDownloadURL(aRef);
-            await uploadBytes(cRef, cFile);
-            const cURL = await getDownloadURL(cRef);
+                const cRef = ref(storage, `covers/${currentUser.uid}/${Date.now()}_cover`);
+                await uploadBytes(cRef, cFile);
+                const cURL = await getDownloadURL(cRef);
 
-            await setDoc(doc(collection(db, 'tracks')), {
-                title, audioURL: aURL, coverURL: cURL,
-                genre: document.getElementById('track-genre').value,
-                artistId: user.uid, createdAt: serverTimestamp()
-            });
+                await setDoc(doc(collection(db, 'tracks')), {
+                    title, audioURL: aURL, coverURL: cURL,
+                    genre: document.getElementById('track-genre').value,
+                    artistId: currentUser.uid, createdAt: serverTimestamp()
+                });
 
-            btn.disabled = false; btn.textContent = "Publicar Lanzamiento";
-            closeModal('upload-modal');
-            loadData();
+                closeModal('upload-modal');
+                loadData();
+            } catch(e) { alert(e.message); } finally { btn.disabled = false; btn.textContent = "Publicar ahora"; }
         };
 
         window.saveProfile = async () => {
-            await setDoc(doc(db, 'artists', user.uid), {
+            await setDoc(doc(db, 'artists', currentUser.uid), {
                 name: document.getElementById('edit-name').value,
                 city: document.getElementById('edit-city').value
             }, { merge: true });

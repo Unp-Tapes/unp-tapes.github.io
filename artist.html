@@ -3,40 +3,43 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SNDWV — Perfil de Artista</title>
+    <title>SNDWV — Perfil</title>
     <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono&display=swap" rel="stylesheet">
     <style>
         :root { --bg: #000; --accent: #ff6a00; --fh: 'Bebas Neue'; --fb: 'DM Mono'; }
-        body { background: var(--bg); color: #eee; font-family: var(--fb); margin: 0; }
-        .header { height: 40vh; display: flex; align-items: flex-end; padding: 40px; background: linear-gradient(to top, #000, transparent); position: relative; }
-        .bg-blur { position: absolute; inset: 0; z-index: -1; object-fit: cover; width: 100%; height: 100%; opacity: 0.3; filter: blur(20px); }
-        .artist-img { width: 150px; height: 150px; border-radius: 50%; border: 4px solid var(--accent); object-fit: cover; }
-        .info { margin-left: 30px; }
-        .info h1 { font-family: var(--fh); font-size: 5rem; margin: 0; line-height: 1; }
-        .tracks-section { padding: 40px; max-width: 800px; }
-        .track-row { display: grid; grid-template-columns: 50px 1fr auto; align-items: center; gap: 20px; padding: 15px; border-bottom: 1px solid #111; }
-        .track-row img { width: 45px; height: 45px; border-radius: 4px; }
+        body { background: var(--bg); color: #eee; font-family: var(--fb); margin: 0; padding-bottom: 50px; }
+        .header { height: 50vh; display: flex; align-items: flex-end; padding: 40px; background: linear-gradient(to top, #000 0%, transparent 100%); position: relative; overflow: hidden; }
+        #header-bg { position: absolute; inset: 0; z-index: -1; object-fit: cover; width: 100%; height: 100%; opacity: 0.4; filter: blur(30px) saturate(2); transform: scale(1.1); }
+        .artist-img { width: 160px; height: 160px; border-radius: 50%; border: 4px solid var(--accent); object-fit: cover; box-shadow: 0 0 50px rgba(255,106,0,0.2); }
+        .info { margin-left: 35px; text-shadow: 0 5px 15px rgba(0,0,0,0.8); }
+        .info h1 { font-family: var(--fh); font-size: clamp(3rem, 8vw, 6rem); margin: 0; line-height: 0.8; letter-spacing: 2px; }
+        
+        .tracks-section { padding: 40px; max-width: 900px; margin: 0 auto; }
+        .track-row { display: grid; grid-template-columns: 60px 1fr auto; align-items: center; gap: 25px; padding: 18px; border-bottom: 1px solid #111; transition: 0.3s; }
+        .track-row:hover { background: rgba(255,255,255,0.02); }
+        .track-row img { width: 60px; height: 60px; border-radius: 6px; object-fit: cover; }
+        .track-row span { font-family: var(--fh); font-size: 1.5rem; letter-spacing: 1px; }
     </style>
 </head>
 <body>
     <div class="header">
-        <img id="header-bg" class="bg-blur">
-        <img id="profile-pic" class="artist-img" src="https://via.placeholder.com/150">
+        <img id="header-bg" src="">
+        <img id="profile-pic" class="artist-img" src="https://via.placeholder.com/160">
         <div class="info">
-            <p style="color: var(--accent); letter-spacing: 5px; font-size: 0.7rem;">ARTISTA VERIFICADO</p>
+            <p style="color: var(--accent); letter-spacing: 6px; font-size: 0.75rem; margin-bottom: 10px; font-weight: bold;">OFFICIAL ARTIST</p>
             <h1 id="artist-name">...</h1>
-            <p id="artist-meta" style="color: #666;"></p>
+            <p id="artist-meta" style="color: #888; margin-top: 10px;"></p>
         </div>
     </div>
 
     <div class="tracks-section">
-        <h2 style="font-family: var(--fh); letter-spacing: 3px;">LANZAMIENTOS</h2>
+        <h2 style="font-family: var(--fh); letter-spacing: 5px; font-size: 2rem; color: #444; margin-bottom: 30px;">MUSIC CATALOG</h2>
         <div id="tracks-container"></div>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-        import { getFirestore, doc, getDoc, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+        import { getFirestore, doc, getDoc, collection, query, where, getDocs, orderBy } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyAQeS0wTC4HhRx78uGTvWnfjcZoZCk_zME",
@@ -53,32 +56,33 @@
         const id = new URLSearchParams(window.location.search).get('id');
 
         async function loadArtist() {
-            if(!id) return;
+            if(!id) { location.href = 'index.html'; return; }
+            
             const aSnap = await getDoc(doc(db, 'artists', id));
             if(aSnap.exists()) {
                 const data = aSnap.data();
+                document.title = `${data.name} — SNDWV`;
                 document.getElementById('artist-name').textContent = data.name;
-                document.getElementById('artist-meta').textContent = `${data.genre} · ${data.city}`;
+                document.getElementById('artist-meta').textContent = `${data.genre} / ${data.city}`;
                 if(data.photoURL) {
                     document.getElementById('profile-pic').src = data.photoURL;
                     document.getElementById('header-bg').src = data.photoURL;
                 }
             }
 
-            const q = query(collection(db, 'tracks'), where('artistId', '==', id));
+            const q = query(collection(db, 'tracks'), where('artistId', '==', id), orderBy("createdAt", "desc"));
             const tSnap = await getDocs(q);
             const container = document.getElementById('tracks-container');
-            container.innerHTML = '';
+            container.innerHTML = tSnap.empty ? '<p style="color:#333;">No hay lanzamientos disponibles.</p>' : '';
 
             tSnap.forEach(d => {
                 const t = d.data();
                 container.innerHTML += `
                     <div class="track-row">
                         <img src="${t.coverURL}">
-                        <div style="font-family: var(--fh); font-size: 1.2rem;">${t.title}</div>
-                        <audio src="${t.audioURL}" controls style="height: 30px;"></audio>
-                    </div>
-                `;
+                        <span>${t.title}</span>
+                        <audio src="${t.audioURL}" controls style="height: 35px;"></audio>
+                    </div>`;
             });
         }
         loadArtist();

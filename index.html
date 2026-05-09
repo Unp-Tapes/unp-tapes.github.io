@@ -6,34 +6,31 @@
     <title>SNDWV — Explore Sound</title>
     <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono&display=swap" rel="stylesheet">
     <style>
-        :root {
-            --bg: #000; --s1: #0d0d0d; --accent: #ff6a00; --text: #eee; --fh: 'Bebas Neue'; --fb: 'DM Mono';
-        }
-        body { background: var(--bg); color: var(--text); font-family: var(--fb); margin: 0; }
-        nav { padding: 20px 40px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #222; }
+        :root { --bg: #000; --s1: #0d0d0d; --accent: #ff6a00; --text: #eee; --fh: 'Bebas Neue'; --fb: 'DM Mono'; }
+        body { background: var(--bg); color: var(--text); font-family: var(--fb); margin: 0; overflow-x: hidden; }
+        nav { padding: 20px 40px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #222; background: rgba(0,0,0,0.8); backdrop-filter: blur(10px); position: sticky; top: 0; z-index: 100; }
         .logo { font-family: var(--fh); font-size: 2rem; color: var(--accent); text-decoration: none; letter-spacing: 3px; }
-        .hero { padding: 80px 40px; text-align: center; background: radial-gradient(circle at center, #1a1a1a 0%, #000 100%); }
-        .hero h1 { font-family: var(--fh); font-size: 5rem; margin: 0; letter-spacing: 5px; }
-        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 30px; padding: 40px; }
-        .card { background: var(--s1); border-radius: 12px; overflow: hidden; transition: 0.3s; cursor: pointer; border: 1px solid #222; }
-        .card:hover { transform: translateY(-10px); border-color: var(--accent); }
+        .hero { padding: 100px 20px; text-align: center; background: radial-gradient(circle at center, #111 0%, #000 100%); }
+        .hero h1 { font-family: var(--fh); font-size: clamp(3rem, 10vw, 6rem); margin: 0; letter-spacing: 5px; line-height: 0.9; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 30px; padding: 40px; max-width: 1200px; margin: 0 auto; }
+        .card { background: var(--s1); border-radius: 12px; overflow: hidden; transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); cursor: pointer; border: 1px solid #222; }
+        .card:hover { transform: translateY(-10px); border-color: var(--accent); box-shadow: 0 10px 30px rgba(255,106,0,0.1); }
         .card img { width: 100%; aspect-ratio: 1/1; object-fit: cover; }
         .card-info { padding: 15px; }
-        .card-info h4 { margin: 0; font-family: var(--fh); font-size: 1.2rem; }
-        .card-info p { font-size: 0.7rem; color: #666; text-transform: uppercase; margin-top: 5px; }
+        .card-info h4 { margin: 0; font-family: var(--fh); font-size: 1.4rem; letter-spacing: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .card-info p { font-size: 0.7rem; color: #555; text-transform: uppercase; margin-top: 5px; }
     </style>
 </head>
 <body>
     <nav>
         <a href="index.html" class="logo">SNDWV</a>
-        <a href="dashboard.html" style="color: #fff; text-decoration: none; font-size: 0.8rem;">PANEL ARTISTA →</a>
+        <a href="dashboard.html" class="logo" style="font-size: 0.8rem; color: #fff;">ARTIST LOGIN</a>
     </nav>
     <div class="hero">
-        <h1>DESCUBRE EL SONIDO</h1>
-        <p style="color: #555;">Nuevos lanzamientos de artistas independientes</p>
+        <p style="color: var(--accent); letter-spacing: 4px; font-size: 0.7rem; margin-bottom: 10px;">LATEST RELEASES</p>
+        <h1>NEW SOUNDS REVEALED</h1>
     </div>
-    <div class="grid" id="explorer-grid">
-        </div>
+    <div class="grid" id="explorer-grid"></div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
@@ -52,23 +49,24 @@
         const db = getFirestore(app);
 
         async function loadExplorer() {
-            const q = query(collection(db, "tracks"), orderBy("createdAt", "desc"));
-            const snap = await getDocs(q);
-            const grid = document.getElementById('explorer-grid');
-            grid.innerHTML = '';
+            try {
+                const q = query(collection(db, "tracks"), orderBy("createdAt", "desc"));
+                const snap = await getDocs(q);
+                const grid = document.getElementById('explorer-grid');
+                grid.innerHTML = snap.empty ? '<p style="grid-column:1/-1; text-align:center; color:#444;">No hay tracks disponibles.</p>' : '';
 
-            snap.forEach(doc => {
-                const track = doc.data();
-                grid.innerHTML += `
-                    <div class="card" onclick="location.href='artist.html?id=${track.artistId}'">
-                        <img src="${track.coverURL || 'https://via.placeholder.com/200'}" alt="Cover">
-                        <div class="card-info">
-                            <h4>${track.title}</h4>
-                            <p>${track.genre || 'Single'}</p>
-                        </div>
-                    </div>
-                `;
-            });
+                snap.forEach(doc => {
+                    const track = doc.data();
+                    grid.innerHTML += `
+                        <div class="card" onclick="location.href='artist.html?id=${track.artistId}'">
+                            <img src="${track.coverURL || 'https://via.placeholder.com/300'}" alt="Cover">
+                            <div class="card-info">
+                                <h4>${track.title}</h4>
+                                <p>${track.genre || 'Single'}</p>
+                            </div>
+                        </div>`;
+                });
+            } catch(e) { console.error(e); }
         }
         loadExplorer();
     </script>
