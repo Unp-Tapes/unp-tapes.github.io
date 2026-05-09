@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SNDWV — Explore Sound</title>
+    <title>Unp-Tapes — Explore Sound</title>
     <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -16,66 +16,80 @@
             --fb: 'DM Mono';
         }
         * { box-sizing: border-box; }
-        body { background: var(--bg); color: var(--text); font-family: var(--fb); margin: 0; overflow-x: hidden; }
+        body { background: var(--bg); color: var(--text); font-family: var(--fb); margin: 0; overflow-x: hidden; padding-bottom: 120px; }
+        
         nav { padding: 18px 40px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #222; background: rgba(0,0,0,0.85); backdrop-filter: blur(10px); position: sticky; top: 0; z-index: 100; }
-        .logo img { height: 70px; width: auto; display: block; transition: 0.3s ease; filter: drop-shadow(0 0 20px rgba(255,255,255,0.15)) drop-shadow(0 0 50px rgba(123,79,255,0.2)); }
-        .logo img:hover { transform: scale(1.05); }
+        .logo img { height: 60px; width: auto; display: block; filter: drop-shadow(0 0 10px rgba(255,106,0,0.2)); }
         .login-btn { color: white; text-decoration: none; border: 1px solid #333; padding: 10px 18px; border-radius: 10px; transition: 0.3s; font-size: 0.75rem; letter-spacing: 2px; }
         .login-btn:hover { border-color: var(--accent); color: var(--accent); }
-        .hero { min-height: 75vh; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 60px 20px; }
-        .hero h1 { font-family: var(--fh); font-size: clamp(4rem, 15vw, 10rem); color: var(--accent); margin: 0; line-height: 0.9; text-shadow: 0 0 80px rgba(255,106,0,0.3); }
-        .hero p { color: #888; max-width: 600px; margin: 20px 0 40px; font-size: 1.1rem; }
-        .catalog-section { padding: 80px 40px; }
-        .catalog-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 50px; gap: 20px; flex-wrap: wrap; }
-        .catalog-header h2 { font-family: var(--fh); font-size: 3rem; margin: 0; letter-spacing: 3px; color: #444; }
-        .search-bar { width: 100%; max-width: 400px; }
-        input[type="text"] { width: 100%; padding: 15px; background: var(--s1); border: 1px solid #222; border-radius: 12px; color: white; outline: none; }
-        input[type="text"]:focus { border-color: var(--purple); }
-        .artist-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 30px; }
-        .artist-card { background: var(--s1); padding: 25px; border-radius: 20px; border: 1px solid #222; text-decoration: none; color: white; display: flex; align-items: center; gap: 20px; transition: 0.3s; }
-        .artist-card:hover { border-color: var(--purple); transform: translateY(-5px); box-shadow: 0 20px 40px rgba(123,79,255,0.1); }
-        .artist-card img { width: 90px; height: 90px; border-radius: 50%; object-fit: cover; border: 3px solid var(--accent); }
-        .artist-card h3 { font-family: var(--fh); font-size: 2rem; margin: 0; line-height: 1; }
-        .artist-card p { color: #888; font-size: 0.8rem; margin: 5px 0 0; text-transform: uppercase; letter-spacing: 1px; }
-        footer { padding: 40px; border-top: 1px solid #111; text-align: center; color: #555; font-size: 0.8rem; letter-spacing: 1px; }
+
+        .hero { min-height: 50vh; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 60px 20px; }
+        .hero h1 { font-family: var(--fh); font-size: clamp(4rem, 12vw, 8rem); color: var(--accent); margin: 0; line-height: 0.9; }
+        .hero p { color: #888; max-width: 600px; margin: 20px 0; font-size: 1.1rem; }
+
+        .section { padding: 40px; }
+        .section-header { font-family: var(--fh); font-size: 2.5rem; margin-bottom: 30px; letter-spacing: 2px; border-left: 4px solid var(--accent); padding-left: 15px; }
+        
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 25px; }
+        
+        .artist-card { background: var(--s1); padding: 20px; border-radius: 15px; border: 1px solid #222; text-decoration: none; color: white; display: flex; align-items: center; gap: 15px; transition: 0.3s; }
+        .artist-card:hover { border-color: var(--purple); transform: translateY(-5px); }
+        .artist-card img { width: 70px; height: 70px; border-radius: 50%; object-fit: cover; border: 2px solid var(--accent); }
+        .artist-card h3 { font-family: var(--fh); font-size: 1.5rem; margin: 0; }
+
+        .track-card { background: var(--s1); padding: 15px; border-radius: 12px; border: 1px solid #222; transition: 0.3s; cursor: pointer; position: relative; }
+        .track-card:hover { border-color: var(--accent); }
+        .track-card img { width: 100%; aspect-ratio: 1; border-radius: 8px; object-fit: cover; margin-bottom: 10px; }
+        .track-card h4 { margin: 5px 0; font-family: var(--fb); font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .track-card .type-badge { position: absolute; top: 10px; right: 10px; background: var(--accent); color: black; font-size: 0.6rem; padding: 2px 8px; border-radius: 4px; font-weight: bold; text-transform: uppercase; }
+
+        .player-bar { position: fixed; bottom: 0; left: 0; right: 0; background: rgba(10, 10, 10, 0.98); border-top: 1px solid var(--accent); padding: 15px 40px; display: none; align-items: center; justify-content: space-between; z-index: 1000; backdrop-filter: blur(20px); }
+        .player-info { display: flex; align-items: center; gap: 15px; width: 30%; }
+        .player-info img { width: 50px; height: 50px; border-radius: 5px; object-fit: cover; }
+        .player-info div h5 { margin: 0; font-size: 0.9rem; }
+        .player-info div p { margin: 0; font-size: 0.7rem; color: #888; }
+        .player-controls { width: 40%; }
+        audio { width: 100%; filter: invert(1) hue-rotate(180deg); height: 35px; }
+
+        footer { padding: 60px 40px; text-align: center; color: #444; border-top: 1px solid #111; font-size: 0.8rem; }
     </style>
 </head>
 <body>
     <nav>
-        <a href="index.html" class="logo">
-            <img src="image_0.png" alt="SNDWV Records Logo">
-        </a>
-        <div style="display:flex; gap: 15px; align-items: center;">
-            <a href="dashboard.html" class="login-btn">ACCESO ARTISTA</a>
-        </div>
+        <a href="index.html" class="logo"><img src="logo.png" alt="Unp-Tapes"></a>
+        <a href="dashboard.html" class="login-btn">ACCESO ARTISTA</a>
     </nav>
 
     <div class="hero">
-        <h1>EXPLORA</h1>
-        <h1>SONIDO</h1>
-        <p>Bienvenido a SNDWV Records. Descubre el talento más fresco en Hip-Hop, Electrónica, Trap, y más.</p>
-        <a href="#catalog" class="login-btn" style="border-color: var(--purple); color: var(--purple); font-weight: bold; padding: 12px 24px;">CATÁLOGO DE MÚSICA</a>
+        <h1>UNP-TAPES</h1>
+        <p>Tu plataforma de música independiente. Singles y Playlists directo desde la fuente.</p>
     </div>
 
-    <div id="catalog" class="catalog-section">
-        <div class="catalog-header">
-            <h2>ARTISTAS OFICIALES</h2>
-            <div class="search-bar">
-                <input type="text" id="search-input" placeholder="Buscar artistas...">
-            </div>
+    <div class="section">
+        <h2 class="section-header">ÚLTIMOS LANZAMIENTOS</h2>
+        <div class="grid" id="tracks-recent"></div>
+    </div>
+
+    <div class="section">
+        <h2 class="section-header">EXPLORA ARTISTAS</h2>
+        <div class="grid" id="artist-list"></div>
+    </div>
+
+    <div class="player-bar" id="global-player">
+        <div class="player-info">
+            <img id="p-img" src="">
+            <div><h5 id="p-title"></h5><p id="p-artist"></p></div>
         </div>
-        <div class="artist-grid" id="artist-list">
-            <p style="color:#333;">Cargando catálogo...</p>
+        <div class="player-controls">
+            <audio id="main-audio" controls autoplay></audio>
         </div>
     </div>
 
-    <footer>
-        <p>SNDWV Records · © 2024</p>
-    </footer>
+    <footer>UNP-TAPES RECORDS &copy; 2026</footer>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-        import { getFirestore, collection, getDocs, orderBy, query } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+        import { getFirestore, collection, getDocs, orderBy, query, limit, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyAQeS0wTC4HhRx78uGTvWnfjcZoZCk_zME",
@@ -89,30 +103,48 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        async function loadArtists() {
-            try {
-                const q = query(collection(db, 'artists'), orderBy("name"));
-                const snap = await getDocs(q);
-                const list = document.getElementById('artist-list');
-                list.innerHTML = snap.empty ? '<p style="color:#333; font-size:0.8rem;">No hay artistas registrados aún.</p>' : '';
+        async function loadContent() {
+            const aSnap = await getDocs(query(collection(db, 'artists'), limit(10)));
+            const aList = document.getElementById('artist-list');
+            aList.innerHTML = '';
+            aSnap.forEach(d => {
+                const data = d.data();
+                aList.innerHTML += `
+                    <a href="artist.html?id=${d.id}" class="artist-card">
+                        <img src="${data.photoURL || 'https://ui-avatars.com/api/?name='+data.name}">
+                        <h3>${data.name}</h3>
+                    </a>`;
+            });
 
-                snap.forEach(d => {
-                    const data = d.data();
-                    list.innerHTML += `
-                        <a href="artist.html?id=${d.id}" class="artist-card">
-                            <img src="${data.photoURL || 'https://via.placeholder.com/90'}">
-                            <div>
-                                <h3>${data.name}</h3>
-                                <p>${data.genre || 'Género no especificado'} · ${data.city || 'Ciudad no especificada'}</p>
-                            </div>
-                        </a>`;
-                });
-            } catch (e) {
-                document.getElementById('artist-list').innerHTML = '<p style="color:#ff6a00;">Error al cargar el catálogo de artistas. Asegúrate de que las reglas de Firebase Firestore permitan la lectura.</p>';
-                console.error("Error loading artists:", e);
-            }
+            const tSnap = await getDocs(query(collection(db, 'tracks'), orderBy('createdAt', 'desc'), limit(12)));
+            const tList = document.getElementById('tracks-recent');
+            tList.innerHTML = '';
+            tSnap.forEach(d => {
+                const t = d.data();
+                const card = document.createElement('div');
+                card.className = 'track-card';
+                card.innerHTML = `
+                    <span class="type-badge">${t.type || 'single'}</span>
+                    <img src="${t.coverURL}">
+                    <h4>${t.title}</h4>
+                `;
+                card.onclick = () => playTrack(t.audioURL, t.title, t.coverURL, t.artistId);
+                tList.appendChild(card);
+            });
         }
-        loadArtists();
+
+        async function playTrack(url, title, cover, artistId) {
+            const player = document.getElementById('global-player');
+            const audio = document.getElementById('main-audio');
+            player.style.display = 'flex';
+            audio.src = url;
+            document.getElementById('p-img').src = cover;
+            document.getElementById('p-title').textContent = title;
+            const aDoc = await getDoc(doc(db, 'artists', artistId));
+            document.getElementById('p-artist').textContent = aDoc.exists() ? aDoc.data().name : 'Artista';
+        }
+
+        loadContent();
     </script>
 </body>
 </html>
