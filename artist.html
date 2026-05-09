@@ -485,76 +485,77 @@
     if(allTracks.length) document.getElementById('play-all-btn').style.display='flex';
   }
 
-  // ── TABS ──
+  // ── TABS — no destruye DOM, solo muestra/oculta ──
   window.switchTab = function(tab, el){
-    // Detener todo antes de cambiar
-    globalRows.forEach(r=>{ const a=r._audio; if(a){ a.pause(); a.currentTime=0; } });
-    globalRows = [];
-    currentRowIndex = -1;
-    hideFP();
     currentTab = tab;
     document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
     el.classList.add('active');
-    renderContent();
+    document.getElementById('section-singles').style.display = tab==='singles'?'block':'none';
+    document.getElementById('section-albums').style.display  = tab==='albums' ?'block':'none';
+    document.getElementById('section-videos').style.display  = tab==='videos' ?'block':'none';
   };
-
-  function getFilteredTracks(){
-    if(currentTab==='singles') return allTracks.filter(t=>t.type!=='album');
-    if(currentTab==='albums')  return allTracks.filter(t=>t.type==='album');
-    return allTracks;
-  }
 
   function renderContent(){
     globalRows = [];
     const container = document.getElementById('content');
 
-    if(currentTab === 'videos'){
-      if(!allVideos.length){ container.innerHTML='<div class="state-msg">Sin videos publicados.</div>'; return; }
-      container.innerHTML = `<div class="videos-grid">${allVideos.map((v,i)=>`
-        <div class="video-card" onclick="openVideo('${v.youtubeId}')" style="animation-delay:${i*.05}s">
-          <div class="video-thumb">
-            <img src="https://img.youtube.com/vi/${v.youtubeId}/mqdefault.jpg" alt="${v.title}" loading="lazy"/>
-            <div class="video-overlay">
-              <div class="video-play-icon"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+    // Separar datos
+    const singles = allTracks.filter(t=>t.type!=='album');
+    const albumMap = {};
+    allTracks.filter(t=>t.type==='album').forEach(t=>{
+      const k=t.albumName||'Sin título';
+      if(!albumMap[k]) albumMap[k]={name:k,cover:t.albumCoverURL||t.coverURL||'',tracks:[]};
+      albumMap[k].tracks.push(t);
+    });
+    Object.values(albumMap).forEach(a=>a.tracks.sort((x,y)=>(x.trackNumber||0)-(y.trackNumber||0)));
+
+    let html = '';
+
+    // SINGLES
+    html += `<div id="section-singles" style="display:${currentTab==='singles'?'block':'none'}">`;
+    html += singles.length
+      ? `<div class="tracks-list">${singles.map(t=>renderTrackRow(t)).join('')}</div>`
+      : '<div class="state-msg">Sin singles.</div>';
+    html += '</div>';
+
+    // ÁLBUMES
+    html += `<div id="section-albums" style="display:${currentTab==='albums'?'block':'none'}">`;
+    html += Object.keys(albumMap).length
+      ? Object.values(albumMap).map(album=>`
+          <div class="album-header">
+            <div class="album-thumb">${album.cover?`<img src="${album.cover}" loading="lazy"/>`:'💿'}</div>
+            <div class="album-info">
+              <div class="album-name">${album.name}</div>
+              <div class="album-meta-text">${album.tracks.length} tracks</div>
             </div>
+            <button class="album-play-btn" onclick="playAlbumTracks('${album.name.replace(/'/g,"\\'")}')">
+              <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg> Play
+            </button>
           </div>
-          <div class="video-info">
-            <div class="video-title">${v.title}</div>
-            ${v.desc?`<div class="video-desc">${v.desc}</div>`:''}
-          </div>
-        </div>`).join('')}</div>`;
-      return;
-    }
-    const tracks = getFilteredTracks();
+          <div class="album-tracks-wrap tracks-list">
+            ${album.tracks.map((t,i)=>renderTrackRow(t,i+1)).join('')}
+          </div>`).join('')
+      : '<div class="state-msg">Sin álbumes.</div>';
+    html += '</div>';
 
-    if(!tracks.length){ container.innerHTML='<div class="state-msg">Sin contenido en esta sección.</div>'; return; }
+    // VIDEOS
+    html += `<div id="section-videos" style="display:${currentTab==='videos'?'block':'none'}">`;
+    html += allVideos.length
+      ? `<div class="videos-grid">${allVideos.map((v,i)=>`
+          <div class="video-card" onclick="openVideo('${v.youtubeId}')" style="animation-delay:${i*.05}s">
+            <div class="video-thumb">
+              <img src="https://img.youtube.com/vi/${v.youtubeId}/mqdefault.jpg" alt="${v.title}" loading="lazy"/>
+              <div class="video-overlay"><div class="video-play-icon"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div></div>
+            </div>
+            <div class="video-info">
+              <div class="video-title">${v.title}</div>
+              ${v.desc?`<div class="video-desc">${v.desc}</div>`:''}
+            </div>
+          </div>`).join('')}</div>`
+      : '<div class="state-msg">Sin videos.</div>';
+    html += '</div>';
 
-    if(currentTab==='albums'){
-      // Agrupar por álbum
-      const albumMap = {};
-      tracks.forEach(t=>{
-        const k=t.albumName||'Sin título';
-        if(!albumMap[k]) albumMap[k]={name:k,cover:t.albumCoverURL||t.coverURL||'',tracks:[]};
-        albumMap[k].tracks.push(t);
-      });
-      Object.values(albumMap).forEach(a=>a.tracks.sort((x,y)=>(x.trackNumber||0)-(y.trackNumber||0)));
-      container.innerHTML = Object.values(albumMap).map(album=>`
-        <div class="album-header">
-          <div class="album-thumb">${album.cover?`<img src="${album.cover}" loading="lazy"/>`:'💿'}</div>
-          <div class="album-info">
-            <div class="album-name">${album.name}</div>
-            <div class="album-meta-text">${album.tracks.length} tracks</div>
-          </div>
-          <button class="album-play-btn" onclick="playAlbumTracks('${album.name.replace(/'/g,"\\'")}')">
-            <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg> Play
-          </button>
-        </div>
-        <div class="album-tracks-wrap tracks-list">
-          ${album.tracks.map((t,i)=>renderTrackRow(t,i+1)).join('')}
-        </div>`).join('');
-    } else {
-      container.innerHTML = `<div class="tracks-list">${tracks.map(t=>renderTrackRow(t)).join('')}</div>`;
-    }
+    container.innerHTML = html;
     initPlayers();
   }
 
