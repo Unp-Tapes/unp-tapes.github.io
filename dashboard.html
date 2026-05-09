@@ -310,7 +310,7 @@
   <div class="stats-row">
     <div class="stat-card"><span id="stat-tracks">0</span><label>Canciones</label></div>
     <div class="stat-card"><span id="stat-albums">0</span><label>Álbumes</label></div>
-    <div class="stat-card"><span>●</span><label>Online</label></div>
+    <div class="stat-card"><span id="stat-videos">0</span><label>Videos</label></div>
   </div>
 
   <!-- HEADER DEL ARTISTA -->
@@ -322,6 +322,7 @@
     </div>
     <div class="dash-actions">
       <button class="btn btn-ghost" onclick="openModal('profile-modal')">✏ Perfil</button>
+      <button class="btn btn-ghost" onclick="openModal('video-modal')">🎬 Video</button>
       <button class="btn btn-purple" onclick="openModal('upload-modal')">+ Subir Track</button>
     </div>
   </div>
@@ -335,7 +336,46 @@
     <div class="state-msg"><div class="spinner"></div>Cargando…</div>
   </div>
 
+  <!-- MIS VIDEOS -->
+  <div class="section-head" style="margin-top:36px">
+    <h3>· Mis Videos ·</h3>
+    <span id="videos-count" style="font-size:.65rem;color:var(--muted)"></span>
+  </div>
+  <div id="my-videos-list">
+    <div class="state-msg" style="padding:20px 0;font-size:.72rem;color:var(--muted)">Sin videos publicados.</div>
+  </div>
+
 </div><!-- /dashboard -->
+
+<!-- ── MODAL VIDEO ── -->
+<div class="modal" id="video-modal" onclick="closeModalOutside(event)">
+  <div class="modal-content">
+    <div class="section-head">
+      <h3>· Agregar Video ·</h3>
+      <button class="btn btn-ghost" onclick="closeModal('video-modal')">✕</button>
+    </div>
+    <div id="video-error" class="error-msg"></div>
+    <div id="video-success" class="success-msg"></div>
+    <div class="field">
+      <label>Título del video</label>
+      <input type="text" id="video-title" placeholder="Nombre del video / clip"/>
+    </div>
+    <div class="field">
+      <label>Link de YouTube</label>
+      <input type="url" id="video-url" placeholder="https://www.youtube.com/watch?v=..."/>
+      <div style="font-size:.62rem;color:var(--muted);margin-top:4px">Pega el link completo de YouTube</div>
+    </div>
+    <div class="field">
+      <label>Descripción (opcional)</label>
+      <input type="text" id="video-desc" placeholder="Descripción breve"/>
+    </div>
+    <!-- Preview -->
+    <div id="video-preview" style="display:none;margin-bottom:16px">
+      <img id="video-thumb" style="width:100%;border-radius:8px;border:1px solid var(--border)"/>
+    </div>
+    <button class="submit-btn" onclick="saveVideo()">Publicar Video</button>
+  </div>
+</div>
 
 <!-- ── MODAL PERFIL ── -->
 <div class="modal" id="profile-modal" onclick="closeModalOutside(event)">
@@ -551,6 +591,7 @@
       document.getElementById('public-btn').style.display    = 'inline-flex';
       await loadProfile();
       await loadMyTracks();
+      await loadMyVideos();
     } else {
       currentUser = null;
       document.getElementById('auth-section').style.display  = 'block';
@@ -1134,6 +1175,106 @@
     return map[code] || 'Error: '+code;
   }
 
+  // ── VIDEOS ──
+  function extractYouTubeId(url){
+    const patterns = [
+      /(?:v=|\/embed\/|\/shorts\/|youtu\.be\/)([a-zA-Z0-9_-]{11})/,
+      /^([a-zA-Z0-9_-]{11})$/
+    ];
+    for(const p of patterns){
+      const m = url.match(p);
+      if(m) return m[1];
+    }
+    return null;
+  }
+
+  // Preview thumbnail al escribir el link
+  document.getElementById('video-url')?.addEventListener('input', function(){
+    const vid = extractYouTubeId(this.value.trim());
+    const preview = document.getElementById('video-preview');
+    const thumb   = document.getElementById('video-thumb');
+    if(vid){
+      thumb.src = `https://img.youtube.com/vi/${vid}/mqdefault.jpg`;
+      preview.style.display = 'block';
+    } else {
+      preview.style.display = 'none';
+    }
+  });
+
+  window.saveVideo = async function(){
+    const title = document.getElementById('video-title').value.trim();
+    const url   = document.getElementById('video-url').value.trim();
+    const desc  = document.getElementById('video-desc').value.trim();
+    const vid   = extractYouTubeId(url);
+
+    if(!title){ showError('video-error','El título es obligatorio'); return; }
+    if(!vid){   showError('video-error','Link de YouTube no válido'); return; }
+
+    try{
+      await addDoc(collection(db,`artists/${currentUser.uid}/videos`),{
+        title, youtubeId: vid, desc, url,
+        createdAt: serverTimestamp()
+      });
+      document.getElementById('video-title').value = '';
+      document.getElementById('video-url').value   = '';
+      document.getElementById('video-desc').value  = '';
+      document.getElementById('video-preview').style.display = 'none';
+      showSuccess('video-success','Video publicado ✓');
+      setTimeout(()=>closeModal('video-modal'), 1200);
+      await loadMyVideos();
+    } catch(e){
+      showError('video-error','Error: '+e.message);
+    }
+  };
+
+  async function loadMyVideos(){
+    const container = document.getElementById('my-videos-list');
+    const countEl   = document.getElementById('videos-count');
+    try{
+      const snap = await getDocs(
+        query(collection(db,`artists/${currentUser.uid}/videos`), orderBy('createdAt','desc'))
+      );
+      const videos = [];
+      snap.forEach(d => videos.push({id:d.id,...d.data()}));
+      if(countEl) countEl.textContent = `${videos.length} video${videos.length!==1?'s':''}`;
+      const statEl = document.getElementById('stat-videos');
+      if(statEl) statEl.textContent = videos.length;
+
+      if(!videos.length){
+        container.innerHTML = `<div class="state-msg" style="padding:20px 0;font-size:.72rem;color:var(--muted)">Sin videos publicados.</div>`;
+        return;
+      }
+      container.innerHTML = `<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px">
+        ${videos.map(v=>`
+        <div style="background:var(--s1);border:1px solid var(--border);border-radius:10px;overflow:hidden;transition:border-color .2s" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border)'">
+          <div style="position:relative">
+            <img src="https://img.youtube.com/vi/${v.youtubeId}/mqdefault.jpg" style="width:100%;display:block;aspect-ratio:16/9;object-fit:cover"/>
+            <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.3)">
+              <div style="width:36px;height:36px;border-radius:50%;background:rgba(255,106,0,.9);display:flex;align-items:center;justify-content:center">
+                <svg viewBox="0 0 24 24" width="14" height="14" fill="#000"><path d="M8 5v14l11-7z"/></svg>
+              </div>
+            </div>
+          </div>
+          <div style="padding:10px 12px;display:flex;justify-content:space-between;align-items:center;gap:8px">
+            <div style="font-family:var(--fh);font-size:.95rem;letter-spacing:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:1">${v.title}</div>
+            <button onclick="deleteVideo('${v.id}')" style="background:transparent;border:1px solid #333;border-radius:6px;padding:4px 8px;cursor:pointer;color:#666;font-size:.65rem;flex-shrink:0;transition:all .2s" onmouseover="this.style.borderColor='#ff4757';this.style.color='#ff4757'" onmouseout="this.style.borderColor='#333';this.style.color='#666'">🗑</button>
+          </div>
+          ${v.desc?`<div style="padding:0 12px 10px;font-size:.62rem;color:var(--muted)">${v.desc}</div>`:''}
+        </div>`).join('')}
+      </div>`;
+    } catch(e){
+      container.innerHTML = `<div class="state-msg" style="padding:20px 0">Error: ${e.message}</div>`;
+    }
+  }
+
+  window.deleteVideo = async function(videoId){
+    if(!confirm('¿Eliminar este video?')) return;
+    try{
+      await deleteDoc(doc(db,`artists/${currentUser.uid}/videos`,videoId));
+      await loadMyVideos();
+    } catch(e){ alert('Error: '+e.message); }
+  };
+
   // ── TOGGLE UI ──
   function updateToggleUI(checkId, trackId, thumbId, checked){
     const track = document.getElementById(trackId);
@@ -1147,6 +1288,14 @@
   document.getElementById('track-downloadable')?.addEventListener('change', function(){
     updateToggleUI('track-downloadable','toggle-track','toggle-thumb', this.checked);
   });
+
+  // ── STATS ──
+  function updateStats(singles, albums){
+    const el1 = document.getElementById('stat-tracks');
+    const el2 = document.getElementById('stat-albums');
+    if(el1) el1.textContent = singles;
+    if(el2) el2.textContent = albums;
+  }
 
   // Drag-over visual feedback
   document.querySelectorAll('.file-drop').forEach(zone=>{

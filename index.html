@@ -181,6 +181,30 @@
     @keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
     .state-msg{text-align:center;padding:60px 0;color:var(--muted);font-size:.78rem;letter-spacing:.1em}
 
+    /* ── VIDEOS ── */
+    .videos-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px}
+    .video-card{background:var(--s1);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;cursor:pointer;transition:transform .3s,border-color .3s,box-shadow .3s;animation:fadeUp .4s ease both}
+    .video-card:hover{transform:translateY(-4px);border-color:var(--accent);box-shadow:0 8px 28px rgba(255,106,0,.15)}
+    .video-thumb{position:relative;aspect-ratio:16/9;overflow:hidden;background:var(--s2)}
+    .video-thumb img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .3s}
+    .video-card:hover .video-thumb img{transform:scale(1.04)}
+    .video-play-overlay{position:absolute;inset:0;background:rgba(0,0,0,.4);display:flex;align-items:center;justify-content:center;transition:background .2s}
+    .video-card:hover .video-play-overlay{background:rgba(0,0,0,.2)}
+    .video-play-icon{width:52px;height:52px;border-radius:50%;background:rgba(255,106,0,.9);display:flex;align-items:center;justify-content:center;box-shadow:0 4px 20px rgba(255,106,0,.5);transition:transform .2s}
+    .video-card:hover .video-play-icon{transform:scale(1.1)}
+    .video-play-icon svg{width:20px;height:20px;fill:#000}
+    .video-info{padding:12px 14px}
+    .video-title{font-family:var(--fh);font-size:1.05rem;letter-spacing:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .video-artist{font-size:.62rem;color:var(--muted);margin-top:3px}
+    /* Video modal */
+    .video-modal{position:fixed;inset:0;z-index:500;background:rgba(0,0,0,.92);backdrop-filter:blur(16px);display:none;align-items:center;justify-content:center;padding:20px}
+    .video-modal.open{display:flex}
+    .video-modal-inner{width:100%;max-width:860px;position:relative}
+    .video-modal-close{position:absolute;top:-40px;right:0;background:transparent;border:none;color:#fff;font-size:1.5rem;cursor:pointer;padding:4px 12px;transition:color .2s}
+    .video-modal-close:hover{color:var(--accent)}
+    .video-iframe-wrap{position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:var(--radius)}
+    .video-iframe-wrap iframe{position:absolute;inset:0;width:100%;height:100%;border:none}
+
     footer{position:relative;z-index:1;text-align:center;padding:32px;border-top:1px solid var(--border);font-size:.65rem;color:var(--muted);letter-spacing:.1em}
     footer span{color:var(--accent)}
 
@@ -217,6 +241,15 @@
     <input type="text" id="searchInput" placeholder="Buscar artista, género…" oninput="filterArtists()"/>
   </div>
 
+  <!-- VIDEOS -->
+  <div id="videos-section" style="margin-bottom:56px;display:none">
+    <h2 class="section-header">
+      VIDEOS
+      <span>YouTube · Clips oficiales</span>
+    </h2>
+    <div class="videos-grid" id="videos-grid"></div>
+  </div>
+
   <!-- ÚLTIMOS LANZAMIENTOS -->
   <div id="latest-section" style="margin-bottom:56px;display:none">
     <h2 class="section-header">
@@ -244,6 +277,16 @@
 
 <footer><p>UNP Records · Música independiente · <span>Santiago, Chile</span></p></footer>
 
+<!-- VIDEO MODAL -->
+<div class="video-modal" id="video-modal" onclick="if(event.target===this)closeVideo()">
+  <div class="video-modal-inner">
+    <button class="video-modal-close" onclick="closeVideo()">✕</button>
+    <div class="video-iframe-wrap">
+      <iframe id="video-iframe" src="" allowfullscreen allow="autoplay; encrypted-media"></iframe>
+    </div>
+  </div>
+</div>
+
 <script type="module">
   import { initializeApp }              from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
   import { getFirestore, collection,
@@ -266,7 +309,6 @@
 
   async function loadAll(){
     try{
-      // Cargar artistas
       const aSnap = await getDocs(collection(db,'artists'));
       const artists = [];
       for(const d of aSnap.docs){
@@ -278,25 +320,58 @@
       }
       allArtists = artists;
 
-      // Cargar últimos tracks via collectionGroup
+      // Cargar videos de todos los artistas
+      const allVideos = [];
+      for(const artist of artists){
+        try{
+          const vSnap = await getDocs(query(collection(db,`artists/${artist.id}/videos`), orderBy('createdAt','desc')));
+          vSnap.forEach(d => allVideos.push({id:d.id,...d.data(), artistId:artist.id, artistName:artist.name||''}));
+        }catch(e){}
+      }
+      renderVideos(allVideos);
+
+      // Últimos tracks
       try{
-        const tSnap = await getDocs(
-          query(collectionGroup(db,'tracks'), orderBy('createdAt','desc'), limit(8))
-        );
+        const tSnap = await getDocs(query(collectionGroup(db,'tracks'), orderBy('createdAt','desc'), limit(8)));
         const latestTracks = [];
         tSnap.forEach(d => latestTracks.push({id:d.id,...d.data(), artistId: d.ref.parent.parent.id}));
         renderLatest(latestTracks);
-      } catch(e){
-        // collectionGroup puede requerir índice — silenciar si falla
-        console.warn('Latest tracks:', e.message);
-      }
+      } catch(e){ console.warn('Latest tracks:', e.message); }
 
       renderArtists(allArtists);
     } catch(e){
-      document.getElementById('content').innerHTML =
-        `<div class="state-msg">Error al cargar: ${e.message}</div>`;
+      document.getElementById('content').innerHTML = `<div class="state-msg">Error al cargar: ${e.message}</div>`;
     }
   }
+
+  function renderVideos(videos){
+    if(!videos.length) return;
+    document.getElementById('videos-section').style.display = 'block';
+    document.getElementById('videos-grid').innerHTML = videos.map((v,i)=>`
+      <div class="video-card" onclick="openVideo('${v.youtubeId}')" style="animation-delay:${i*.05}s">
+        <div class="video-thumb">
+          <img src="https://img.youtube.com/vi/${v.youtubeId}/mqdefault.jpg" alt="${v.title}" loading="lazy"/>
+          <div class="video-play-overlay">
+            <div class="video-play-icon"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+          </div>
+        </div>
+        <div class="video-info">
+          <div class="video-title">${v.title}</div>
+          <div class="video-artist">${v.artistName}</div>
+        </div>
+      </div>`).join('');
+  }
+
+  window.openVideo = function(id){
+    document.getElementById('video-iframe').src=`https://www.youtube.com/embed/${id}?autoplay=1`;
+    document.getElementById('video-modal').classList.add('open');
+    document.body.style.overflow='hidden';
+  };
+  window.closeVideo = function(){
+    document.getElementById('video-iframe').src='';
+    document.getElementById('video-modal').classList.remove('open');
+    document.body.style.overflow='auto';
+  };
 
   function renderLatest(tracks){
     if(!tracks.length) return;
