@@ -111,26 +111,110 @@
       background:var(--s2);border:1px solid var(--border);border-radius:4px;padding:3px 10px;
     }
 
-    /* ── ALBUM GLASSMORPHISM ── */
+    /* ── ALBUM PLAYLIST STYLE ── */
     .album-section{margin-bottom:24px}
-    .album-header{
-      display:flex;align-items:center;gap:12px;padding:12px 14px;
-      background:rgba(255,106,0,.06);
+    .album-playlist{
+      display:grid;
+      grid-template-columns:160px 1fr;
+      background:rgba(255,255,255,.03);
       backdrop-filter:blur(12px);
       -webkit-backdrop-filter:blur(12px);
-      border:1px solid rgba(255,106,0,.15);
-      border-radius:var(--radius) var(--radius) 0 0;
-      border-bottom:2px solid var(--accent);
-      box-shadow:0 4px 20px rgba(255,106,0,.08);
+      border:1px solid rgba(255,255,255,.07);
+      border-radius:var(--radius);
+      overflow:hidden;
+      box-shadow:0 8px 32px rgba(0,0,0,.3);
     }
-    .album-cover{
-      width:48px;height:48px;border-radius:6px;object-fit:cover;
-      background:var(--s2);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:1.4rem;
+    /* Lado izquierdo: portada + info */
+    .album-sidebar{
+      position:relative;
+      background:var(--s2);
+      display:flex;flex-direction:column;
+      align-items:center;justify-content:flex-end;
+      padding:0;overflow:hidden;
     }
-    .album-cover img{width:100%;height:100%;border-radius:6px;object-fit:cover}
-    .album-info .album-title{font-family:var(--fh);font-size:1.1rem;letter-spacing:2px;color:var(--accent)}
-    .album-info .album-meta{font-size:.62rem;color:var(--muted);margin-top:2px}
-    .album-tracks{border:1px solid var(--border);border-top:none;border-radius:0 0 var(--radius) var(--radius);overflow:hidden}
+    .album-sidebar-cover{
+      position:absolute;inset:0;
+      object-fit:cover;width:100%;height:100%;
+      filter:saturate(1.1);
+    }
+    .album-sidebar-overlay{
+      position:absolute;inset:0;
+      background:linear-gradient(to top, rgba(0,0,0,.85) 0%, rgba(0,0,0,.2) 60%, transparent 100%);
+    }
+    .album-sidebar-info{
+      position:relative;z-index:1;
+      width:100%;padding:12px;
+    }
+    .album-sidebar-title{
+      font-family:var(--fh);font-size:1rem;letter-spacing:2px;
+      color:#fff;line-height:1.1;margin-bottom:4px;
+      text-shadow:0 1px 6px rgba(0,0,0,.8);
+    }
+    .album-sidebar-meta{
+      font-size:.6rem;color:rgba(255,255,255,.6);letter-spacing:.08em;
+    }
+    .album-sidebar-play{
+      position:absolute;top:50%;left:50%;transform:translate(-50%,-70%);z-index:2;
+      width:48px;height:48px;border-radius:50%;
+      background:rgba(255,106,0,.85);border:none;cursor:pointer;
+      display:flex;align-items:center;justify-content:center;
+      transition:background .2s,transform .2s;
+      box-shadow:0 4px 20px rgba(255,106,0,.4);
+    }
+    .album-sidebar-play:hover{background:var(--accent);transform:translate(-50%,-70%) scale(1.1)}
+    .album-sidebar-play svg{width:18px;height:18px;fill:#fff}
+    /* Lado derecho: lista de tracks */
+    .album-tracklist{
+      display:flex;flex-direction:column;
+      overflow-y:auto;max-height:320px;
+    }
+    .album-tracklist::-webkit-scrollbar{width:3px}
+    .album-tracklist::-webkit-scrollbar-track{background:transparent}
+    .album-tracklist::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+    .album-row{
+      display:flex;align-items:center;gap:10px;
+      padding:10px 14px;
+      border-bottom:1px solid rgba(255,255,255,.04);
+      cursor:pointer;
+      transition:background .2s;
+      min-height:52px;
+    }
+    .album-row:last-child{border-bottom:none}
+    .album-row:hover{background:rgba(255,106,0,.06)}
+    .album-row.playing{background:rgba(255,106,0,.08);border-left:2px solid var(--accent)}
+    .album-row-num{
+      font-size:.65rem;color:var(--muted);min-width:20px;text-align:center;flex-shrink:0;
+    }
+    .album-row-play{
+      width:26px;height:26px;border-radius:50%;background:var(--accent);
+      border:none;cursor:pointer;flex-shrink:0;
+      display:flex;align-items:center;justify-content:center;
+      transition:background .2s,transform .15s;
+    }
+    .album-row-play:hover{background:#ff8c00;transform:scale(1.1)}
+    .album-row-play svg{width:10px;height:10px;fill:#000}
+    .album-row-info{flex:1;min-width:0}
+    .album-row-title{
+      font-family:var(--fh);font-size:.95rem;letter-spacing:1px;
+      white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+    }
+    .album-row-dur{font-size:.6rem;color:var(--muted);flex-shrink:0}
+    /* mini seekbar dentro del row */
+    .album-row-seek-wrap{
+      width:100%;display:flex;flex-direction:column;gap:2px;
+      margin-top:4px;
+    }
+    .album-row-seek{
+      -webkit-appearance:none;width:100%;height:2px;
+      background:rgba(255,255,255,.08);border-radius:2px;
+      outline:none;cursor:pointer;accent-color:var(--accent);
+    }
+    .album-row-seek::-webkit-slider-thumb{
+      -webkit-appearance:none;width:8px;height:8px;
+      border-radius:50%;background:var(--accent);cursor:pointer;
+    }
+    .album-row-time{display:flex;justify-content:space-between;font-size:.58rem;color:var(--muted)}
+    .album-row-expanded{padding:0 14px 10px 54px}
 
     /* ── TRACK CARD GLASSMORPHISM ── */
     .track-list{display:flex;flex-direction:column;gap:10px}
@@ -496,6 +580,10 @@
       if(!albumMap[key]) albumMap[key] = {name:key, coverURL:t.albumCoverURL||t.coverURL||'', tracks:[]};
       albumMap[key].tracks.push(t);
     });
+    // Ordenar tracks del álbum por trackNumber
+    Object.values(albumMap).forEach(album => {
+      album.tracks.sort((a,b) => (a.trackNumber||0) - (b.trackNumber||0));
+    });
     const albums = Object.values(albumMap);
 
     const singlesHTML = singles.length
@@ -503,16 +591,54 @@
 
     const albumsHTML = albums.map(album => `
       <div class="album-section">
-        <div class="album-header">
-          ${album.coverURL
-            ? `<div class="album-cover"><img src="${album.coverURL}" alt="${album.name}" loading="lazy"/></div>`
-            : `<div class="album-cover">💿</div>`}
-          <div class="album-info">
-            <div class="album-title">${album.name}</div>
-            <div class="album-meta">${album.tracks.length} track${album.tracks.length!==1?'s':''} · Álbum</div>
+        <div class="album-playlist" id="album-${album.name.replace(/\s+/g,'-').toLowerCase()}">
+          <!-- SIDEBAR -->
+          <div class="album-sidebar">
+            ${album.coverURL
+              ? `<img class="album-sidebar-cover" src="${album.coverURL}" alt="${album.name}" loading="lazy"/>`
+              : `<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:3rem">💿</div>`}
+            <div class="album-sidebar-overlay"></div>
+            <button class="album-sidebar-play" onclick="playAlbumFirst('${album.name.replace(/\s+/g,'-').toLowerCase()}')" aria-label="Reproducir álbum">
+              <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+            </button>
+            <div class="album-sidebar-info">
+              <div class="album-sidebar-title">${album.name}</div>
+              <div class="album-sidebar-meta">${album.tracks.length} tracks · Álbum</div>
+            </div>
+          </div>
+          <!-- TRACKLIST -->
+          <div class="album-tracklist">
+            ${album.tracks.map((t,i) => `
+            <div class="album-row" id="arow-${t.id}"
+              data-url="${t.audioURL||''}"
+              data-title="${(t.title||'').toLowerCase()}"
+              data-genre="${(t.genre||'').toLowerCase()}"
+              data-artist-name="${(artist.name||'').toLowerCase()}"
+              data-track-title="${t.title||'Sin título'}"
+              data-artist-display="${artist.name||''}"
+              data-cover="${t.coverURL||album.coverURL||''}">
+              <span class="album-row-num">${i+1}</span>
+              <button class="album-row-play audio-row-btn" data-playing="false" aria-label="Reproducir ${t.title||''}">
+                <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+              </button>
+              <div class="album-row-info">
+                <div class="album-row-title">${t.title||'Sin título'}</div>
+                <div class="album-row-seek-wrap" style="display:none">
+                  <input type="range" class="album-row-seek" value="0" min="0" step="0.1"/>
+                  <div class="album-row-time">
+                    <span class="current-time">0:00</span>
+                    <span class="duration">—:——</span>
+                  </div>
+                </div>
+              </div>
+              ${t.downloadable?`
+              <button class="dl-btn" onclick="downloadTrack('${t.audioURL}','${(t.title||'track').replace(/'/g,"\\'")}',this)" style="margin-left:4px">
+                <svg viewBox="0 0 24 24"><path d="M5 20h14v-2H5v2zm7-18v10.59l-3.3-3.3-1.41 1.41L12 15.41l4.71-4.71-1.41-1.41L13 12.59V2h-1z"/></svg>
+              </button>`:''}
+              <span class="album-row-dur" id="dur-${t.id}">—:——</span>
+            </div>`).join('')}
           </div>
         </div>
-        <div class="album-tracks">${album.tracks.map((t,i) => renderTrackCard(t,i+1,artist)).join('')}</div>
       </div>`).join('');
 
     return `
@@ -576,9 +702,15 @@
 
   // ── INIT PLAYERS ──
   function initPlayers(){
-    globalRows = Array.from(document.querySelectorAll('.audio-row'));
+    // Singles players (audio-row)
+    const singleRows = Array.from(document.querySelectorAll('.audio-row'));
+    // Album rows
+    const albumRowEls = Array.from(document.querySelectorAll('.album-row[data-url]'));
 
-    globalRows.forEach((row, rowIndex) => {
+    // Build globalRows: singles first, then album rows
+    globalRows = [];
+
+    singleRows.forEach((row, rowIndex) => {
       const card     = row.closest('.track-card');
       const body     = row.closest('.track-body');
       const audioURL = card?.dataset.url||'';
@@ -594,14 +726,13 @@
       audio.preload = 'none';
       audio.src = audioURL;
       row._audio = audio;
-      row._rowIndex = rowIndex;
+      row._card = card;
 
       let vizReady = false;
       function initVizOnce(){
         if(vizReady||!vizId) return; vizReady=true;
         try{
-          const ctx=getAudioCtx();
-          const analyser=ctx.createAnalyser();
+          const ctx=getAudioCtx(), analyser=ctx.createAnalyser();
           analyser.fftSize=128; analyser.smoothingTimeConstant=0.75;
           const src=ctx.createMediaElementSource(audio);
           src.connect(analyser); analyser.connect(gainNode);
@@ -633,75 +764,131 @@
         }catch(e){ console.warn('Viz:',e.message); }
       }
 
-      audio.addEventListener('loadedmetadata',()=>{
-        if(durEl)durEl.textContent=fmt(audio.duration);
-        seek.max=audio.duration;
-        updateFP(rowIndex);
-      });
-      audio.addEventListener('timeupdate',()=>{
-        seek.value=audio.currentTime;
-        if(curEl)curEl.textContent=fmt(audio.currentTime);
-        if(rowIndex===currentRowIndex) updateFPProgress(audio);
-      });
+      audio.addEventListener('loadedmetadata',()=>{ if(durEl)durEl.textContent=fmt(audio.duration); seek.max=audio.duration; updateFP(globalRows.indexOf(row)); });
+      audio.addEventListener('timeupdate',()=>{ seek.value=audio.currentTime; if(curEl)curEl.textContent=fmt(audio.currentTime); if(globalRows.indexOf(row)===currentRowIndex) updateFPProgress(audio); });
       audio.addEventListener('waiting',()=>{ btn.classList.add('loading'); btn.innerHTML=ICON_LOADING; });
       audio.addEventListener('playing',()=>{ btn.classList.remove('loading'); btn.innerHTML=ICON_PAUSE; });
-
-      // ── AUTOPLAY ──
       audio.addEventListener('ended',()=>{
-        btn.dataset.playing='false'; btn.innerHTML=ICON_PLAY;
-        seek.value=0; if(curEl)curEl.textContent='0:00';
-        vizMap.get(audio)?.stop();
-        card.classList.remove('playing');
-        playNext(rowIndex);
+        btn.dataset.playing='false'; btn.innerHTML=ICON_PLAY; seek.value=0; if(curEl)curEl.textContent='0:00';
+        vizMap.get(audio)?.stop(); card?.classList.remove('playing');
+        playNext(globalRows.indexOf(row));
       });
-
       row._initVizOnce = initVizOnce;
-
       btn.addEventListener('click',()=>{
         const playing=btn.dataset.playing==='true';
         stopAll(audio);
+        if(playing){ audio.pause(); btn.dataset.playing='false'; btn.innerHTML=ICON_PLAY; vizMap.get(audio)?.stop(); card?.classList.remove('playing'); currentRowIndex=-1; hideFP(); }
+        else{ getAudioCtx().resume(); initVizOnce(); audio.play(); btn.dataset.playing='true'; btn.innerHTML=ICON_PAUSE; vizMap.get(audio)?.start(); card?.classList.add('playing'); currentRowIndex=globalRows.indexOf(row); showFP(currentRowIndex); }
+      });
+      seek.addEventListener('input',()=>{ audio.currentTime=seek.value; });
+      globalRows.push(row);
+    });
+
+    // ── ALBUM ROWS ──
+    albumRowEls.forEach(rowEl => {
+      const audioURL = rowEl.dataset.url||'';
+      const btn      = rowEl.querySelector('.album-row-play');
+      const seekEl   = rowEl.querySelector('.album-row-seek');
+      const seekWrap = rowEl.querySelector('.album-row-seek-wrap');
+      const curEl    = rowEl.querySelector('.current-time');
+      const durEl    = rowEl.querySelector('.duration');
+      const durStatic= rowEl.querySelector('.album-row-dur');
+      if(!audioURL||!btn) return;
+
+      const audio = new Audio();
+      audio.crossOrigin = 'anonymous';
+      audio.preload = 'none';
+      audio.src = audioURL;
+      rowEl._audio = audio;
+      rowEl._card  = rowEl; // itself acts as the "card" for FP
+
+      audio.addEventListener('loadedmetadata',()=>{
+        if(durStatic) durStatic.textContent = fmt(audio.duration);
+        if(seekEl) seekEl.max = audio.duration;
+        updateFP(globalRows.indexOf(rowEl));
+      });
+      audio.addEventListener('timeupdate',()=>{
+        if(seekEl) seekEl.value = audio.currentTime;
+        if(curEl)  curEl.textContent  = fmt(audio.currentTime);
+        if(globalRows.indexOf(rowEl)===currentRowIndex) updateFPProgress(audio);
+      });
+      audio.addEventListener('waiting',()=>{ btn.innerHTML=`<svg viewBox="0 0 24 24" style="animation:spin .7s linear infinite;width:10px;height:10px;fill:#000"><path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm0 18a8 8 0 1 1 8-8 8 8 0 0 1-8 8z" opacity=".3"/><path d="M12 2a10 10 0 0 1 10 10h-2a8 8 0 0 0-8-8z"/></svg>`; });
+      audio.addEventListener('playing',()=>{ btn.innerHTML=`<svg viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>`; });
+      audio.addEventListener('ended',()=>{
+        btn.dataset.playing='false'; btn.innerHTML=`<svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>`;
+        if(seekEl) seekEl.value=0; if(curEl) curEl.textContent='0:00';
+        if(seekWrap) seekWrap.style.display='none';
+        rowEl.classList.remove('playing');
+        playNext(globalRows.indexOf(rowEl));
+      });
+      rowEl._initVizOnce = ()=>{};
+      btn.addEventListener('click',()=>{
+        const playing = btn.dataset.playing==='true';
+        stopAll(audio);
         if(playing){
-          audio.pause(); btn.dataset.playing='false'; btn.innerHTML=ICON_PLAY;
-          vizMap.get(audio)?.stop(); card.classList.remove('playing');
-          currentRowIndex=-1; hideFP();
+          audio.pause(); btn.dataset.playing='false'; btn.innerHTML=`<svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>`;
+          if(seekWrap) seekWrap.style.display='none';
+          rowEl.classList.remove('playing'); currentRowIndex=-1; hideFP();
         } else {
-          getAudioCtx().resume(); initVizOnce(); audio.play();
-          btn.dataset.playing='true'; btn.innerHTML=ICON_PAUSE;
-          vizMap.get(audio)?.start(); card.classList.add('playing');
-          currentRowIndex=rowIndex; showFP(rowIndex);
+          getAudioCtx().resume(); audio.play();
+          btn.dataset.playing='true'; btn.innerHTML=`<svg viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>`;
+          if(seekWrap) seekWrap.style.display='block';
+          rowEl.classList.add('playing'); currentRowIndex=globalRows.indexOf(rowEl);
+          showFP(currentRowIndex);
         }
       });
-
-      seek.addEventListener('input',()=>{ audio.currentTime=seek.value; });
+      if(seekEl) seekEl.addEventListener('input',()=>{ audio.currentTime=seekEl.value; });
+      globalRows.push(rowEl);
     });
   }
 
   function stopAll(except){
     globalRows.forEach(r=>{
-      const a=r._audio, b=r.querySelector('.play-btn'), c=r.closest('.track-card');
-      if(a&&a!==except){ a.pause(); if(b){b.dataset.playing='false';b.innerHTML=ICON_PLAY;b.classList.remove('loading');} vizMap.get(a)?.stop(); if(c)c.classList.remove('playing'); }
+      const a=r._audio;
+      if(!a||a===except) return;
+      a.pause();
+      const b=r.querySelector('.play-btn');
+      if(b){ b.dataset.playing='false'; b.innerHTML=ICON_PLAY; b.classList.remove('loading'); }
+      const ab=r.querySelector('.album-row-play');
+      if(ab){ ab.dataset.playing='false'; ab.innerHTML=`<svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>`; }
+      const sw=r.querySelector('.album-row-seek-wrap');
+      if(sw) sw.style.display='none';
+      vizMap.get(a)?.stop();
+      r.closest?.('.track-card')?.classList.remove('playing');
+      if(r.classList?.contains('album-row')) r.classList.remove('playing');
     });
   }
 
   function playNext(fromIndex){
     for(let i=fromIndex+1;i<globalRows.length;i++){
-      const nr=globalRows[i];
-      if(!nr||nr.closest('.track-card')?.classList.contains('hidden')) continue;
-      const na=nr._audio, nb=nr.querySelector('.play-btn'), nc=nr.closest('.track-card');
+      const nr=globalRows[i]; if(!nr) continue;
+      if(nr.closest?.('.track-card')?.classList.contains('hidden')) continue;
+      if(nr.classList?.contains('hidden')) continue;
+      const na=nr._audio;
+      const nb=nr.querySelector('.play-btn')||nr.querySelector('.album-row-play');
       if(na&&nb){
-        stopAll(na);
-        getAudioCtx().resume();
-        nr._initVizOnce?.();
-        na.play();
-        nb.dataset.playing='true'; nb.innerHTML=ICON_PAUSE;
+        stopAll(na); getAudioCtx().resume(); nr._initVizOnce?.();
+        na.play(); nb.dataset.playing='true';
+        nb.innerHTML=`<svg viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>`;
         vizMap.get(na)?.start();
-        if(nc){nc.classList.add('playing'); nc.scrollIntoView({behavior:'smooth',block:'nearest'});}
+        const sw=nr.querySelector('.album-row-seek-wrap');
+        if(sw) sw.style.display='block';
+        nr.closest?.('.track-card')?.classList.add('playing');
+        if(nr.classList?.contains('album-row')) nr.classList.add('playing');
         currentRowIndex=i; showFP(i);
+        nr.scrollIntoView?.({behavior:'smooth',block:'nearest'});
         return;
       }
     }
     hideFP();
   }
+
+  window.playAlbumFirst = function(albumId){
+    const playlist = document.getElementById('album-'+albumId);
+    if(!playlist) return;
+    const firstRow = playlist.querySelector('.album-row[data-url]');
+    if(firstRow){ const btn=firstRow.querySelector('.album-row-play'); if(btn) btn.click(); }
+  };
 
   // ── FLOATING PLAYER ──
   // ── COLOR DINÁMICO POR PORTADA (ColorThief) ──
@@ -731,11 +918,15 @@
   }
 
   function showFP(rowIndex){
-    const card = globalRows[rowIndex]?.closest('.track-card');
-    if(!card) return;
-    document.getElementById('fp-title').textContent  = card.dataset.trackTitle || '—';
-    document.getElementById('fp-artist').textContent = card.dataset.artistDisplay || '—';
-    const cover = card.dataset.cover;
+    const el = globalRows[rowIndex];
+    if(!el) return;
+    // Can be a .track-card (single) or .album-row
+    const card = el.closest?.('.track-card') || el;
+    const title  = card.dataset?.trackTitle  || el.dataset?.trackTitle  || '—';
+    const artist = card.dataset?.artistDisplay|| el.dataset?.artistDisplay|| '—';
+    const cover  = card.dataset?.cover        || el.dataset?.cover        || '';
+    document.getElementById('fp-title').textContent  = title;
+    document.getElementById('fp-artist').textContent = artist;
     const fpCover = document.getElementById('fp-cover');
     fpCover.innerHTML = cover ? `<img src="${cover}" alt="cover" loading="lazy" style="width:100%;height:100%;border-radius:6px;object-fit:cover"/>` : '🎵';
     document.getElementById('fp-play-btn').innerHTML = `<svg viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>`;
