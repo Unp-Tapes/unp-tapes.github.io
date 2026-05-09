@@ -693,7 +693,7 @@
   function startImmersiveTimer(){
     clearTimeout(immersiveTimer);
     if(currentRowIndex<0) return;
-    immersiveTimer=setTimeout(()=>{ isImmersive=true; document.body.classList.add('immersive'); }, 8000);
+    immersiveTimer=setTimeout(()=>{ isImmersive=true; document.body.classList.add('immersive'); }, 30000);
   }
   function exitImmersive(){ if(isImmersive){ isImmersive=false; document.body.classList.remove('immersive'); } startImmersiveTimer(); }
   document.addEventListener('mousemove',exitImmersive);
