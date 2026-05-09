@@ -524,8 +524,15 @@
     initPlayers();
 
     // ── AUTO-PLAY si viene ?track=ID en la URL ──
-    const trackParam = new URLSearchParams(location.search).get('track');
+    const params     = new URLSearchParams(location.search);
+    const trackParam = params.get('track');
+    const tabParam   = params.get('tab');
     if(trackParam){
+      // Cambiar a la pestaña correcta primero
+      if(tabParam && tabParam !== currentTab){
+        const tabEl = document.querySelector(`.tab[onclick*="${tabParam}"]`);
+        if(tabEl){ currentTab=tabParam; document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active')); tabEl.classList.add('active'); renderContent(); }
+      }
       setTimeout(()=>{
         const row = document.getElementById(`tr-${trackParam}`);
         if(row){
@@ -753,14 +760,16 @@
   };
 
   window.shareTrack = function(trackId, title, btn){
-    const url = `${location.origin}${location.pathname}?id=${new URLSearchParams(location.search).get('id')}&track=${trackId}`;
+    const artistId = new URLSearchParams(location.search).get('id');
+    // Detectar si el track es de álbum
+    const track = allTracks.find(t=>t.id===trackId);
+    const tab = track?.type==='album' ? 'albums' : 'singles';
+    const url = `${location.origin}${location.pathname}?id=${artistId}&track=${trackId}&tab=${tab}`;
     navigator.clipboard.writeText(url).then(()=>{
       btn.classList.add('copied');
       btn.title = '¡Link copiado!';
       setTimeout(()=>{ btn.classList.remove('copied'); btn.title='Compartir'; }, 2000);
-    }).catch(()=>{
-      prompt('Copia este link:', url);
-    });
+    }).catch(()=>{ prompt('Copia este link:', url); });
   };
 
   window.downloadTrack=async function(url,title,btn){ try{ const orig=btn.innerHTML; btn.textContent='…'; const res=await fetch(url); const blob=await res.blob(); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=title+'.mp3'; a.click(); URL.revokeObjectURL(a.href); btn.innerHTML=orig; }catch(e){ alert('Error: '+e.message); } };
