@@ -276,12 +276,6 @@
     .video-iframe-wrap{position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:var(--radius)}
     .video-iframe-wrap iframe{position:absolute;inset:0;width:100%;height:100%;border:none}
 
-    /* ── IMMERSIVE ── */
-    body.immersive .content,body.immersive .tabs,body.immersive .artist-header{opacity:.05;transition:opacity 1.2s;pointer-events:none}
-    body.immersive #floating-player{opacity:1!important;pointer-events:all}
-    .immersive-hint{position:fixed;bottom:88px;left:50%;transform:translateX(-50%);z-index:300;font-size:.6rem;color:rgba(255,255,255,.3);letter-spacing:.15em;text-transform:uppercase;opacity:0;transition:opacity .5s;pointer-events:none}
-    body.immersive .immersive-hint{opacity:1}
-
     /* ── STATES ── */
     .state-msg{text-align:center;padding:60px 0;color:var(--muted);font-size:.78rem;letter-spacing:.1em}
     .spinner{width:28px;height:28px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite;margin:0 auto 12px}
@@ -358,8 +352,6 @@
     <input type="range" class="fp-vol-slider" id="fp-vol-slider" value="100" min="0" max="100" oninput="fpVolume(this)"/>
   </div>
 </div>
-
-<div class="immersive-hint">Modo inmersivo · Mueve el mouse para salir</div>
 
 <!-- VIDEO MODAL -->
 <div class="video-modal" id="video-modal" onclick="if(event.target===this)closeVideo()">
@@ -761,14 +753,6 @@
   window.fpVolume=function(input){ if(gainNode) gainNode.gain.value=input.value/100; document.getElementById('fp-vol-icon').textContent=input.value==0?'🔇':input.value<50?'🔉':'🔊'; };
   let muted=false,lastVol=100;
   window.fpMute=function(){ muted=!muted; const s=document.getElementById('fp-vol-slider'); if(muted){lastVol=s.value;s.value=0;}else s.value=lastVol; fpVolume(s); };
-
-  // ── IMMERSIVE ──
-  let immersiveTimer,isImmersive=false;
-  function startImmersiveTimer(){ clearTimeout(immersiveTimer); if(currentRowIndex<0) return; immersiveTimer=setTimeout(()=>{ isImmersive=true; document.body.classList.add('immersive'); },8000); }
-  function exitImmersive(){ if(isImmersive){ isImmersive=false; document.body.classList.remove('immersive'); } startImmersiveTimer(); }
-  document.addEventListener('mousemove',exitImmersive);
-  document.addEventListener('keydown',exitImmersive);
-  document.addEventListener('touchstart',exitImmersive);
 
   function showPlayBanner(onPlay){
     const bg  = document.createElement('div');
