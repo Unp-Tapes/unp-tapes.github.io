@@ -666,7 +666,7 @@
           if(playerDiv) playerDiv.classList.add('open');
           audio.play(); btn.dataset.playing='true'; btn.innerHTML=ICON_PAUSE;
           row.classList.add('playing'); currentRowIndex=globalRows.indexOf(row);
-          showFP(currentRowIndex); startImmersiveTimer();
+          showFP(currentRowIndex);
         }
       });
 
@@ -688,13 +688,26 @@
     for(let i=fromIdx+1;i<globalRows.length;i++){
       const r=globalRows[i]; const a=r?._audio; const b=r?.querySelector('.play-btn');
       if(a&&b){
-        stopAll(a); getAudioCtx().resume(); a.play();
-        b.dataset.playing='true'; b.innerHTML=ICON_PAUSE;
-        r.classList.add('playing'); currentRowIndex=i; showFP(i);
-        const pd=document.getElementById(`player-${r.id.replace('tr-','')}`);
-        if(pd) pd.classList.add('open');
-        r.scrollIntoView({behavior:'smooth',block:'nearest'});
-        startImmersiveTimer(); return;
+        stopAll(a);
+        const ctx = getAudioCtx();
+        const doPlay = ()=>{
+          a.play().then(()=>{
+            b.dataset.playing='true'; b.innerHTML=ICON_PAUSE;
+            r.classList.add('playing'); currentRowIndex=i; showFP(i);
+            const pd=document.getElementById(`player-${r.id.replace('tr-','')}`);
+            if(pd) pd.classList.add('open');
+            r.scrollIntoView({behavior:'smooth',block:'nearest'});
+          }).catch(()=>{
+            // Si falla, mostrar el botón para que el usuario interactúe
+            b.dataset.playing='false'; b.innerHTML=ICON_PLAY;
+          });
+        };
+        if(ctx.state === 'suspended'){
+          ctx.resume().then(doPlay);
+        } else {
+          doPlay();
+        }
+        return;
       }
     }
     hideFP();
@@ -790,6 +803,13 @@
       setTimeout(()=>{ btn.classList.remove('copied'); btn.title='Compartir'; }, 2000);
     }).catch(()=>{ prompt('Copia este link:', url); });
   };
+
+  // Reactivar AudioContext cuando la página vuelve al primer plano (móvil)
+  document.addEventListener('visibilitychange', ()=>{
+    if(document.visibilityState === 'visible' && audioCtx?.state === 'suspended'){
+      audioCtx.resume();
+    }
+  });
 
   window.downloadTrack=async function(url,title,btn){ try{ const orig=btn.innerHTML; btn.textContent='…'; const res=await fetch(url); const blob=await res.blob(); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=title+'.mp3'; a.click(); URL.revokeObjectURL(a.href); btn.innerHTML=orig; }catch(e){ alert('Error: '+e.message); } };
 
