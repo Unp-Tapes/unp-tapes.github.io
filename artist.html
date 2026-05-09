@@ -446,9 +446,19 @@
           const row = document.getElementById(`tr-${trackParam}`);
           if(row){
             row.scrollIntoView({behavior:'smooth', block:'center'});
-            setTimeout(()=> row.querySelector('.play-btn')?.click(), 500);
+            const btn = row.querySelector('.play-btn');
+            if(btn){
+              // Esperar a que el audio esté listo
+              const audio = row._audio;
+              if(audio){
+                audio.addEventListener('canplay', ()=> btn.click(), {once:true});
+                audio.load();
+              } else {
+                setTimeout(()=> btn.click(), 800);
+              }
+            }
           }
-        }, 600);
+        }, 800);
       }
     } catch(e){
       document.getElementById('content').innerHTML=`<div class="state-msg">Error: ${e.message}</div>`;
