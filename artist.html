@@ -25,14 +25,16 @@
         .tab { padding: 15px 0; cursor: pointer; color: #555; font-family: var(--fh); font-size: 1.5rem; border-bottom: 2px solid transparent; }
         .tab.active { color: white; border-color: var(--accent); }
 
-        .track-row { display: flex; align-items: center; padding: 12px; border-radius: 10px; transition: 0.2s; cursor: pointer; border-bottom: 1px solid #111; gap: 20px; }
-        .track-row:hover { background: #0d0d0d; }
+        .track-row { display: flex; align-items: center; padding: 15px; border-radius: 10px; transition: 0.2s; cursor: pointer; border-bottom: 1px solid #111; gap: 20px; }
+        .track-row:hover { background: #0d0d0d; border-color: #333; }
+        .track-row.playing { background: #111; border-left: 4px solid var(--accent); color: var(--accent); }
         .track-row img { width: 50px; height: 50px; border-radius: 4px; }
         .track-name { flex: 1; font-weight: bold; }
         .track-type { font-size: 0.7rem; color: var(--accent); border: 1px solid var(--accent); padding: 2px 6px; border-radius: 4px; text-transform: uppercase; }
 
-        .player-bar { position: fixed; bottom: 0; left: 0; right: 0; background: rgba(10, 10, 10, 0.98); border-top: 1px solid var(--accent); padding: 15px 40px; display: none; align-items: center; justify-content: space-between; z-index: 1000; backdrop-filter: blur(20px); }
-        audio { width: 40%; filter: invert(1) hue-rotate(180deg); height: 35px; }
+        .player-bar { position: fixed; bottom: 0; left: 0; right: 0; background: rgba(5, 5, 5, 0.98); border-top: 1px solid var(--accent); padding: 10px 40px; display: none; align-items: center; justify-content: space-between; z-index: 1000; backdrop-filter: blur(25px); height: 90px; }
+        audio { width: 40%; filter: invert(1) hue-rotate(180deg); }
+        .download-btn { color: #888; text-decoration: none; font-size: 0.8rem; border: 1px solid #333; padding: 5px 12px; border-radius: 5px; }
     </style>
 </head>
 <body>
@@ -52,13 +54,19 @@
         </div>
         <div id="tracks-container"></div>
     </div>
+
+    <!-- PLAYER BAR -->
     <div class="player-bar" id="global-player">
         <div style="display:flex; align-items:center; gap:15px; width:30%;">
-            <img id="p-img" src="" style="width:50px; height:50px; border-radius:4px;">
-            <div><h5 id="p-title" style="margin:0"></h5><p id="p-art" style="margin:0; font-size:0.7rem; color:#888;"></p></div>
+            <img id="p-img" src="" style="width:55px; height:55px; border-radius:4px;">
+            <div><h5 id="p-title" style="margin:0; color:var(--accent)"></h5><p id="p-art" style="margin:0; font-size:0.7rem; color:#888;"></p></div>
         </div>
         <audio id="main-audio" controls autoplay></audio>
+        <div style="width:30%; display:flex; justify-content:flex-end;">
+            <a href="#" id="p-download" class="download-btn" download>BAJAR MP3</a>
+        </div>
     </div>
+
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
         import { getFirestore, doc, getDoc, collection, query, where, getDocs, orderBy } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
@@ -101,17 +109,22 @@
             data.forEach(t => {
                 const row = document.createElement('div');
                 row.className = 'track-row';
+                row.id = `row-${t.id}`;
                 row.innerHTML = `
                     <img src="${t.coverURL}">
                     <div class="track-name">${t.title}</div>
                     <span class="track-type">${t.type || 'single'}</span>
                 `;
                 row.onclick = () => {
+                    document.querySelectorAll('.track-row').forEach(r => r.classList.remove('playing'));
+                    row.classList.add('playing');
+
                     document.getElementById('global-player').style.display = 'flex';
                     document.getElementById('main-audio').src = t.audioURL;
                     document.getElementById('p-img').src = t.coverURL;
                     document.getElementById('p-title').textContent = t.title;
                     document.getElementById('p-art').textContent = document.getElementById('artist-name').textContent;
+                    document.getElementById('p-download').href = t.audioURL;
                 };
                 container.appendChild(row);
             });

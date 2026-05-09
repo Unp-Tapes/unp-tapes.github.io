@@ -137,11 +137,6 @@
             } catch(e) { alert(e.message); } finally { btn.disabled = false; btn.textContent = "PUBLICAR"; }
         };
 
-        document.getElementById('save-p-btn').onclick = async () => {
-            await setDoc(doc(db, 'artists', user.uid), { name: document.getElementById('p-name').value, city: document.getElementById('p-city').value }, { merge: true });
-            closeM('profile-modal'); loadData();
-        };
-
         window.deleteT = async (id) => { if(confirm('¿Borrar?')) { await deleteDoc(doc(db, 'tracks', id)); loadData(); } };
     </script>
 </body>
