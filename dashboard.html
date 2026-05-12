@@ -353,7 +353,7 @@
 </div><!-- /dashboard-beatmaker -->
 
 <!-- ── MODAL SUBIR BEAT ── -->
-<div class="modal" id="beat-modal">
+<div class="modal" id="beat-modal" onclick="closeModalOutside(event)">
   <div class="modal-content">
     <div class="section-head">
       <h3>· Subir Beat ·</h3>
@@ -1430,22 +1430,65 @@
         try{
           const ctx = new(window.AudioContext||window.webkitAudioContext)();
           const buffer = await ctx.decodeAudioData(e.target.result);
+
+          // Usar el canal de audio y analizar con autocorrelación
           const data = buffer.getChannelData(0);
           const sampleRate = buffer.sampleRate;
-          // Algoritmo simple de detección de tempo por energía
-          const windowSize = Math.floor(sampleRate * 0.05);
+
+          // Tomar una muestra del medio del track (más representativa)
+          const startSample = Math.floor(data.length * 0.2);
+          const analyzeSeconds = Math.min(60, buffer.duration * 0.6);
+          const analyzeLength = Math.floor(sampleRate * analyzeSeconds);
+          const segment = data.slice(startSample, startSample + analyzeLength);
+
+          // Calcular energía por frames de 512 samples
+          const frameSize = 512;
+          const hopSize = 256;
           const energies = [];
-          for(let i=0;i<data.length-windowSize;i+=windowSize){
-            let e=0; for(let j=0;j<windowSize;j++) e+=data[i+j]*data[i+j];
-            energies.push(e/windowSize);
+          for(let i=0; i<segment.length-frameSize; i+=hopSize){
+            let e=0;
+            for(let j=0;j<frameSize;j++) e+=segment[i+j]**2;
+            energies.push(Math.sqrt(e/frameSize));
           }
-          const avg = energies.reduce((a,b)=>a+b,0)/energies.length;
-          let beats=0;
-          for(let i=1;i<energies.length;i++) if(energies[i]>avg*1.5&&energies[i-1]<=avg*1.5) beats++;
-          const duration = buffer.duration;
-          const bpm = Math.round((beats/duration)*60);
+
+          // Onset detection — diferencia espectral
+          const onsets = [];
+          for(let i=1;i<energies.length;i++){
+            const diff = energies[i]-energies[i-1];
+            if(diff > 0) onsets.push(diff);
+            else onsets.push(0);
+          }
+
+          // Normalizar
+          const maxOnset = Math.max(...onsets);
+          const normOnsets = onsets.map(o=>o/maxOnset);
+
+          // Calcular autocorrelación para encontrar periodo dominante
+          const minBPM = 60, maxBPM = 200;
+          const frameRate = sampleRate / hopSize;
+          const minPeriod = Math.floor(frameRate * 60 / maxBPM);
+          const maxPeriod = Math.ceil(frameRate * 60 / minBPM);
+
+          let bestCorr = -1, bestPeriod = 0;
+          for(let period=minPeriod; period<=maxPeriod; period++){
+            let corr = 0;
+            for(let i=0; i<normOnsets.length-period; i++){
+              corr += normOnsets[i] * normOnsets[i+period];
+            }
+            corr /= (normOnsets.length - period);
+            if(corr > bestCorr){ bestCorr=corr; bestPeriod=period; }
+          }
+
           ctx.close();
-          resolve(bpm>40&&bpm<300 ? bpm : null);
+
+          if(bestPeriod === 0){ resolve(null); return; }
+          const bpm = Math.round(frameRate * 60 / bestPeriod);
+
+          // Verificar si el doble o la mitad es más común (armonicos)
+          const candidates = [bpm, bpm*2, bpm/2].filter(b=>b>=60&&b<=200);
+          // Preferir rango 70-160 que es más común en música
+          const preferred = candidates.find(b=>b>=70&&b<=160) || candidates[0];
+          resolve(Math.round(preferred)||null);
         }catch(e){ resolve(null); }
       };
       reader.readAsArrayBuffer(file);
