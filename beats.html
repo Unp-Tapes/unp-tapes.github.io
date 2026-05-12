@@ -4,9 +4,16 @@
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Comprar Beats — UNP Records</title>
-  <meta property="og:title" content="Beats — UNP Records"/>
-  <meta property="og:description" content="Compra beats exclusivos de productores independientes."/>
+  <meta property="og:title" content="Beats Store — UNP Records"/>
+  <meta property="og:description" content="Beats exclusivos desde $5.000 · MP3 · WAV exclusivo · Stems · Productores independientes"/>
   <meta property="og:image" content="https://unp-tapes.github.io/logo.png"/>
+  <meta property="og:url" content="https://unp-tapes.github.io/beats.html"/>
+  <meta property="og:type" content="website"/>
+  <meta property="og:site_name" content="UNP Records"/>
+  <meta name="twitter:card" content="summary_large_image"/>
+  <meta name="twitter:title" content="Beats Store — UNP Records"/>
+  <meta name="twitter:description" content="Beats exclusivos desde $5.000 · Productores independientes"/>
+  <meta name="twitter:image" content="https://unp-tapes.github.io/logo.png"/>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet"/>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/color-thief/2.3.2/color-thief.umd.js"></script>
@@ -119,6 +126,16 @@
 
     /* LICENCIAS */
     .beat-licenses{display:flex;flex-direction:column;gap:6px}
+    .beat-share-btn{
+      display:flex;align-items:center;justify-content:center;gap:6px;
+      width:100%;padding:7px;border-radius:7px;cursor:pointer;margin-top:6px;
+      border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.03);
+      color:var(--muted);font-family:var(--fb);font-size:.65rem;
+      letter-spacing:.08em;text-transform:uppercase;transition:all .2s;
+    }
+    .beat-share-btn:hover{border-color:rgba(255,255,255,.2);color:#fff}
+    .beat-share-btn.copied{border-color:#4caf50;color:#4caf50}
+    .beat-share-btn svg{width:12px;height:12px;fill:currentColor}
     .license-btn{
       display:flex;align-items:center;justify-content:space-between;
       padding:8px 12px;border-radius:7px;cursor:pointer;
@@ -321,27 +338,31 @@
             <canvas id="wc-${b.id}"></canvas>
           </div>`:''}
           <div class="beat-licenses">
-            <div class="license-btn" onclick="buyBeat('${b.id}','mp3')">
+            <div class="license-btn" onclick="buyBeat('${b.id}','mp3','${b.artistId}')">
               <div class="license-info">
                 <div class="license-name">Básica</div>
                 <div class="license-desc">MP3 · Uso no exclusivo</div>
               </div>
               <div class="license-price">$5.000</div>
             </div>
-            <div class="license-btn ${!b.hasWav?'unavail':b.soldWav?'sold':''}" onclick="${b.hasWav&&!b.soldWav?`buyBeat('${b.id}','wav')`:''}">
+            <div class="license-btn ${!b.hasWav?'unavail':b.soldWav?'sold':''}" onclick="${b.hasWav&&!b.soldWav?`buyBeat('${b.id}','wav','${b.artistId}')`:''}">
               <div class="license-info">
                 <div class="license-name">Premium</div>
                 <div class="license-desc">WAV · Exclusivo${b.soldWav?' · VENDIDO':!b.hasWav?' · No disponible':''}</div>
               </div>
               <div class="license-price">${b.soldWav?'VENDIDO':'$15.000'}</div>
             </div>
-            <div class="license-btn ${!b.hasStems?'unavail':b.soldStems?'sold':''}" onclick="${b.hasStems&&!b.soldStems?`buyBeat('${b.id}','stems')`:''}">
+            <div class="license-btn ${!b.hasStems?'unavail':b.soldStems?'sold':''}" onclick="${b.hasStems&&!b.soldStems?`buyBeat('${b.id}','stems','${b.artistId}')`:''}">
               <div class="license-info">
                 <div class="license-name">Exclusiva</div>
                 <div class="license-desc">Stems ZIP · Total exclusivo${b.soldStems?' · VENDIDO':!b.hasStems?' · No disponible':''}</div>
               </div>
               <div class="license-price">${b.soldStems?'VENDIDO':'$30.000'}</div>
             </div>
+            <button class="beat-share-btn" id="share-${b.id}" onclick="shareBeat('${b.id}','${(b.title||'').replace(/'/g,"\\'")}',this)">
+              <svg viewBox="0 0 24 24"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11A2.99 2.99 0 0 0 18 8a3 3 0 1 0-3-3c0 .24.04.47.09.7L8.04 9.81A3 3 0 0 0 6 9a3 3 0 0 0 0 6c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65a3 3 0 1 0 3-3z"/></svg>
+              Compartir
+            </button>
           </div>
         </div>
       </div>`).join('')}</div>`;
@@ -484,14 +505,24 @@
   const CREATE_PAYMENT_URL   = 'https://createpayment-edefkox4rq-uc.a.run.app';
   const GET_DOWNLOAD_URL     = 'https://getdownloadlink-edefkox4rq-uc.a.run.app';
 
-  window.buyBeat = function(beatId, license){
+  window.buyBeat = function(beatId, license, artistId){
     const beat = allBeats.find(b=>b.id===beatId);
     if(!beat) return;
     const names  = {mp3:'Básica (MP3)',wav:'Premium (WAV exclusivo)',stems:'Exclusiva (Stems ZIP)'};
     const prices = {mp3:'$5.000',wav:'$15.000',stems:'$30.000'};
-
-    // Mostrar modal de compra
     showBuyModal(beat, license, names[license], prices[license]);
+  };
+
+  window.shareBeat = function(beatId, title, btn){
+    const url = `${location.origin}${location.pathname}?beat=${beatId}`;
+    navigator.clipboard.writeText(url).then(()=>{
+      btn.classList.add('copied');
+      btn.innerHTML=`<svg viewBox="0 0 24 24"><path d="M9 16.2L4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4L9 16.2z"/></svg> ¡Link copiado!`;
+      setTimeout(()=>{
+        btn.classList.remove('copied');
+        btn.innerHTML=`<svg viewBox="0 0 24 24"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11A2.99 2.99 0 0 0 18 8a3 3 0 1 0-3-3c0 .24.04.47.09.7L8.04 9.81A3 3 0 0 0 6 9a3 3 0 0 0 0 6c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65a3 3 0 1 0 3-3z"/></svg> Compartir`;
+      }, 2500);
+    }).catch(()=>{ prompt('Copia este link:', url); });
   };
 
   function showBuyModal(beat, license, licenseName, price){
@@ -611,6 +642,21 @@
 
   loadBeats();
   checkOrderOnLoad();
+
+  // Resaltar beat si viene ?beat=ID en la URL
+  function checkBeatParam(){
+    const beatId = new URLSearchParams(location.search).get('beat');
+    if(!beatId) return;
+    setTimeout(()=>{
+      const card = document.getElementById(`bc-${beatId}`);
+      if(card){
+        card.scrollIntoView({behavior:'smooth', block:'center'});
+        card.style.borderColor = 'var(--accent)';
+        card.style.boxShadow   = '0 0 30px rgba(255,106,0,.3)';
+      }
+    }, 800);
+  }
+  checkBeatParam();
 </script>
 </body>
 </html>
