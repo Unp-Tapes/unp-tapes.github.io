@@ -655,7 +655,7 @@
     const file  = input._compressed || input.files[0];
     clearMessages('profile');
 
-    let photoURL = artistProfile.photoURL || '';
+    let photoURL = artistProfile?.photoURL || '';
 
     if(file){
       document.getElementById('profile-progress').style.display = 'block';
