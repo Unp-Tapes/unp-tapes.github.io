@@ -319,7 +319,130 @@
 
 </div><!-- /dashboard -->
 
-<!-- ── MODAL VIDEO ── -->
+<!-- ── DASHBOARD BEATMAKER ── -->
+<div class="page" id="dashboard-beatmaker" style="display:none">
+
+  <div class="stats-row">
+    <div class="stat-card"><span id="bm-stat-beats">0</span><label>Beats</label></div>
+    <div class="stat-card"><span id="bm-stat-sold">0</span><label>Vendidos</label></div>
+    <div class="stat-card"><span id="bm-stat-avail">0</span><label>Disponibles</label></div>
+  </div>
+
+  <div class="dash-header">
+    <div class="dash-avatar" id="bm-avatar-wrap"><span id="bm-avatar-initial">?</span></div>
+    <div class="dash-info">
+      <h2 id="bm-name">—</h2>
+      <p id="bm-genre-city"></p>
+      <span style="font-size:.62rem;color:var(--accent);letter-spacing:.1em;text-transform:uppercase">Beatmaker</span>
+    </div>
+    <div class="dash-actions">
+      <button class="btn btn-ghost" onclick="openModal('profile-modal')">✏ Perfil</button>
+      <button class="btn btn-purple" onclick="openModal('beat-modal')">+ Subir Beat</button>
+    </div>
+  </div>
+
+  <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;padding-top:8px">
+    <div style="font-size:.65rem;color:var(--muted);letter-spacing:.15em;text-transform:uppercase">Mis Beats</div>
+    <div style="flex:1;height:1px;background:var(--border)"></div>
+  </div>
+
+  <div id="my-beats-list">
+    <div class="state-msg"><div class="spinner"></div>Cargando…</div>
+  </div>
+
+</div><!-- /dashboard-beatmaker -->
+
+<!-- ── MODAL SUBIR BEAT ── -->
+<div class="modal" id="beat-modal" onclick="closeModalOutside(event)">
+  <div class="modal-content">
+    <div class="section-head">
+      <h3>· Subir Beat ·</h3>
+      <button class="btn btn-ghost" onclick="closeModal('beat-modal')">✕</button>
+    </div>
+    <div id="beat-error" class="error-msg"></div>
+    <div id="beat-success" class="success-msg"></div>
+
+    <div class="upload-grid">
+      <div class="field">
+        <label>Título del beat</label>
+        <input type="text" id="beat-title" placeholder="Nombre del beat"/>
+      </div>
+      <div class="field">
+        <label>Género</label>
+        <select id="beat-genre">
+          <option value="" disabled selected>— Seleccionar —</option>
+          <option>Hip-Hop</option><option>Trap</option><option>Drill</option>
+          <option>R&B</option><option>Reggaeton</option><option>Afrobeats</option>
+          <option>Boom Bap</option><option>Lo-Fi</option><option>Pop</option>
+          <option>Dancehall</option><option>Electrónica</option><option>Otro</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="upload-grid">
+      <div class="field">
+        <label>BPM <span id="bpm-auto" style="color:var(--accent);font-size:.6rem"></span></label>
+        <input type="number" id="beat-bpm" placeholder="Auto-detectado al subir" min="40" max="300"/>
+      </div>
+      <div class="field">
+        <label>Tonalidad (opcional)</label>
+        <input type="text" id="beat-key" placeholder="Ej: Am, C#, Gm"/>
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Descripción (opcional)</label>
+      <input type="text" id="beat-desc" placeholder="Ej: Dark trap con 808s pesados"/>
+    </div>
+
+    <div class="field">
+      <label>Audio MP3 (preview público)</label>
+      <div class="file-drop">
+        <input type="file" id="beat-audio-mp3" accept="audio/*" onchange="setBeatFile(this,'mp3')"/>
+        <div class="file-drop-icon">🎵</div>
+        <div class="file-drop-label">MP3 del beat</div>
+        <div class="file-drop-name" id="beat-mp3-name"></div>
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Audio WAV (licencia $15.000)</label>
+      <div class="file-drop">
+        <input type="file" id="beat-audio-wav" accept="audio/*" onchange="setBeatFile(this,'wav')"/>
+        <div class="file-drop-icon">🎧</div>
+        <div class="file-drop-label">WAV del beat (opcional)</div>
+        <div class="file-drop-name" id="beat-wav-name"></div>
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Stems ZIP (licencia $30.000)</label>
+      <div class="file-drop">
+        <input type="file" id="beat-stems" accept=".zip,.rar" onchange="setBeatFile(this,'stems')"/>
+        <div class="file-drop-icon">📦</div>
+        <div class="file-drop-label">ZIP con stems (opcional)</div>
+        <div class="file-drop-name" id="beat-stems-name"></div>
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Portada</label>
+      <div class="file-drop">
+        <input type="file" id="beat-cover" accept="image/*" onchange="setBeatFile(this,'cover')"/>
+        <div class="file-drop-icon">🖼</div>
+        <div class="file-drop-label">Imagen de portada</div>
+        <div class="file-drop-name" id="beat-cover-name"></div>
+      </div>
+    </div>
+
+    <div class="progress-wrap" id="beat-progress" style="display:none">
+      <div class="progress-bar-bg"><div class="progress-bar" id="beat-bar"></div></div>
+      <div class="progress-label" id="beat-progress-label">Subiendo…</div>
+    </div>
+
+    <button class="submit-btn" onclick="uploadBeat()">Publicar Beat</button>
+  </div>
+</div> -->
 <div class="modal" id="video-modal" onclick="closeModalOutside(event)">
   <div class="modal-content">
     <div class="section-head">
@@ -557,17 +680,27 @@
     if(user){
       currentUser = user;
       document.getElementById('auth-section').style.display  = 'none';
-      document.getElementById('dashboard').style.display     = 'block';
       document.getElementById('nav-email').textContent       = user.email;
       document.getElementById('logout-btn').style.display    = 'inline-flex';
       document.getElementById('public-btn').style.display    = 'inline-flex';
       await loadProfile();
-      await loadMyTracks();
-      await loadMyVideos();
+      // Detectar tipo y mostrar panel correcto
+      const type = artistProfile?.type || 'artist';
+      if(type === 'beatmaker'){
+        document.getElementById('dashboard-beatmaker').style.display = 'block';
+        document.getElementById('dashboard').style.display = 'none';
+        await loadMyBeats();
+      } else {
+        document.getElementById('dashboard').style.display = 'block';
+        document.getElementById('dashboard-beatmaker').style.display = 'none';
+        await loadMyTracks();
+        await loadMyVideos();
+      }
     } else {
       currentUser = null;
       document.getElementById('auth-section').style.display  = 'block';
       document.getElementById('dashboard').style.display     = 'none';
+      document.getElementById('dashboard-beatmaker').style.display = 'none';
       document.getElementById('nav-email').textContent       = '';
       document.getElementById('logout-btn').style.display    = 'none';
     }
@@ -599,6 +732,7 @@
     if(!snap.exists()) return;
     artistProfile = snap.data();
     renderDashHeader();
+    renderBeatmakerHeader();
     document.getElementById('edit-name').value  = artistProfile.name  || '';
     document.getElementById('edit-genre').value = artistProfile.genre || '';
     document.getElementById('edit-city').value  = artistProfile.city  || '';
@@ -1241,6 +1375,196 @@
     try{
       await deleteDoc(doc(db,`artists/${currentUser.uid}/videos`,videoId));
       await loadMyVideos();
+    } catch(e){ alert('Error: '+e.message); }
+  };
+
+  // ── BEATMAKER DASHBOARD ──
+  let beatFiles = { mp3:null, wav:null, stems:null, cover:null };
+
+  function renderBeatmakerHeader(){
+    if(!artistProfile) return;
+    document.getElementById('bm-name').textContent = artistProfile.name || currentUser.email;
+    document.getElementById('bm-genre-city').textContent = [artistProfile.genre, artistProfile.city].filter(Boolean).join(' · ');
+    const wrap = document.getElementById('bm-avatar-wrap');
+    if(artistProfile.photoURL){
+      wrap.innerHTML = `<img src="${artistProfile.photoURL}" style="width:100%;height:100%;border-radius:50%;object-fit:cover"/>`;
+    } else {
+      wrap.innerHTML = `<span style="font-size:1.8rem">${(artistProfile.name||'?')[0].toUpperCase()}</span>`;
+    }
+  }
+
+  window.setBeatFile = async function(input, type){
+    if(!input.files[0]) return;
+    const file = input.files[0];
+    if(type === 'cover'){
+      beatFiles.cover = await compressImage(file, 500, 0.85);
+      const kb = Math.round(beatFiles.cover.size/1024);
+      document.getElementById('beat-cover-name').textContent = `${file.name} → ${kb}KB`;
+    } else if(type === 'mp3'){
+      beatFiles.mp3 = file;
+      document.getElementById('beat-mp3-name').textContent = file.name;
+      // Auto-detectar BPM
+      document.getElementById('bpm-auto').textContent = '(detectando…)';
+      const bpm = await detectBPM(file);
+      if(bpm){
+        document.getElementById('beat-bpm').value = bpm;
+        document.getElementById('bpm-auto').textContent = `(auto: ${bpm} BPM)`;
+        // Generar waveform
+        beatFiles._waveform = await extractWaveform(file);
+      } else {
+        document.getElementById('bpm-auto').textContent = '';
+      }
+    } else if(type === 'wav'){
+      beatFiles.wav = file;
+      document.getElementById('beat-wav-name').textContent = file.name;
+    } else if(type === 'stems'){
+      beatFiles.stems = file;
+      document.getElementById('beat-stems-name').textContent = file.name;
+    }
+  };
+
+  async function detectBPM(file){
+    return new Promise(resolve=>{
+      const reader = new FileReader();
+      reader.onload = async e=>{
+        try{
+          const ctx = new(window.AudioContext||window.webkitAudioContext)();
+          const buffer = await ctx.decodeAudioData(e.target.result);
+          const data = buffer.getChannelData(0);
+          const sampleRate = buffer.sampleRate;
+          // Algoritmo simple de detección de tempo por energía
+          const windowSize = Math.floor(sampleRate * 0.05);
+          const energies = [];
+          for(let i=0;i<data.length-windowSize;i+=windowSize){
+            let e=0; for(let j=0;j<windowSize;j++) e+=data[i+j]*data[i+j];
+            energies.push(e/windowSize);
+          }
+          const avg = energies.reduce((a,b)=>a+b,0)/energies.length;
+          let beats=0;
+          for(let i=1;i<energies.length;i++) if(energies[i]>avg*1.5&&energies[i-1]<=avg*1.5) beats++;
+          const duration = buffer.duration;
+          const bpm = Math.round((beats/duration)*60);
+          ctx.close();
+          resolve(bpm>40&&bpm<300 ? bpm : null);
+        }catch(e){ resolve(null); }
+      };
+      reader.readAsArrayBuffer(file);
+    });
+  }
+
+  window.uploadBeat = async function(){
+    const title = document.getElementById('beat-title').value.trim();
+    const genre = document.getElementById('beat-genre').value;
+    const bpm   = parseInt(document.getElementById('beat-bpm').value)||0;
+    const key   = document.getElementById('beat-key').value.trim();
+    const desc  = document.getElementById('beat-desc').value.trim();
+
+    if(!title)          { showError('beat-error','El título es obligatorio'); return; }
+    if(!genre)          { showError('beat-error','Selecciona un género'); return; }
+    if(!beatFiles.mp3)  { showError('beat-error','El MP3 es obligatorio'); return; }
+    if(!beatFiles.cover){ showError('beat-error','La portada es obligatoria'); return; }
+
+    const prog = document.getElementById('beat-progress');
+    const uid  = currentUser.uid;
+    const ts   = Date.now();
+    prog.style.display = 'block';
+
+    try{
+      setLabel('beat-progress-label','Subiendo MP3…');
+      const mp3URL = await uploadFile(beatFiles.mp3, `artists/${uid}/beats/${ts}_mp3_${beatFiles.mp3.name}`, 'beat-bar','beat-progress-label');
+
+      let wavURL = '', stemsURL = '';
+      if(beatFiles.wav){
+        setLabel('beat-progress-label','Subiendo WAV…');
+        wavURL = await uploadFile(beatFiles.wav, `artists/${uid}/beats/${ts}_wav_${beatFiles.wav.name}`, 'beat-bar','beat-progress-label');
+      }
+      if(beatFiles.stems){
+        setLabel('beat-progress-label','Subiendo Stems…');
+        stemsURL = await uploadFile(beatFiles.stems, `artists/${uid}/beats/${ts}_stems_${beatFiles.stems.name}`, 'beat-bar','beat-progress-label');
+      }
+
+      setLabel('beat-progress-label','Subiendo portada…');
+      const coverURL = await uploadFile(beatFiles.cover, `artists/${uid}/beats/${ts}_cover_${beatFiles.cover.name}`, 'beat-bar','beat-progress-label');
+
+      setLabel('beat-progress-label','Guardando…');
+      await addDoc(collection(db,`artists/${uid}/beats`),{
+        title, genre, bpm, key, desc,
+        mp3URL, wavURL, stemsURL, coverURL,
+        waveform: beatFiles._waveform || [],
+        hasWav: !!wavURL,
+        hasStems: !!stemsURL,
+        soldWav: false,
+        soldStems: false,
+        createdAt: serverTimestamp()
+      });
+
+      prog.style.display = 'none';
+      showSuccess('beat-success','¡Beat publicado! ✓');
+      beatFiles = { mp3:null, wav:null, stems:null, cover:null };
+      ['beat-title','beat-bpm','beat-key','beat-desc'].forEach(id=>{ const el=document.getElementById(id); if(el)el.value=''; });
+      ['beat-mp3-name','beat-wav-name','beat-stems-name','beat-cover-name'].forEach(id=>{ const el=document.getElementById(id); if(el)el.textContent=''; });
+      setTimeout(()=>{ closeModal('beat-modal'); loadMyBeats(); }, 1500);
+    } catch(e){
+      prog.style.display='none';
+      showError('beat-error','Error: '+e.message);
+    }
+  };
+
+  async function loadMyBeats(){
+    renderBeatmakerHeader();
+    const container = document.getElementById('my-beats-list');
+    if(!container) return;
+    container.innerHTML = '<div class="state-msg"><div class="spinner"></div>Cargando…</div>';
+    try{
+      const snap = await getDocs(query(collection(db,`artists/${currentUser.uid}/beats`), orderBy('createdAt','desc')));
+      const beats = [];
+      snap.forEach(d => beats.push({id:d.id,...d.data()}));
+
+      const total = beats.length;
+      const sold  = beats.filter(b => b.soldWav||b.soldStems).length;
+      const avail = total - sold;
+      const el1 = document.getElementById('bm-stat-beats');
+      const el2 = document.getElementById('bm-stat-sold');
+      const el3 = document.getElementById('bm-stat-avail');
+      if(el1) el1.textContent = total;
+      if(el2) el2.textContent = sold;
+      if(el3) el3.textContent = avail;
+
+      if(!beats.length){
+        container.innerHTML = '<div class="state-msg">Aún no tienes beats. ¡Sube tu primer beat!</div>';
+        return;
+      }
+
+      container.innerHTML = `<div style="display:flex;flex-direction:column;gap:12px">${beats.map(b=>`
+        <div style="background:var(--s1);border:1px solid var(--border);border-radius:10px;overflow:hidden;display:grid;grid-template-columns:80px 1fr;transition:border-color .2s" onmouseover="this.style.borderColor='rgba(255,255,255,.15)'" onmouseout="this.style.borderColor='var(--border)'">
+          <div style="width:80px;height:80px;background:var(--s2);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:1.8rem;overflow:hidden">
+            ${b.coverURL?`<img src="${b.coverURL}" style="width:100%;height:100%;object-fit:cover"/>`:'🎵'}
+          </div>
+          <div style="padding:10px 14px;display:flex;flex-direction:column;justify-content:space-between">
+            <div style="display:flex;align-items:center;gap:8px;justify-content:space-between">
+              <div style="font-family:var(--fh);font-size:1.05rem;letter-spacing:1px">${b.title}</div>
+              <button onclick="deleteBeat('${b.id}')" style="background:transparent;border:1px solid #333;border-radius:6px;padding:3px 8px;cursor:pointer;color:#666;font-size:.62rem;transition:all .2s" onmouseover="this.style.borderColor='#ff4757';this.style.color='#ff4757'" onmouseout="this.style.borderColor='#333';this.style.color='#666'">🗑</button>
+            </div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+              ${b.genre?`<span style="font-size:.58rem;color:rgba(255,255,255,.4);border:1px solid rgba(255,255,255,.1);padding:2px 7px;border-radius:4px;text-transform:uppercase">${b.genre}</span>`:''}
+              ${b.bpm?`<span style="font-size:.58rem;color:rgba(255,255,255,.4);border:1px solid rgba(255,255,255,.1);padding:2px 7px;border-radius:4px">${b.bpm} BPM</span>`:''}
+              ${b.key?`<span style="font-size:.58rem;color:rgba(255,255,255,.4);border:1px solid rgba(255,255,255,.1);padding:2px 7px;border-radius:4px">${b.key}</span>`:''}
+              <span style="font-size:.58rem;padding:2px 7px;border-radius:4px;background:rgba(255,106,0,.1);color:var(--accent);border:1px solid rgba(255,106,0,.2)">$5.000 MP3</span>
+              ${b.hasWav?`<span style="font-size:.58rem;padding:2px 7px;border-radius:4px;${b.soldWav?'background:rgba(255,71,87,.1);color:#ff4757;border:1px solid rgba(255,71,87,.2)':'background:rgba(255,255,255,.04);color:rgba(255,255,255,.5);border:1px solid rgba(255,255,255,.1)'}">${b.soldWav?'WAV VENDIDO':'$15.000 WAV'}</span>`:''}
+              ${b.hasStems?`<span style="font-size:.58rem;padding:2px 7px;border-radius:4px;${b.soldStems?'background:rgba(255,71,87,.1);color:#ff4757;border:1px solid rgba(255,71,87,.2)':'background:rgba(255,255,255,.04);color:rgba(255,255,255,.5);border:1px solid rgba(255,255,255,.1)'}">${b.soldStems?'STEMS VENDIDOS':'$30.000 Stems'}</span>`:''}
+            </div>
+          </div>
+        </div>`).join('')}</div>`;
+    } catch(e){
+      container.innerHTML = `<div class="state-msg">Error: ${e.message}</div>`;
+    }
+  }
+
+  window.deleteBeat = async function(beatId){
+    if(!confirm('¿Eliminar este beat?')) return;
+    try{
+      await deleteDoc(doc(db,`artists/${currentUser.uid}/beats`,beatId));
+      await loadMyBeats();
     } catch(e){ alert('Error: '+e.message); }
   };
 

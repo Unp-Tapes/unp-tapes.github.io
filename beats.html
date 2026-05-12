@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Comprar Beats — UNP Records</title>
+  <meta property="og:title" content="Beats — UNP Records"/>
+  <meta property="og:description" content="Compra beats exclusivos de productores independientes."/>
+  <meta property="og:image" content="https://unp-tapes.github.io/logo.png"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/color-thief/2.3.2/color-thief.umd.js"></script>
+  <style>
+    :root{
+      --bg:#000;--s1:#0d0d0d;--s2:#161616;--border:#222;
+      --accent:#ff6a00;--muted:#5a5a5a;--text:#eeeeff;--radius:10px;
+      --fh:'Bebas Neue',sans-serif;--fb:'DM Mono',monospace;
+    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    body{background:var(--bg);color:var(--text);font-family:var(--fb);min-height:100vh;overflow-x:hidden;padding-bottom:100px}
+    body::before{
+      content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
+      background:radial-gradient(circle at 20% 30%,rgba(255,106,0,.06) 0%,transparent 40%),
+                 radial-gradient(circle at 80% 70%,rgba(123,79,255,.05) 0%,transparent 40%);
+      filter:blur(80px);animation:meshMove 20s ease-in-out infinite alternate;
+    }
+    @keyframes meshMove{from{transform:scale(1)}to{transform:scale(1.2) translate(5%,5%)}}
+
+    nav{
+      position:sticky;top:0;z-index:100;
+      background:rgba(0,0,0,.85);backdrop-filter:blur(20px) saturate(180%);
+      border-bottom:1px solid rgba(255,255,255,.06);
+      display:flex;align-items:center;justify-content:space-between;
+      padding:0 40px;height:60px;
+    }
+    .nav-back{display:flex;align-items:center;gap:8px;color:var(--muted);font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;text-decoration:none;transition:color .2s}
+    .nav-back:hover{color:#fff}
+    .nav-back svg{width:16px;height:16px;fill:currentColor}
+
+    .hero{position:relative;z-index:1;text-align:center;padding:48px 24px 36px}
+    .hero h1{font-family:var(--fh);font-size:clamp(3rem,10vw,6rem);color:#fff;line-height:.9}
+    .hero p{color:var(--muted);font-size:.8rem;letter-spacing:.08em;margin-top:12px}
+
+    .wrap{position:relative;z-index:1;max-width:1100px;margin:0 auto;padding:0 24px 60px}
+
+    /* FILTERS */
+    .filter-bar{display:flex;gap:10px;margin-bottom:28px;flex-wrap:wrap;align-items:center}
+    .filter-search{
+      flex:1;min-width:200px;
+      background:rgba(255,255,255,.03);border:1px solid var(--border);
+      border-radius:8px;color:var(--text);font-family:var(--fb);font-size:.78rem;
+      padding:10px 14px;outline:none;transition:border-color .2s;
+    }
+    .filter-search:focus{border-color:rgba(255,255,255,.2)}
+    .filter-search::placeholder{color:var(--muted)}
+    .filter-btn{
+      font-family:var(--fb);font-size:.65rem;letter-spacing:.08em;text-transform:uppercase;
+      padding:8px 14px;border-radius:6px;cursor:pointer;transition:all .2s;
+      border:1px solid var(--border);background:transparent;color:var(--muted);
+    }
+    .filter-btn.active,.filter-btn:hover{border-color:rgba(255,255,255,.2);color:#fff;background:rgba(255,255,255,.04)}
+
+    /* BEATS GRID */
+    .beats-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px}
+    .beat-card{
+      background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);
+      border-radius:var(--radius);overflow:hidden;
+      transition:transform .3s,border-color .3s,box-shadow .3s;
+      animation:fadeUp .4s ease both;
+    }
+    .beat-card:hover{transform:translateY(-4px);border-color:rgba(255,255,255,.12);box-shadow:0 8px 28px rgba(0,0,0,.4)}
+    .beat-card.playing{border-color:var(--accent);box-shadow:0 0 20px rgba(255,106,0,.15)}
+    @keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+
+    .beat-cover{
+      width:100%;aspect-ratio:1;background:var(--s2);
+      position:relative;overflow:hidden;cursor:pointer;
+    }
+    .beat-cover img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .3s}
+    .beat-card:hover .beat-cover img{transform:scale(1.04)}
+    .beat-cover-placeholder{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:3rem}
+    .beat-play-overlay{
+      position:absolute;inset:0;background:rgba(0,0,0,.4);
+      display:flex;align-items:center;justify-content:center;
+      opacity:0;transition:opacity .25s;
+    }
+    .beat-card:hover .beat-play-overlay,.beat-card.playing .beat-play-overlay{opacity:1}
+    .beat-play-icon{
+      width:52px;height:52px;border-radius:50%;
+      background:var(--accent);border:none;cursor:pointer;
+      display:flex;align-items:center;justify-content:center;
+      box-shadow:0 4px 20px rgba(255,106,0,.5);transition:transform .2s;
+    }
+    .beat-card:hover .beat-play-icon{transform:scale(1.1)}
+    .beat-play-icon svg{width:18px;height:18px;fill:#000}
+    .beat-play-icon.loading{background:rgba(255,255,255,.1);animation:pulse .8s infinite}
+    @keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(255,106,0,.4)}50%{box-shadow:0 0 0 8px rgba(255,106,0,0)}}
+    @keyframes spin{to{transform:rotate(360deg)}}
+    .sold-badge{
+      position:absolute;top:10px;left:10px;
+      background:rgba(255,71,87,.9);color:#fff;
+      font-size:.58rem;padding:3px 10px;border-radius:4px;
+      text-transform:uppercase;letter-spacing:.1em;font-weight:600;
+    }
+
+    .beat-body{padding:14px}
+    .beat-title{font-family:var(--fh);font-size:1.15rem;letter-spacing:1px;margin-bottom:8px}
+    .beat-artist{font-size:.62rem;color:var(--muted);margin-bottom:10px}
+    .beat-tags{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+    .beat-tag{
+      font-size:.58rem;padding:2px 8px;border-radius:4px;
+      background:rgba(255,255,255,.04);color:rgba(255,255,255,.4);
+      border:1px solid rgba(255,255,255,.08);text-transform:uppercase;letter-spacing:.06em;
+    }
+
+    /* WAVEFORM en la card */
+    .beat-waveform{margin-bottom:12px;cursor:pointer;position:relative;height:40px}
+    .beat-waveform canvas{width:100%;height:40px;display:block}
+
+    /* LICENCIAS */
+    .beat-licenses{display:flex;flex-direction:column;gap:6px}
+    .license-btn{
+      display:flex;align-items:center;justify-content:space-between;
+      padding:8px 12px;border-radius:7px;cursor:pointer;
+      border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.03);
+      transition:all .2s;
+    }
+    .license-btn:hover:not(.sold):not(.unavail){border-color:var(--accent);background:rgba(255,106,0,.06)}
+    .license-btn.sold{opacity:.4;cursor:not-allowed}
+    .license-btn.unavail{opacity:.3;cursor:not-allowed}
+    .license-info{display:flex;flex-direction:column;gap:2px}
+    .license-name{font-family:var(--fh);font-size:.85rem;letter-spacing:1px}
+    .license-desc{font-size:.55rem;color:var(--muted)}
+    .license-price{font-family:var(--fh);font-size:1rem;color:#fff;letter-spacing:1px}
+    .license-btn:not(.sold):not(.unavail) .license-price{color:var(--accent)}
+
+    /* FLOATING PLAYER */
+    #floating-player{
+      position:fixed;bottom:0;left:0;right:0;z-index:200;
+      background:rgba(5,5,5,.98);backdrop-filter:blur(24px);
+      border-top:1px solid rgba(255,255,255,.08);
+      height:72px;display:none;align-items:center;
+      padding:0 32px;gap:14px;
+    }
+    #floating-player.visible{display:flex}
+    .fp-cover{width:44px;height:44px;border-radius:6px;background:var(--s2);flex-shrink:0;overflow:hidden;display:flex;align-items:center;justify-content:center;font-size:1.1rem}
+    .fp-cover img{width:100%;height:100%;object-fit:cover}
+    .fp-info{width:160px;min-width:0;flex-shrink:0}
+    .fp-title{font-family:var(--fh);font-size:.9rem;letter-spacing:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .fp-artist{font-size:.58rem;color:var(--muted)}
+    .fp-btn{width:34px;height:34px;border-radius:50%;background:var(--accent);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s}
+    .fp-btn:hover{background:#ff8c00;transform:scale(1.08)}
+    .fp-btn svg{width:13px;height:13px;fill:#000}
+    .fp-wave-wrap{flex:1;display:flex;flex-direction:column;gap:3px;min-width:0}
+    .fp-canvas{width:100%;height:26px;display:block;cursor:pointer}
+    .fp-time{display:flex;justify-content:space-between;font-size:.56rem;color:var(--muted)}
+    .fp-vol{display:flex;align-items:center;gap:6px;flex-shrink:0}
+    .fp-vol-icon{font-size:.85rem;cursor:pointer;color:var(--muted)}
+    input[type="range"].fp-vol-slider{-webkit-appearance:none;width:70px;height:3px;background:var(--border);border-radius:2px;outline:none;cursor:pointer;accent-color:var(--accent)}
+    input[type="range"].fp-vol-slider::-webkit-slider-thumb{-webkit-appearance:none;width:10px;height:10px;border-radius:50%;background:var(--accent);cursor:pointer}
+
+    .state-msg{text-align:center;padding:60px 0;color:var(--muted);font-size:.78rem;letter-spacing:.1em}
+    .spinner{width:28px;height:28px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite;margin:0 auto 12px}
+    footer{position:relative;z-index:1;text-align:center;padding:24px;border-top:1px solid var(--border);font-size:.65rem;color:var(--muted)}
+
+    @media(max-width:600px){
+      nav{padding:0 16px}.wrap{padding:0 16px 60px}
+      .beats-grid{grid-template-columns:1fr 1fr;gap:10px}
+      .fp-info,.fp-vol{display:none}
+      #floating-player{padding:0 16px;gap:10px}
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <a href="index.html" class="nav-back">
+    <svg viewBox="0 0 24 24"><path d="M19 12H5M12 5l-7 7 7 7" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/></svg>
+    Inicio
+  </a>
+  <img src="logo.png" alt="UNP Records" style="height:36px;display:block" onerror="this.style.display='none'"/>
+</nav>
+
+<div class="hero">
+  <h1>COMPRAR BEATS</h1>
+  <p>Beats exclusivos de productores independientes · Licencias desde $5.000</p>
+</div>
+
+<div class="wrap">
+  <div class="filter-bar">
+    <input type="text" class="filter-search" id="searchInput" placeholder="Buscar beat, productor, género…" oninput="filterBeats()"/>
+    <button class="filter-btn active" onclick="setGenreFilter('',this)">Todos</button>
+    <button class="filter-btn" onclick="setGenreFilter('Hip-Hop',this)">Hip-Hop</button>
+    <button class="filter-btn" onclick="setGenreFilter('Trap',this)">Trap</button>
+    <button class="filter-btn" onclick="setGenreFilter('Drill',this)">Drill</button>
+    <button class="filter-btn" onclick="setGenreFilter('R&B',this)">R&B</button>
+  </div>
+
+  <div id="content">
+    <div class="state-msg"><div class="spinner"></div>Cargando beats…</div>
+  </div>
+</div>
+
+<footer><p>UNP Records · Beats independientes · Santiago, Chile</p></footer>
+
+<!-- FLOATING PLAYER -->
+<div id="floating-player">
+  <div class="fp-cover" id="fp-cover">🎵</div>
+  <div class="fp-info">
+    <div class="fp-title" id="fp-title">—</div>
+    <div class="fp-artist" id="fp-artist">—</div>
+  </div>
+  <div style="display:flex;gap:8px;align-items:center;flex-shrink:0">
+    <button class="fp-btn" id="fp-play-btn" onclick="fpToggle()">
+      <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+    </button>
+  </div>
+  <div class="fp-wave-wrap">
+    <canvas class="fp-canvas" id="fp-canvas"></canvas>
+    <div class="fp-time"><span id="fp-cur">0:00</span><span id="fp-dur">—:——</span></div>
+  </div>
+  <div class="fp-vol">
+    <span class="fp-vol-icon" id="fp-vol-icon" onclick="fpMute()">🔊</span>
+    <input type="range" class="fp-vol-slider" id="fp-vol-slider" value="100" min="0" max="100" oninput="fpVolume(this)"/>
+  </div>
+</div>
+
+<script type="module">
+  import { initializeApp }             from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getFirestore, collection,
+           getDocs, query, orderBy }   from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyAQeS0wTC4HhRx78uGTvWnfjcZoZCk_zME",
+    authDomain: "unp-tapes-e5942.firebaseapp.com",
+    projectId: "unp-tapes-e5942",
+    storageBucket: "unp-tapes-e5942.firebasestorage.app",
+    messagingSenderId: "850772544349",
+    appId: "1:850772544349:web:c70a87db6e32a24d1876b4"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db  = getFirestore(app);
+
+  const ICON_PLAY  = `<svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>`;
+  const ICON_PAUSE = `<svg viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>`;
+  const ICON_LOAD  = `<svg viewBox="0 0 24 24" style="animation:spin .7s linear infinite"><path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm0 18a8 8 0 1 1 8-8 8 8 0 0 1-8 8z" opacity=".3"/><path d="M12 2a10 10 0 0 1 10 10h-2a8 8 0 0 0-8-8z"/></svg>`;
+
+  function fmt(s){ if(!s||isNaN(s))return'0:00'; return`${Math.floor(s/60)}:${String(Math.floor(s%60)).padStart(2,'0')}`; }
+
+  let allBeats = [], currentBeat = null, currentAudio = null;
+  let genreFilter = '', audioCtx = null, gainNode = null;
+
+  function getAudioCtx(){
+    if(!audioCtx){
+      audioCtx = new(window.AudioContext||window.webkitAudioContext)();
+      gainNode = audioCtx.createGain(); gainNode.gain.value=1; gainNode.connect(audioCtx.destination);
+    }
+    return audioCtx;
+  }
+
+  function drawWaveform(canvas, waveData, progress=0, color='#ff6a00'){
+    if(!canvas||!waveData?.length) return;
+    const ctx=canvas.getContext('2d');
+    const W=canvas.width=canvas.offsetWidth*window.devicePixelRatio;
+    const H=canvas.height=canvas.offsetHeight*window.devicePixelRatio;
+    const bars=waveData.length, barW=W/bars, mid=H/2;
+    ctx.clearRect(0,0,W,H);
+    for(let i=0;i<bars;i++){
+      const amp=waveData[i]*mid*.9, x=i*barW, done=(i/bars)<progress;
+      ctx.fillStyle=done?color:'rgba(255,255,255,0.1)';
+      ctx.beginPath();
+      if(ctx.roundRect) ctx.roundRect(x+.5,mid-amp,Math.max(1,barW-.5),amp*2,1);
+      else ctx.rect(x+.5,mid-amp,Math.max(1,barW-.5),amp*2);
+      ctx.fill();
+    }
+    if(progress>0){ctx.fillStyle='#fff';ctx.globalAlpha=.6;ctx.fillRect(progress*W-1,0,2,H);ctx.globalAlpha=1;}
+  }
+
+  async function loadBeats(){
+    try{
+      const aSnap = await getDocs(collection(db,'artists'));
+      const beats = [];
+      for(const d of aSnap.docs){
+        const artist = {id:d.id,...d.data()};
+        if(artist.type !== 'beatmaker') continue;
+        const bSnap = await getDocs(query(collection(db,`artists/${d.id}/beats`), orderBy('createdAt','desc')));
+        bSnap.forEach(b => beats.push({id:b.id,...b.data(), artistId:d.id, artistName:artist.name||'Beatmaker', artistPhoto:artist.photoURL||''}));
+      }
+      allBeats = beats;
+      renderBeats(allBeats);
+    } catch(e){
+      document.getElementById('content').innerHTML = `<div class="state-msg">Error: ${e.message}</div>`;
+    }
+  }
+
+  function renderBeats(beats){
+    const container = document.getElementById('content');
+    if(!beats.length){ container.innerHTML='<div class="state-msg">No hay beats disponibles aún.</div>'; return; }
+    container.innerHTML = `<div class="beats-grid">${beats.map((b,i)=>`
+      <div class="beat-card" id="bc-${b.id}" style="animation-delay:${i*.04}s">
+        <div class="beat-cover" onclick="toggleBeat('${b.id}')">
+          ${b.coverURL
+            ? `<img src="${b.coverURL}" alt="${b.title}" loading="lazy"/>`
+            : `<div class="beat-cover-placeholder">🎵</div>`}
+          <div class="beat-play-overlay">
+            <div class="beat-play-icon" id="bpi-${b.id}">${ICON_PLAY}</div>
+          </div>
+          ${b.soldWav&&b.soldStems?`<div class="sold-badge">Exclusivo Vendido</div>`:''}
+        </div>
+        <div class="beat-body">
+          <div class="beat-title">${b.title}</div>
+          <div class="beat-artist">${b.artistName}</div>
+          <div class="beat-tags">
+            ${b.genre?`<span class="beat-tag">${b.genre}</span>`:''}
+            ${b.bpm?`<span class="beat-tag">${b.bpm} BPM</span>`:''}
+            ${b.key?`<span class="beat-tag">${b.key}</span>`:''}
+          </div>
+          ${b.waveform?.length?`
+          <div class="beat-waveform" onclick="seekBeat(event,'${b.id}')">
+            <canvas id="wc-${b.id}"></canvas>
+          </div>`:''}
+          <div class="beat-licenses">
+            <div class="license-btn" onclick="buyBeat('${b.id}','mp3')">
+              <div class="license-info">
+                <div class="license-name">Básica</div>
+                <div class="license-desc">MP3 · Uso no exclusivo</div>
+              </div>
+              <div class="license-price">$5.000</div>
+            </div>
+            <div class="license-btn ${!b.hasWav?'unavail':b.soldWav?'sold':''}" onclick="${b.hasWav&&!b.soldWav?`buyBeat('${b.id}','wav')`:''}">
+              <div class="license-info">
+                <div class="license-name">Premium</div>
+                <div class="license-desc">WAV · Exclusivo${b.soldWav?' · VENDIDO':!b.hasWav?' · No disponible':''}</div>
+              </div>
+              <div class="license-price">${b.soldWav?'VENDIDO':'$15.000'}</div>
+            </div>
+            <div class="license-btn ${!b.hasStems?'unavail':b.soldStems?'sold':''}" onclick="${b.hasStems&&!b.soldStems?`buyBeat('${b.id}','stems')`:''}">
+              <div class="license-info">
+                <div class="license-name">Exclusiva</div>
+                <div class="license-desc">Stems ZIP · Total exclusivo${b.soldStems?' · VENDIDO':!b.hasStems?' · No disponible':''}</div>
+              </div>
+              <div class="license-price">${b.soldStems?'VENDIDO':'$30.000'}</div>
+            </div>
+          </div>
+        </div>
+      </div>`).join('')}</div>`;
+
+    // Draw waveforms
+    beats.forEach(b=>{
+      if(b.waveform?.length){
+        requestAnimationFrame(()=>{
+          const c = document.getElementById(`wc-${b.id}`);
+          if(c) drawWaveform(c, b.waveform, 0);
+        });
+      }
+    });
+    initAudios();
+  }
+
+  const audioMap = new Map();
+
+  function initAudios(){
+    allBeats.forEach(b=>{
+      if(!b.mp3URL||audioMap.has(b.id)) return;
+      const audio = new Audio();
+      audio.crossOrigin='anonymous'; audio.preload='none'; audio.src=b.mp3URL;
+      audio.addEventListener('timeupdate',()=>{
+        const prog=audio.duration?audio.currentTime/audio.duration:0;
+        const c=document.getElementById(`wc-${b.id}`);
+        if(c&&b.waveform?.length) drawWaveform(c,b.waveform,prog,getComputedStyle(document.documentElement).getPropertyValue('--accent').trim()||'#ff6a00');
+        if(currentBeat?.id===b.id) updateFPProgress(audio,b.waveform);
+      });
+      audio.addEventListener('ended',()=>{
+        setPlayIcon(b.id, ICON_PLAY);
+        document.getElementById(`bc-${b.id}`)?.classList.remove('playing');
+        hideFP(); currentBeat=null; currentAudio=null;
+        if(b.waveform?.length){const c=document.getElementById(`wc-${b.id}`);if(c)drawWaveform(c,b.waveform,0);}
+      });
+      audio.addEventListener('waiting',()=>setPlayIcon(b.id,ICON_LOAD));
+      audio.addEventListener('playing',()=>setPlayIcon(b.id,ICON_PAUSE));
+      audioMap.set(b.id, audio);
+    });
+  }
+
+  function setPlayIcon(beatId, icon){
+    const el=document.getElementById(`bpi-${beatId}`);
+    if(el) el.innerHTML=icon;
+  }
+
+  window.toggleBeat = function(beatId){
+    const audio = audioMap.get(beatId);
+    if(!audio) return;
+    const beat = allBeats.find(b=>b.id===beatId);
+    if(currentAudio&&currentAudio!==audio){
+      currentAudio.pause(); currentAudio.currentTime=0;
+      if(currentBeat) setPlayIcon(currentBeat.id,ICON_PLAY);
+      if(currentBeat){
+        document.getElementById(`bc-${currentBeat.id}`)?.classList.remove('playing');
+        if(currentBeat.waveform?.length){const c=document.getElementById(`wc-${currentBeat.id}`);if(c)drawWaveform(c,currentBeat.waveform,0);}
+      }
+    }
+    if(audio.paused){
+      getAudioCtx().resume(); audio.play();
+      currentBeat=beat; currentAudio=audio;
+      document.getElementById(`bc-${beatId}`)?.classList.add('playing');
+      showFP(beat);
+    } else {
+      audio.pause(); audio.currentTime=0;
+      document.getElementById(`bc-${beatId}`)?.classList.remove('playing');
+      setPlayIcon(beatId,ICON_PLAY);
+      if(beat.waveform?.length){const c=document.getElementById(`wc-${beatId}`);if(c)drawWaveform(c,beat.waveform,0);}
+      hideFP(); currentBeat=null; currentAudio=null;
+    }
+  };
+
+  window.seekBeat = function(e, beatId){
+    const audio=audioMap.get(beatId);
+    if(!audio?.duration) return;
+    const rect=e.currentTarget.getBoundingClientRect();
+    audio.currentTime=((e.clientX-rect.left)/rect.width)*audio.duration;
+  };
+
+  // Floating player
+  const colorThief=new ColorThief();
+  function showFP(beat){
+    document.getElementById('fp-title').textContent=beat.title||'—';
+    document.getElementById('fp-artist').textContent=beat.artistName||'—';
+    const fpCover=document.getElementById('fp-cover');
+    fpCover.innerHTML=beat.coverURL?`<img src="${beat.coverURL}" style="width:100%;height:100%;object-fit:cover"/>`:' 🎵';
+    document.getElementById('fp-play-btn').innerHTML=ICON_PAUSE;
+    document.getElementById('floating-player').classList.add('visible');
+    if(beat.waveform?.length) drawWaveform(document.getElementById('fp-canvas'),beat.waveform,0);
+    document.getElementById('fp-canvas').onclick=e=>{
+      const a=currentAudio; if(!a?.duration)return;
+      const r=document.getElementById('fp-canvas').getBoundingClientRect();
+      a.currentTime=((e.clientX-r.left)/r.width)*a.duration;
+    };
+    if(beat.coverURL){const img=new Image();img.crossOrigin='anonymous';img.src=beat.coverURL;img.onload=()=>{try{const[r,g,b]=colorThief.getColor(img);const max=Math.max(r,g,b),min=Math.min(r,g,b);if(max>0&&(max-min)/max>.25&&max>50)document.documentElement.style.setProperty('--accent',`rgb(${r},${g},${b})`)}catch(e){}};}
+  }
+  function hideFP(){
+    document.getElementById('floating-player').classList.remove('visible');
+    document.getElementById('fp-play-btn').innerHTML=ICON_PLAY;
+    document.documentElement.style.setProperty('--accent','#ff6a00');
+  }
+  function updateFPProgress(audio,waveform){
+    const prog=audio.duration?audio.currentTime/audio.duration:0;
+    document.getElementById('fp-cur').textContent=fmt(audio.currentTime);
+    document.getElementById('fp-dur').textContent=fmt(audio.duration);
+    if(waveform?.length){
+      const color=getComputedStyle(document.documentElement).getPropertyValue('--accent').trim()||'#ff6a00';
+      drawWaveform(document.getElementById('fp-canvas'),waveform,prog,color);
+    }
+  }
+  window.fpToggle=function(){if(currentBeat) toggleBeat(currentBeat.id);};
+  window.fpVolume=function(input){if(gainNode)gainNode.gain.value=input.value/100;document.getElementById('fp-vol-icon').textContent=input.value==0?'🔇':input.value<50?'🔉':'🔊';};
+  let muted=false,lastVol=100;
+  window.fpMute=function(){muted=!muted;const s=document.getElementById('fp-vol-slider');if(muted){lastVol=s.value;s.value=0;}else s.value=lastVol;fpVolume(s);};
+
+  // Filtros
+  window.setGenreFilter=function(genre,btn){
+    genreFilter=genre;
+    document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    applyFilters();
+  };
+  let filterTimeout;
+  window.filterBeats=function(){
+    clearTimeout(filterTimeout);
+    filterTimeout=setTimeout(applyFilters,250);
+  };
+  function applyFilters(){
+    const q=document.getElementById('searchInput').value.toLowerCase().trim();
+    const filtered=allBeats.filter(b=>{
+      const matchGenre=!genreFilter||b.genre===genreFilter;
+      const matchQ=!q||(b.title||'').toLowerCase().includes(q)||(b.artistName||'').toLowerCase().includes(q)||(b.genre||'').toLowerCase().includes(q);
+      return matchGenre&&matchQ;
+    });
+    renderBeats(filtered);
+  }
+
+  // Compra
+  window.buyBeat=function(beatId,license){
+    const beat=allBeats.find(b=>b.id===beatId);
+    if(!beat) return;
+    const names={mp3:'Básica (MP3)',wav:'Premium (WAV exclusivo)',stems:'Exclusiva (Stems)'};
+    const prices={mp3:'$5.000',wav:'$15.000',stems:'$30.000'};
+    alert(`🎵 Próximamente integración con Flow\n\nBeat: ${beat.title}\nLicencia: ${names[license]}\nPrecio: ${prices[license]}\n\nEsta función estará disponible pronto.`);
+  };
+
+  loadBeats();
+</script>
+</body>
+</html>
