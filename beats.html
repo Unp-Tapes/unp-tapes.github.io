@@ -479,16 +479,138 @@
     renderBeats(filtered);
   }
 
-  // Compra
-  window.buyBeat=function(beatId,license){
-    const beat=allBeats.find(b=>b.id===beatId);
+  // ── COMPRA CON FLOW ──
+  const FUNCTIONS_URL = 'https://us-central1-unp-tapes-e5942.cloudfunctions.net';
+  const CREATE_PAYMENT_URL   = 'https://createpayment-edefkox4rq-uc.a.run.app';
+  const GET_DOWNLOAD_URL     = 'https://getdownloadlink-edefkox4rq-uc.a.run.app';
+
+  window.buyBeat = function(beatId, license){
+    const beat = allBeats.find(b=>b.id===beatId);
     if(!beat) return;
-    const names={mp3:'Básica (MP3)',wav:'Premium (WAV exclusivo)',stems:'Exclusiva (Stems)'};
-    const prices={mp3:'$5.000',wav:'$15.000',stems:'$30.000'};
-    alert(`🎵 Próximamente integración con Flow\n\nBeat: ${beat.title}\nLicencia: ${names[license]}\nPrecio: ${prices[license]}\n\nEsta función estará disponible pronto.`);
+    const names  = {mp3:'Básica (MP3)',wav:'Premium (WAV exclusivo)',stems:'Exclusiva (Stems ZIP)'};
+    const prices = {mp3:'$5.000',wav:'$15.000',stems:'$30.000'};
+
+    // Mostrar modal de compra
+    showBuyModal(beat, license, names[license], prices[license]);
+  };
+
+  function showBuyModal(beat, license, licenseName, price){
+    // Crear modal dinámico
+    const existing = document.getElementById('buy-modal-overlay');
+    if(existing) existing.remove();
+
+    const overlay = document.createElement('div');
+    overlay.id = 'buy-modal-overlay';
+    overlay.style.cssText = 'position:fixed;inset:0;z-index:500;background:rgba(0,0,0,.92);backdrop-filter:blur(16px);display:flex;align-items:center;justify-content:center;padding:20px';
+    overlay.innerHTML = `
+      <div style="background:var(--s1);border:1px solid var(--border);border-radius:14px;padding:32px;width:100%;max-width:420px;position:relative">
+        <button onclick="document.getElementById('buy-modal-overlay').remove()" style="position:absolute;top:14px;right:16px;background:transparent;border:none;color:var(--muted);font-size:1.3rem;cursor:pointer">✕</button>
+        <div style="font-family:var(--fh);font-size:1.8rem;letter-spacing:3px;margin-bottom:6px">COMPRAR BEAT</div>
+        <div style="font-size:.72rem;color:var(--muted);margin-bottom:20px">${beat.title} · ${licenseName} · <span style="color:var(--accent)">${price}</span></div>
+
+        <div style="display:flex;flex-direction:column;gap:12px;margin-bottom:20px">
+          <div>
+            <label style="font-size:.65rem;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;display:block;margin-bottom:6px">Tu nombre</label>
+            <input id="buyer-name" type="text" placeholder="Nombre artístico" style="width:100%;background:var(--s2);border:1px solid var(--border);border-radius:6px;color:var(--text);font-family:var(--fb);font-size:.78rem;padding:10px 12px;outline:none"/>
+          </div>
+          <div>
+            <label style="font-size:.65rem;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;display:block;margin-bottom:6px">Email <span style="color:var(--accent)">*</span></label>
+            <input id="buyer-email" type="email" placeholder="tu@email.com" style="width:100%;background:var(--s2);border:1px solid var(--border);border-radius:6px;color:var(--text);font-family:var(--fb);font-size:.78rem;padding:10px 12px;outline:none"/>
+            <div style="font-size:.6rem;color:var(--muted);margin-top:4px">Recibirás el link de descarga aquí</div>
+          </div>
+        </div>
+
+        <div id="buy-error" style="display:none;background:rgba(255,71,87,.1);border:1px solid rgba(255,71,87,.3);border-radius:6px;padding:8px 12px;font-size:.7rem;color:#ff4757;margin-bottom:12px"></div>
+
+        <button id="pay-btn" onclick="processBuyBeat('${beat.id}','${beat.artistId}','${license}')" style="width:100%;background:var(--accent);color:#000;border:none;font-family:var(--fh);font-size:1.1rem;letter-spacing:2px;padding:14px;border-radius:8px;cursor:pointer;transition:background .2s">
+          PAGAR CON FLOW ${price}
+        </button>
+        <div style="font-size:.6rem;color:var(--muted);text-align:center;margin-top:10px">Pago seguro · Webpay · Tarjetas · Transferencia</div>
+      </div>`;
+    document.body.appendChild(overlay);
+    setTimeout(()=>document.getElementById('buyer-email')?.focus(), 100);
+  }
+
+  window.processBuyBeat = async function(beatId, artistId, license){
+    const buyerEmail = document.getElementById('buyer-email')?.value.trim();
+    const buyerName  = document.getElementById('buyer-name')?.value.trim();
+    const errEl = document.getElementById('buy-error');
+    const btn   = document.getElementById('pay-btn');
+
+    if(!buyerEmail||!buyerEmail.includes('@')){
+      errEl.textContent='Ingresa un email válido'; errEl.style.display='block'; return;
+    }
+    errEl.style.display='none';
+    btn.textContent='Creando orden…'; btn.disabled=true;
+
+    try{
+      const res = await fetch(CREATE_PAYMENT_URL,{
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({beatId, artistId, license, buyerEmail, buyerName})
+      });
+      const data = await res.json();
+      if(data.error){ errEl.textContent=data.error; errEl.style.display='block'; btn.textContent=`PAGAR CON FLOW`; btn.disabled=false; return; }
+      // Redirigir a Flow
+      window.location.href = data.paymentUrl;
+    } catch(e){
+      errEl.textContent='Error de conexión: '+e.message; errEl.style.display='block';
+      btn.textContent='PAGAR CON FLOW'; btn.disabled=false;
+    }
+  };
+
+  // ── VERIFICAR PAGO AL VOLVER DE FLOW ──
+  async function checkOrderOnLoad(){
+    const params = new URLSearchParams(location.search);
+    const orderId = params.get('order');
+    if(!orderId) return;
+
+    // Mostrar modal de descarga
+    const overlay = document.createElement('div');
+    overlay.style.cssText = 'position:fixed;inset:0;z-index:500;background:rgba(0,0,0,.92);backdrop-filter:blur(16px);display:flex;align-items:center;justify-content:center;padding:20px';
+    overlay.innerHTML = `
+      <div style="background:var(--s1);border:1px solid var(--border);border-radius:14px;padding:32px;width:100%;max-width:420px;text-align:center">
+        <div style="font-family:var(--fh);font-size:1.8rem;letter-spacing:3px;margin-bottom:12px">TU COMPRA</div>
+        <div style="font-size:.72rem;color:var(--muted);margin-bottom:20px">Ingresa tu email para descargar el beat</div>
+        <input id="dl-email" type="email" placeholder="tu@email.com" style="width:100%;background:var(--s2);border:1px solid var(--border);border-radius:6px;color:var(--text);font-family:var(--fb);font-size:.78rem;padding:10px 12px;outline:none;margin-bottom:12px"/>
+        <div id="dl-error" style="display:none;background:rgba(255,71,87,.1);border:1px solid rgba(255,71,87,.3);border-radius:6px;padding:8px 12px;font-size:.7rem;color:#ff4757;margin-bottom:12px"></div>
+        <div id="dl-success" style="display:none;margin-bottom:12px"></div>
+        <button id="dl-btn" onclick="downloadBeat('${orderId}')" style="width:100%;background:var(--accent);color:#000;border:none;font-family:var(--fh);font-size:1.1rem;letter-spacing:2px;padding:12px;border-radius:8px;cursor:pointer">
+          OBTENER DESCARGA
+        </button>
+      </div>`;
+    document.body.appendChild(overlay);
+  }
+
+  window.downloadBeat = async function(orderId){
+    const email = document.getElementById('dl-email')?.value.trim();
+    const errEl = document.getElementById('dl-error');
+    const sucEl = document.getElementById('dl-success');
+    const btn   = document.getElementById('dl-btn');
+    if(!email||!email.includes('@')){ errEl.textContent='Email inválido'; errEl.style.display='block'; return; }
+    errEl.style.display='none'; btn.textContent='Verificando…'; btn.disabled=true;
+    try{
+      const res = await fetch(GET_DOWNLOAD_URL,{
+        method:'POST',headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({orderId, buyerEmail:email})
+      });
+      const data = await res.json();
+      if(data.error){ errEl.textContent=data.error; errEl.style.display='block'; btn.textContent='OBTENER DESCARGA'; btn.disabled=false; return; }
+      // Mostrar link de descarga
+      sucEl.innerHTML=`
+        <div style="background:rgba(76,175,80,.1);border:1px solid rgba(76,175,80,.3);border-radius:8px;padding:14px">
+          <div style="font-family:var(--fh);font-size:1.1rem;letter-spacing:1px;color:#4caf50;margin-bottom:8px">✓ PAGO CONFIRMADO</div>
+          <div style="font-size:.7rem;color:rgba(255,255,255,.7);margin-bottom:12px">${data.beatTitle} · Licencia ${data.license.toUpperCase()}</div>
+          <a href="${data.downloadURL}" download style="display:block;background:var(--accent);color:#000;font-family:var(--fh);font-size:1rem;letter-spacing:2px;padding:10px;border-radius:6px;text-decoration:none;text-align:center">
+            ⬇ DESCARGAR AHORA
+          </a>
+        </div>`;
+      sucEl.style.display='block'; btn.style.display='none';
+    } catch(e){ errEl.textContent='Error: '+e.message; errEl.style.display='block'; btn.textContent='OBTENER DESCARGA'; btn.disabled=false; }
   };
 
   loadBeats();
+  checkOrderOnLoad();
 </script>
 </body>
 </html>
