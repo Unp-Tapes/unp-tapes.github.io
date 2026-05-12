@@ -243,9 +243,7 @@
 <body>
 
 <nav>
- <a href="index.html" class="nav-logo">
-  <img src="logo.png" alt="UNP Records" style="height:38px;display:block" onerror="this.style.display='none'"/>
-</a>
+  <a href="index.html" class="nav-logo">SND<em>WV</em></a>
   <div id="nav-user">
     <a href="https://unp-tapes.github.io" target="_blank" class="btn btn-ghost" id="public-btn" style="display:none">🌐 Página pública</a>
     <span id="nav-email"></span>
@@ -257,78 +255,19 @@
 <div class="page" id="auth-section">
   <div class="auth-wrap">
     <div class="auth-title">PANEL <span>ARTISTA</span></div>
-    <p class="auth-sub">Gestiona tu perfil y tus canciones</p>
-
-    <div class="auth-tabs">
-      <button class="tab-btn active" onclick="switchTab('login')">Entrar</button>
-      <button class="tab-btn" onclick="switchTab('register')">Registro</button>
-    </div>
+    <p class="auth-sub">Acceso exclusivo para artistas de UNP Records</p>
 
     <div id="auth-error" class="error-msg"></div>
-    <div id="auth-success" class="success-msg"></div>
 
-    <!-- LOGIN -->
-    <div id="tab-login">
-      <div class="field">
-        <label>Email</label>
-        <input type="email" id="login-email" placeholder="tu@email.com"/>
-      </div>
-      <div class="field">
-        <label>Contraseña</label>
-        <input type="password" id="login-pass" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()"/>
-      </div>
-      <button class="submit-btn" onclick="doLogin()">Entrar al panel</button>
+    <div class="field">
+      <label>Email</label>
+      <input type="email" id="login-email" placeholder="tu@email.com"/>
     </div>
-
-    <!-- REGISTER -->
-    <div id="tab-register" style="display:none">
-      <div class="upload-grid">
-        <div class="field">
-          <label>Nombre artístico</label>
-          <input type="text" id="reg-name" placeholder="Tu nombre / alias"/>
-        </div>
-        <div class="field">
-          <label>Género musical</label>
-          <select id="reg-genre">
-            <option value="" disabled selected>— Seleccionar —</option>
-            <option>Hip-Hop</option>
-            <option>Trap</option>
-            <option>Drill</option>
-            <option>R&B</option>
-            <option>Reggaeton</option>
-            <option>Electrónica</option>
-            <option>House</option>
-            <option>Techno</option>
-            <option>Ambient</option>
-            <option>Lo-Fi</option>
-            <option>Jazz</option>
-            <option>Soul</option>
-            <option>Rock</option>
-            <option>Metal</option>
-            <option>Pop</option>
-            <option>Cumbia</option>
-            <option>Salsa</option>
-            <option>Funk</option>
-            <option>Experimental</option>
-            <option>Instrumental</option>
-            <option>Otro</option>
-          </select>
-        </div>
-      </div>
-      <div class="field">
-        <label>Ciudad / País</label>
-        <input type="text" id="reg-city" placeholder="Santiago, Chile"/>
-      </div>
-      <div class="field">
-        <label>Email</label>
-        <input type="email" id="reg-email" placeholder="tu@email.com"/>
-      </div>
-      <div class="field">
-        <label>Contraseña</label>
-        <input type="password" id="reg-pass" placeholder="Mínimo 6 caracteres"/>
-      </div>
-      <button class="submit-btn" onclick="doRegister()">Crear cuenta</button>
+    <div class="field">
+      <label>Contraseña</label>
+      <input type="password" id="login-pass" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()"/>
     </div>
+    <button class="submit-btn" onclick="doLogin()">Entrar al panel</button>
   </div>
 </div>
 
@@ -637,40 +576,12 @@
   // ──────────────────────────────────────────────
   //  AUTH ACTIONS
   // ──────────────────────────────────────────────
-  window.switchTab = function(tab){
-    document.querySelectorAll('.tab-btn').forEach((b,i)=>b.classList.toggle('active', (tab==='login'?i===0:i===1)));
-    document.getElementById('tab-login').style.display    = tab==='login'   ? 'block':'none';
-    document.getElementById('tab-register').style.display = tab==='register'? 'block':'none';
-    clearMessages();
-  };
-
   window.doLogin = async function(){
     const email = document.getElementById('login-email').value.trim();
     const pass  = document.getElementById('login-pass').value;
-    clearMessages();
     if(!email||!pass){ showError('auth-error','Completa todos los campos'); return; }
     try {
       await signInWithEmailAndPassword(auth, email, pass);
-    } catch(e){
-      showError('auth-error', friendlyError(e.code));
-    }
-  };
-
-  window.doRegister = async function(){
-    const name  = document.getElementById('reg-name').value.trim();
-    const genre = document.getElementById('reg-genre').value.trim();
-    const city  = document.getElementById('reg-city').value.trim();
-    const email = document.getElementById('reg-email').value.trim();
-    const pass  = document.getElementById('reg-pass').value;
-    clearMessages();
-    if(!name||!email||!pass){ showError('auth-error','Nombre, email y contraseña son obligatorios'); return; }
-    try {
-      const cred = await createUserWithEmailAndPassword(auth, email, pass);
-      await setDoc(doc(db,'artists',cred.user.uid),{
-        name, genre, city, email,
-        photoURL:'', createdAt: serverTimestamp()
-      });
-      showSuccess('auth-success','¡Cuenta creada! Iniciando sesión…');
     } catch(e){
       showError('auth-error', friendlyError(e.code));
     }
@@ -1351,8 +1262,7 @@
     zone.addEventListener('drop', ()=> zone.classList.remove('dragover'));
   });
 
-  // handle #register anchor from index.html
-  if(location.hash==='#register') switchTab('register');
+  // ──
 </script>
 </body>
 </html>
