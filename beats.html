@@ -338,10 +338,7 @@
             <canvas id="wc-${b.id}"></canvas>
           </div>`:''}
           <div class="beat-licenses">
-            <button class="beat-share-btn" id="share-${b.id}" onclick="shareBeat('${b.id}','${(b.title||'').replace(/'/g,"\\'")}',this)">
-              <svg viewBox="0 0 24 24"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11A2.99 2.99 0 0 0 18 8a3 3 0 1 0-3-3c0 .24.04.47.09.7L8.04 9.81A3 3 0 0 0 6 9a3 3 0 0 0 0 6c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65a3 3 0 1 0 3-3z"/></svg>
-              Compartir beat
-            </button>
+            <div class="license-btn" onclick="buyBeat('${b.id}','mp3','${b.artistId}')">
               <div class="license-info">
                 <div class="license-name">Básica</div>
                 <div class="license-desc">MP3 · Uso no exclusivo</div>
@@ -362,6 +359,10 @@
               </div>
               <div class="license-price">${b.soldStems?'VENDIDO':'$30.000'}</div>
             </div>
+            <button class="beat-share-btn" id="share-${b.id}" onclick="shareBeat('${b.id}','${(b.title||'').replace(/'/g,"\\'")}',this)">
+              <svg viewBox="0 0 24 24"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11A2.99 2.99 0 0 0 18 8a3 3 0 1 0-3-3c0 .24.04.47.09.7L8.04 9.81A3 3 0 0 0 6 9a3 3 0 0 0 0 6c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65a3 3 0 1 0 3-3z"/></svg>
+              Compartir
+            </button>
           </div>
         </div>
       </div>`).join('')}</div>`;
