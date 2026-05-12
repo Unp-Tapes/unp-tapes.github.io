@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Panel de Artista — UNP-TAPES</title>
+  <title>Panel de Artista — SNDWV</title>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet"/>
   <style>
@@ -655,6 +655,8 @@
     const file  = input._compressed || input.files[0];
     clearMessages('profile');
 
+    if(!name){ showError('profile-error','El nombre es obligatorio'); return; }
+
     let photoURL = artistProfile?.photoURL || '';
 
     if(file){
@@ -667,14 +669,17 @@
       document.getElementById('profile-progress').style.display = 'none';
     }
 
-    await setDoc(doc(db,'artists',currentUser.uid),{
+    const data = {
       name, genre, city,
       email: currentUser.email,
-      photoURL, createdAt: artistProfile.createdAt || serverTimestamp()
-    });
-    artistProfile = {...artistProfile, name, genre, city, photoURL};
+      photoURL,
+      createdAt: artistProfile?.createdAt || serverTimestamp()
+    };
+
+    await setDoc(doc(db,'artists',currentUser.uid), data, {merge:true});
+    artistProfile = {...(artistProfile||{}), ...data};
     renderDashHeader();
-    showSuccess('profile-success','Perfil actualizado ✓');
+    showSuccess('profile-success','Perfil guardado ✓');
     setTimeout(()=>closeModal('profile-modal'),1500);
   };
 
