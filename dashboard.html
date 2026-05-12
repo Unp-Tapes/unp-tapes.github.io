@@ -1586,7 +1586,10 @@
           <div style="padding:10px 14px;display:flex;flex-direction:column;justify-content:space-between">
             <div style="display:flex;align-items:center;gap:8px;justify-content:space-between">
               <div style="font-family:var(--fh);font-size:1.05rem;letter-spacing:1px">${b.title}</div>
-              <button onclick="deleteBeat('${b.id}')" style="background:transparent;border:1px solid #333;border-radius:6px;padding:3px 8px;cursor:pointer;color:#666;font-size:.62rem;transition:all .2s" onmouseover="this.style.borderColor='#ff4757';this.style.color='#ff4757'" onmouseout="this.style.borderColor='#333';this.style.color='#666'">🗑</button>
+              <div style="display:flex;gap:6px">
+                <button onclick="shareBeatDash('${b.id}')" style="background:transparent;border:1px solid #333;border-radius:6px;padding:3px 8px;cursor:pointer;color:#666;font-size:.62rem;transition:all .2s" onmouseover="this.style.borderColor='rgba(255,255,255,.3)';this.style.color='#fff'" onmouseout="this.style.borderColor='#333';this.style.color='#666'" title="Compartir">🔗</button>
+                <button onclick="deleteBeat('${b.id}')" style="background:transparent;border:1px solid #333;border-radius:6px;padding:3px 8px;cursor:pointer;color:#666;font-size:.62rem;transition:all .2s" onmouseover="this.style.borderColor='#ff4757';this.style.color='#ff4757'" onmouseout="this.style.borderColor='#333';this.style.color='#666'">🗑</button>
+              </div>
             </div>
             <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
               ${b.genre?`<span style="font-size:.58rem;color:rgba(255,255,255,.4);border:1px solid rgba(255,255,255,.1);padding:2px 7px;border-radius:4px;text-transform:uppercase">${b.genre}</span>`:''}
@@ -1602,6 +1605,13 @@
       container.innerHTML = `<div class="state-msg">Error: ${e.message}</div>`;
     }
   }
+
+  window.shareBeatDash = function(beatId){
+    const url = `https://unp-tapes.github.io/beats.html?beat=${beatId}`;
+    navigator.clipboard.writeText(url).then(()=>{
+      alert('✓ Link copiado:\n' + url);
+    }).catch(()=>{ prompt('Copia este link:', url); });
+  };
 
   window.deleteBeat = async function(beatId){
     if(!confirm('¿Eliminar este beat?')) return;
