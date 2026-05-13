@@ -540,9 +540,21 @@
       if(license==='wav')   url = beat.wavURL;
       if(license==='stems') url = beat.stemsURL;
       if(!url){ alert('Archivo no disponible'); return; }
-      const a = document.createElement('a');
-      a.href = url; a.download = `${beat.title}.${license==='stems'?'zip':license}`;
-      a.click();
+      // Forzar descarga via fetch para evitar que el navegador lo abra
+      const btn = document.querySelector(`#bc-${beat.id} .license-btn.free`);
+      const origHTML = btn?.innerHTML;
+      if(btn) btn.innerHTML = `<div class="license-info"><div class="license-name">Descargando…</div></div>`;
+      fetch(url)
+        .then(r => r.blob())
+        .then(blob => {
+          const a = document.createElement('a');
+          a.href = URL.createObjectURL(blob);
+          a.download = `${beat.title}.${license==='stems'?'zip':license}`;
+          a.click();
+          URL.revokeObjectURL(a.href);
+          if(btn && origHTML) btn.innerHTML = origHTML;
+        })
+        .catch(()=>{ window.open(url,'_blank'); if(btn && origHTML) btn.innerHTML = origHTML; });
       return;
     }
 
