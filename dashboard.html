@@ -388,7 +388,69 @@
 
 </div><!-- /dashboard-beatmaker -->
 
-<!-- ── MODAL SUBIR BEAT ── -->
+<!-- ── MODAL EDITAR BEAT ── -->
+<div class="modal" id="edit-beat-modal">
+  <div class="modal-content">
+    <div class="section-head">
+      <h3>· Editar Beat ·</h3>
+      <button class="btn btn-ghost" onclick="closeModal('edit-beat-modal')">✕</button>
+    </div>
+    <div id="edit-beat-error" class="error-msg"></div>
+    <div id="edit-beat-success" class="success-msg"></div>
+    <input type="hidden" id="edit-beat-id"/>
+
+    <div class="upload-grid">
+      <div class="field">
+        <label>Título</label>
+        <input type="text" id="edit-beat-title" placeholder="Nombre del beat"/>
+      </div>
+      <div class="field">
+        <label>Género</label>
+        <select id="edit-beat-genre">
+          <option value="" disabled>— Seleccionar —</option>
+          <option>Hip-Hop</option><option>Trap</option><option>Drill</option>
+          <option>R&B</option><option>Reggaeton</option><option>Afrobeats</option>
+          <option>Boom Bap</option><option>Lo-Fi</option><option>Pop</option>
+          <option>Dancehall</option><option>Electrónica</option><option>Otro</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="upload-grid">
+      <div class="field">
+        <label>BPM</label>
+        <input type="number" id="edit-beat-bpm" min="40" max="300"/>
+      </div>
+      <div class="field">
+        <label>Tonalidad</label>
+        <input type="text" id="edit-beat-key" placeholder="Ej: Am, C#"/>
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Descripción</label>
+      <input type="text" id="edit-beat-desc" placeholder="Descripción del beat"/>
+    </div>
+
+    <div class="upload-grid">
+      <div class="field">
+        <label>Precio MP3 (CLP) <span style="font-size:.6rem;color:var(--muted)">· 0 = gratis</span></label>
+        <input type="number" id="edit-beat-price-mp3" min="0"/>
+      </div>
+      <div class="field">
+        <label>Precio WAV (CLP) <span style="font-size:.6rem;color:var(--muted)">· 0 = gratis</span></label>
+        <input type="number" id="edit-beat-price-wav" min="0"/>
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Precio Stems (CLP) <span style="font-size:.6rem;color:var(--muted)">· 0 = gratis</span></label>
+      <input type="number" id="edit-beat-price-stems" min="0"/>
+    </div>
+
+    <button class="submit-btn" onclick="saveEditBeat()">Guardar Cambios</button>
+  </div>
+</div>
 <div class="modal" id="beat-modal" onclick="closeModalOutside(event)">
   <div class="modal-content">
     <div class="section-head">
@@ -725,7 +787,7 @@
   import { getFirestore, doc, setDoc, getDoc,
            collection, getDocs,
            addDoc, deleteDoc,
-           serverTimestamp, orderBy, query }  from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+           serverTimestamp, orderBy, query, updateDoc }  from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
   import { getStorage, ref, uploadBytesResumable,
            getDownloadURL, deleteObject }     from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
 
@@ -1714,6 +1776,7 @@
             <div style="display:flex;align-items:center;gap:8px;justify-content:space-between">
               <div style="font-family:var(--fh);font-size:1.05rem;letter-spacing:1px">${b.title}</div>
               <div style="display:flex;gap:6px">
+                <button onclick="editBeat('${b.id}')" style="background:transparent;border:1px solid #333;border-radius:6px;padding:3px 8px;cursor:pointer;color:#666;font-size:.62rem;transition:all .2s" onmouseover="this.style.borderColor='rgba(255,255,255,.3)';this.style.color='#fff'" onmouseout="this.style.borderColor='#333';this.style.color='#666'" title="Editar">✏</button>
                 <button onclick="shareBeatDash('${b.id}')" style="background:transparent;border:1px solid #333;border-radius:6px;padding:3px 8px;cursor:pointer;color:#666;font-size:.62rem;transition:all .2s" onmouseover="this.style.borderColor='rgba(255,255,255,.3)';this.style.color='#fff'" onmouseout="this.style.borderColor='#333';this.style.color='#666'" title="Compartir">🔗</button>
                 <button onclick="deleteBeat('${b.id}')" style="background:transparent;border:1px solid #333;border-radius:6px;padding:3px 8px;cursor:pointer;color:#666;font-size:.62rem;transition:all .2s" onmouseover="this.style.borderColor='#ff4757';this.style.color='#ff4757'" onmouseout="this.style.borderColor='#333';this.style.color='#666'">🗑</button>
               </div>
@@ -1732,6 +1795,46 @@
       container.innerHTML = `<div class="state-msg">Error: ${e.message}</div>`;
     }
   }
+
+  window.editBeat = async function(beatId){
+    const snap = await getDoc(doc(db,`artists/${currentUser.uid}/beats`,beatId));
+    if(!snap.exists()) return;
+    const b = snap.data();
+    document.getElementById('edit-beat-id').value         = beatId;
+    document.getElementById('edit-beat-title').value      = b.title    || '';
+    document.getElementById('edit-beat-genre').value      = b.genre    || '';
+    document.getElementById('edit-beat-bpm').value        = b.bpm      || '';
+    document.getElementById('edit-beat-key').value        = b.key      || '';
+    document.getElementById('edit-beat-desc').value       = b.desc     || '';
+    document.getElementById('edit-beat-price-mp3').value  = b.priceMp3  ?? 5000;
+    document.getElementById('edit-beat-price-wav').value  = b.priceWav  ?? 15000;
+    document.getElementById('edit-beat-price-stems').value= b.priceStems?? 30000;
+    openModal('edit-beat-modal');
+  };
+
+  window.saveEditBeat = async function(){
+    const beatId    = document.getElementById('edit-beat-id').value;
+    const title     = document.getElementById('edit-beat-title').value.trim();
+    const genre     = document.getElementById('edit-beat-genre').value;
+    const bpm       = parseInt(document.getElementById('edit-beat-bpm').value)||0;
+    const key       = document.getElementById('edit-beat-key').value.trim();
+    const desc      = document.getElementById('edit-beat-desc').value.trim();
+    const priceMp3  = parseInt(document.getElementById('edit-beat-price-mp3').value)||0;
+    const priceWav  = parseInt(document.getElementById('edit-beat-price-wav').value)||0;
+    const priceStems= parseInt(document.getElementById('edit-beat-price-stems').value)||0;
+
+    if(!title){ showError('edit-beat-error','El título es obligatorio'); return; }
+
+    try{
+      await updateDoc(doc(db,`artists/${currentUser.uid}/beats`,beatId),{
+        title, genre, bpm, key, desc, priceMp3, priceWav, priceStems
+      });
+      showSuccess('edit-beat-success','¡Beat actualizado! ✓');
+      setTimeout(()=>{ closeModal('edit-beat-modal'); loadMyBeats(); }, 1200);
+    } catch(e){
+      showError('edit-beat-error','Error: '+e.message);
+    }
+  };
 
   window.shareBeatDash = function(beatId){
     const url = `https://unp-tapes.github.io/beats.html?beat=${beatId}`;
