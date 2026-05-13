@@ -19,23 +19,31 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/color-thief/2.3.2/color-thief.umd.js"></script>
   <style>
     :root{
-      --bg:#000;--s1:#0d0d0d;--s2:#161616;--border:#222;
-      --accent:#ff6a00;--muted:#5a5a5a;--text:#eeeeff;--radius:10px;
+      --bg:#0b0e14;--s1:#161b22;--s2:#21262d;
+      --border:rgba(255,255,255,.08);
+      --accent:#ff6a00;--muted:#8b949e;--text:#f0f6fc;--radius:10px;
+      --accent-gradient:linear-gradient(135deg,#ff6a00 0%,#ee0979 100%);
       --fh:'Bebas Neue',sans-serif;--fb:'DM Mono',monospace;
     }
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-    body{background:var(--bg);color:var(--text);font-family:var(--fb);min-height:100vh;overflow-x:hidden;padding-bottom:100px}
+    body{
+      background:var(--bg);color:var(--text);font-family:var(--fb);min-height:100vh;overflow-x:hidden;padding-bottom:100px;
+      background-image:
+        radial-gradient(circle at 0% 0%,rgba(123,79,255,.08) 0%,transparent 40%),
+        radial-gradient(circle at 100% 100%,rgba(255,106,0,.08) 0%,transparent 40%);
+      background-attachment:fixed;
+    }
     body::before{
       content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
-      background:radial-gradient(circle at 20% 30%,rgba(255,106,0,.06) 0%,transparent 40%),
-                 radial-gradient(circle at 80% 70%,rgba(123,79,255,.05) 0%,transparent 40%);
+      background:radial-gradient(circle at 20% 30%,rgba(255,106,0,.05) 0%,transparent 40%),
+                 radial-gradient(circle at 80% 70%,rgba(123,79,255,.04) 0%,transparent 40%);
       filter:blur(80px);animation:meshMove 20s ease-in-out infinite alternate;
     }
     @keyframes meshMove{from{transform:scale(1)}to{transform:scale(1.2) translate(5%,5%)}}
 
     nav{
       position:sticky;top:0;z-index:100;
-      background:rgba(0,0,0,.85);backdrop-filter:blur(20px) saturate(180%);
+      background:rgba(11,14,20,.85);backdrop-filter:blur(20px) saturate(180%);
       border-bottom:1px solid rgba(255,255,255,.06);
       display:flex;align-items:center;justify-content:space-between;
       padding:0 40px;height:60px;
@@ -70,12 +78,13 @@
     /* BEATS GRID */
     .beats-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px}
     .beat-card{
-      background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);
+      background:rgba(22,27,34,.8);border:1px solid var(--border);
       border-radius:var(--radius);overflow:hidden;
+      backdrop-filter:blur(8px);
       transition:transform .3s,border-color .3s,box-shadow .3s;
       animation:fadeUp .4s ease both;
     }
-    .beat-card:hover{transform:translateY(-4px);border-color:rgba(255,255,255,.12);box-shadow:0 8px 28px rgba(0,0,0,.4)}
+    .beat-card:hover{transform:translateY(-4px);border-color:rgba(255,255,255,.15);box-shadow:0 12px 32px rgba(0,0,0,.4)}
     .beat-card.playing{border-color:var(--accent);box-shadow:0 0 20px rgba(255,106,0,.15)}
     @keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
 
@@ -143,7 +152,9 @@
       transition:all .2s;
     }
     .license-btn:hover:not(.sold):not(.unavail){border-color:var(--accent);background:rgba(255,106,0,.06)}
-    .license-btn.sold{opacity:.4;cursor:not-allowed}
+    .license-btn.free{border-color:rgba(76,175,80,.3);background:rgba(76,175,80,.05)}
+    .license-btn.free:hover{border-color:#4caf50;background:rgba(76,175,80,.1)}
+    .license-btn.free .license-price{color:#4caf50}
     .license-btn.unavail{opacity:.3;cursor:not-allowed}
     .license-info{display:flex;flex-direction:column;gap:2px}
     .license-name{font-family:var(--fh);font-size:.85rem;letter-spacing:1px}
@@ -338,26 +349,26 @@
             <canvas id="wc-${b.id}"></canvas>
           </div>`:''}
           <div class="beat-licenses">
-            <div class="license-btn" onclick="buyBeat('${b.id}','mp3','${b.artistId}')">
+            <div class="license-btn ${(b.priceMp3||5000)===0?'free':''}" onclick="buyBeat('${b.id}','mp3','${b.artistId}')">
               <div class="license-info">
                 <div class="license-name">Básica</div>
                 <div class="license-desc">MP3 · Uso no exclusivo</div>
               </div>
-              <div class="license-price">$${(b.priceMp3||5000).toLocaleString('es-CL')}</div>
+              <div class="license-price">${(b.priceMp3||0)===0?'GRATIS':'$'+(b.priceMp3).toLocaleString('es-CL')}</div>
             </div>
-            <div class="license-btn ${!b.hasWav?'unavail':b.soldWav?'sold':''}" onclick="${b.hasWav&&!b.soldWav?`buyBeat('${b.id}','wav','${b.artistId}')`:''}">
+            <div class="license-btn ${!b.hasWav?'unavail':b.soldWav?'sold':(b.priceWav||0)===0?'free':''}" onclick="${b.hasWav&&!b.soldWav?`buyBeat('${b.id}','wav','${b.artistId}')`:''}">
               <div class="license-info">
                 <div class="license-name">Premium</div>
                 <div class="license-desc">WAV · Exclusivo${b.soldWav?' · VENDIDO':!b.hasWav?' · No disponible':''}</div>
               </div>
-              <div class="license-price">${b.soldWav?'VENDIDO':'$'+(b.priceWav||15000).toLocaleString('es-CL')}</div>
+              <div class="license-price">${b.soldWav?'VENDIDO':!b.hasWav?'—':(b.priceWav||0)===0?'GRATIS':'$'+(b.priceWav).toLocaleString('es-CL')}</div>
             </div>
-            <div class="license-btn ${!b.hasStems?'unavail':b.soldStems?'sold':''}" onclick="${b.hasStems&&!b.soldStems?`buyBeat('${b.id}','stems','${b.artistId}')`:''}">
+            <div class="license-btn ${!b.hasStems?'unavail':b.soldStems?'sold':(b.priceStems||0)===0?'free':''}" onclick="${b.hasStems&&!b.soldStems?`buyBeat('${b.id}','stems','${b.artistId}')`:''}">
               <div class="license-info">
                 <div class="license-name">Exclusiva</div>
                 <div class="license-desc">Stems ZIP · Total exclusivo${b.soldStems?' · VENDIDO':!b.hasStems?' · No disponible':''}</div>
               </div>
-              <div class="license-price">${b.soldStems?'VENDIDO':'$'+(b.priceStems||30000).toLocaleString('es-CL')}</div>
+              <div class="license-price">${b.soldStems?'VENDIDO':!b.hasStems?'—':(b.priceStems||0)===0?'GRATIS':'$'+(b.priceStems).toLocaleString('es-CL')}</div>
             </div>
             <button class="beat-share-btn" style="display:none" id="share-${b.id}"></button>
           </div>
@@ -519,13 +530,25 @@
   window.buyBeat = function(beatId, license, artistId){
     const beat = allBeats.find(b=>b.id===beatId);
     if(!beat) return;
+    const prices = { mp3: beat.priceMp3||0, wav: beat.priceWav||0, stems: beat.priceStems||0 };
+    const price  = prices[license];
+
+    // Descarga gratis directa
+    if(price === 0){
+      let url = '';
+      if(license==='mp3')   url = beat.mp3URL;
+      if(license==='wav')   url = beat.wavURL;
+      if(license==='stems') url = beat.stemsURL;
+      if(!url){ alert('Archivo no disponible'); return; }
+      const a = document.createElement('a');
+      a.href = url; a.download = `${beat.title}.${license==='stems'?'zip':license}`;
+      a.click();
+      return;
+    }
+
     const names  = {mp3:'Básica (MP3)',wav:'Premium (WAV exclusivo)',stems:'Exclusiva (Stems ZIP)'};
-    const prices = {
-      mp3: `$${(beat.priceMp3||5000).toLocaleString('es-CL')}`,
-      wav: `$${(beat.priceWav||15000).toLocaleString('es-CL')}`,
-      stems: `$${(beat.priceStems||30000).toLocaleString('es-CL')}`
-    };
-    showBuyModal(beat, license, names[license], prices[license]);
+    const priceStr = `$${price.toLocaleString('es-CL')}`;
+    showBuyModal(beat, license, names[license], priceStr);
   };
 
   window.shareBeat = function(beatId, title, btn){

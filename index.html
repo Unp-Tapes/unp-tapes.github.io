@@ -14,13 +14,21 @@
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet"/>
   <style>
     :root{
-      --bg:#000;--s1:#0d0d0d;--s2:#161616;--border:#222;
-      --accent:#ff6a00;--muted:#5a5a5a;--text:#eeeeff;--radius:12px;
+      --bg:#0b0e14;--s1:#161b22;--s2:#21262d;
+      --border:rgba(255,255,255,.08);
+      --accent:#ff6a00;--muted:#8b949e;--text:#f0f6fc;--radius:12px;
+      --accent-gradient:linear-gradient(135deg,#ff6a00 0%,#ee0979 100%);
       --fh:'Bebas Neue',sans-serif;--fb:'DM Mono',monospace;
     }
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
     html{scroll-behavior:smooth}
-    body{background:var(--bg);color:var(--text);font-family:var(--fb);min-height:100vh;overflow-x:hidden}
+    body{
+      background:var(--bg);color:var(--text);font-family:var(--fb);min-height:100vh;overflow-x:hidden;
+      background-image:
+        radial-gradient(circle at 0% 0%,rgba(123,79,255,.08) 0%,transparent 40%),
+        radial-gradient(circle at 100% 100%,rgba(255,106,0,.08) 0%,transparent 40%);
+      background-attachment:fixed;
+    }
     body::before{
       content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
       background:
@@ -31,8 +39,8 @@
     }
     .btn-ghost{border-color:var(--border);color:var(--muted);background:transparent}
     .btn-ghost:hover{border-color:rgba(255,255,255,.3);color:#fff}
-    .btn-solid{background:var(--accent);color:#000;font-weight:500}
-    .btn-solid:hover{background:#ff8c00}
+    .btn-solid{background:var(--accent-gradient);color:#fff;font-weight:500;border:none;box-shadow:0 4px 15px rgba(255,106,0,.3)}
+    .btn-solid:hover{filter:brightness(1.1);box-shadow:0 6px 20px rgba(255,106,0,.4)}
     .hero h1{
       font-family:var(--fh);font-size:clamp(4rem,12vw,8rem);
       color:#fff;margin:0;line-height:.9;
@@ -144,10 +152,11 @@
       margin-bottom:56px;
     }
     .track-card{
-      background:var(--s1);border:1px solid var(--border);
+      background:rgba(22,27,34,.8);border:1px solid var(--border);
       border-radius:var(--radius);overflow:hidden;
       cursor:pointer;transition:transform .3s,border-color .3s,box-shadow .3s;
       animation:fadeUp .4s ease both;position:relative;
+      backdrop-filter:blur(8px);
     }
     .track-card:hover{transform:translateY(-5px);border-color:rgba(255,255,255,.15);box-shadow:0 10px 30px rgba(0,0,0,.4)}
     .track-card.playing{border-color:var(--accent);box-shadow:0 0 16px rgba(255,106,0,.15)}
@@ -183,12 +192,13 @@
       gap:14px;
     }
     .artist-card{
-      background:var(--s1);
+      background:rgba(22,27,34,.7);
       border:1px solid var(--border);
       border-radius:var(--radius);overflow:hidden;
       cursor:pointer;text-decoration:none;color:inherit;
       display:flex;align-items:center;gap:16px;
       padding:16px;
+      backdrop-filter:blur(8px);
       transition:transform .3s cubic-bezier(.175,.885,.32,1.275),border-color .3s,box-shadow .3s;
       animation:fadeUp .4s ease both;
     }
@@ -218,12 +228,12 @@
 
     /* ── SKELETON ── */
     .skeleton-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:16px}
-    .skeleton-card{border-radius:var(--radius);overflow:hidden;background:var(--s1);border:1px solid var(--border)}
+    .skeleton-card{border-radius:var(--radius);overflow:hidden;background:rgba(22,27,34,.8);border:1px solid var(--border);backdrop-filter:blur(8px)}
     .skeleton-img{width:100%;aspect-ratio:1;background:var(--s2);animation:shimmer 1.4s infinite}
     .skeleton-body{padding:14px 16px;display:flex;flex-direction:column;gap:8px}
     .skeleton-line{height:10px;border-radius:4px;background:var(--s2);animation:shimmer 1.4s infinite}
     .skeleton-line.w60{width:60%}.skeleton-line.w40{width:40%}
-    @keyframes shimmer{0%,100%{background:var(--s2)}50%{background:#1e1e1e}}
+    @keyframes shimmer{0%,100%{opacity:.4}50%{opacity:.8}}
     @keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
     .state-msg{text-align:center;padding:60px 0;color:var(--muted);font-size:.78rem;letter-spacing:.1em}
 
