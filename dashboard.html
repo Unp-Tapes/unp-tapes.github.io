@@ -390,18 +390,57 @@
       </div>
     </div>
 
+    <div class="upload-grid">
+      <div class="field">
+        <label>Precio MP3 (CLP)</label>
+        <input type="number" id="beat-price-mp3" placeholder="Ej: 5000" min="1000" value="5000"/>
+      </div>
+      <div class="field">
+        <label>Precio WAV exclusivo (CLP)</label>
+        <input type="number" id="beat-price-wav" placeholder="Ej: 15000" min="1000" value="15000"/>
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Precio Stems exclusivo (CLP)</label>
+      <input type="number" id="beat-price-stems" placeholder="Ej: 30000" min="1000" value="30000"/>
+    </div>
+
     <div class="field">
       <label>Descripción (opcional)</label>
       <input type="text" id="beat-desc" placeholder="Ej: Dark trap con 808s pesados"/>
     </div>
 
     <div class="field">
-      <label>Audio MP3 (preview público)</label>
+      <label>Audio MP3 completo</label>
       <div class="file-drop">
         <input type="file" id="beat-audio-mp3" accept="audio/*" onchange="setBeatFile(this,'mp3')"/>
         <div class="file-drop-icon">🎵</div>
         <div class="file-drop-label">MP3 del beat</div>
         <div class="file-drop-name" id="beat-mp3-name"></div>
+      </div>
+    </div>
+
+    <!-- PREVIEW SELECTOR -->
+    <div class="field" id="preview-selector" style="display:none">
+      <label>Preview público <span style="color:var(--accent);font-size:.6rem">· 20 segundos</span></label>
+      <div style="background:var(--s2);border:1px solid var(--border);border-radius:8px;padding:14px">
+        <div style="font-size:.65rem;color:var(--muted);margin-bottom:10px">Elige desde qué segundo empieza el preview:</div>
+        <div style="display:flex;align-items:center;gap:12px">
+          <input type="range" id="preview-start-slider" min="0" max="100" value="0" step="1"
+            style="-webkit-appearance:none;flex:1;height:3px;background:var(--border);border-radius:2px;outline:none;cursor:pointer;accent-color:var(--accent)"
+            oninput="updatePreviewStart(this.value)"/>
+          <span id="preview-start-label" style="font-family:var(--fh);font-size:1rem;color:var(--accent);min-width:60px;text-align:right">0:00</span>
+        </div>
+        <div style="margin-top:10px;display:flex;gap:8px">
+          <button onclick="previewPlay()" id="preview-play-btn" style="background:var(--accent);color:#000;border:none;font-family:var(--fh);font-size:.85rem;letter-spacing:1px;padding:6px 14px;border-radius:6px;cursor:pointer">
+            ▶ Escuchar preview
+          </button>
+          <button onclick="previewStop()" style="background:transparent;border:1px solid var(--border);color:var(--muted);font-family:var(--fb);font-size:.7rem;padding:6px 12px;border-radius:6px;cursor:pointer">
+            ■ Detener
+          </button>
+        </div>
+        <div style="font-size:.6rem;color:var(--muted);margin-top:8px">El comprador escuchará 20 segundos desde este punto antes de comprar.</div>
       </div>
     </div>
 
@@ -1393,6 +1432,8 @@
     }
   }
 
+  let previewAudio = null, previewDuration = 0;
+
   window.setBeatFile = async function(input, type){
     if(!input.files[0]) return;
     const file = input.files[0];
@@ -1403,17 +1444,31 @@
     } else if(type === 'mp3'){
       beatFiles.mp3 = file;
       document.getElementById('beat-mp3-name').textContent = file.name;
-      // Auto-detectar BPM
       document.getElementById('bpm-auto').textContent = '(detectando…)';
+
+      // Cargar audio para preview selector
+      const url = URL.createObjectURL(file);
+      if(previewAudio){ previewAudio.pause(); previewAudio = null; }
+      previewAudio = new Audio(url);
+      previewAudio.addEventListener('loadedmetadata', ()=>{
+        previewDuration = previewAudio.duration;
+        const slider = document.getElementById('preview-start-slider');
+        // Max = duracion - 20 segundos
+        slider.max = Math.max(0, Math.floor(previewDuration - 20));
+        slider.value = 0;
+        document.getElementById('preview-start-label').textContent = '0:00';
+        document.getElementById('preview-selector').style.display = 'block';
+      });
+
+      // Auto-detectar BPM y waveform
       const bpm = await detectBPM(file);
       if(bpm){
         document.getElementById('beat-bpm').value = bpm;
         document.getElementById('bpm-auto').textContent = `(auto: ${bpm} BPM)`;
-        // Generar waveform
-        beatFiles._waveform = await extractWaveform(file);
       } else {
         document.getElementById('bpm-auto').textContent = '';
       }
+      beatFiles._waveform = await extractWaveform(file);
     } else if(type === 'wav'){
       beatFiles.wav = file;
       document.getElementById('beat-wav-name').textContent = file.name;
@@ -1421,6 +1476,30 @@
       beatFiles.stems = file;
       document.getElementById('beat-stems-name').textContent = file.name;
     }
+  };
+
+  window.updatePreviewStart = function(val){
+    const secs = parseInt(val);
+    document.getElementById('preview-start-label').textContent =
+      `${Math.floor(secs/60)}:${String(secs%60).padStart(2,'0')}`;
+    beatFiles._previewStart = secs;
+    if(previewAudio) previewAudio.pause();
+  };
+
+  window.previewPlay = function(){
+    if(!previewAudio) return;
+    const start = beatFiles._previewStart || 0;
+    previewAudio.currentTime = start;
+    previewAudio.play();
+    // Detener después de 20 segundos
+    clearTimeout(previewAudio._stopTimer);
+    previewAudio._stopTimer = setTimeout(()=>{ previewAudio.pause(); }, 20000);
+    document.getElementById('preview-play-btn').textContent = '▶ Reproduciendo…';
+    previewAudio.addEventListener('pause', ()=>{ document.getElementById('preview-play-btn').textContent = '▶ Escuchar preview'; }, {once:true});
+  };
+
+  window.previewStop = function(){
+    if(previewAudio){ clearTimeout(previewAudio._stopTimer); previewAudio.pause(); }
   };
 
   async function detectBPM(file){
@@ -1496,11 +1575,15 @@
   }
 
   window.uploadBeat = async function(){
-    const title = document.getElementById('beat-title').value.trim();
-    const genre = document.getElementById('beat-genre').value;
-    const bpm   = parseInt(document.getElementById('beat-bpm').value)||0;
-    const key   = document.getElementById('beat-key').value.trim();
-    const desc  = document.getElementById('beat-desc').value.trim();
+    const title     = document.getElementById('beat-title').value.trim();
+    const genre     = document.getElementById('beat-genre').value;
+    const bpm       = parseInt(document.getElementById('beat-bpm').value)||0;
+    const key       = document.getElementById('beat-key').value.trim();
+    const desc      = document.getElementById('beat-desc').value.trim();
+    const priceMp3  = parseInt(document.getElementById('beat-price-mp3').value)||5000;
+    const priceWav  = parseInt(document.getElementById('beat-price-wav').value)||15000;
+    const priceStems= parseInt(document.getElementById('beat-price-stems').value)||30000;
+    const previewStart = beatFiles._previewStart || 0;
 
     if(!title)          { showError('beat-error','El título es obligatorio'); return; }
     if(!genre)          { showError('beat-error','Selecciona un género'); return; }
@@ -1534,6 +1617,8 @@
         title, genre, bpm, key, desc,
         mp3URL, wavURL, stemsURL, coverURL,
         waveform: beatFiles._waveform || [],
+        previewStart,
+        priceMp3, priceWav, priceStems,
         hasWav: !!wavURL,
         hasStems: !!stemsURL,
         soldWav: false,
@@ -1544,8 +1629,13 @@
       prog.style.display = 'none';
       showSuccess('beat-success','¡Beat publicado! ✓');
       beatFiles = { mp3:null, wav:null, stems:null, cover:null };
+      if(previewAudio){ previewAudio.pause(); previewAudio=null; }
+      document.getElementById('preview-selector').style.display = 'none';
       ['beat-title','beat-bpm','beat-key','beat-desc'].forEach(id=>{ const el=document.getElementById(id); if(el)el.value=''; });
       ['beat-mp3-name','beat-wav-name','beat-stems-name','beat-cover-name'].forEach(id=>{ const el=document.getElementById(id); if(el)el.textContent=''; });
+      document.getElementById('beat-price-mp3').value = '5000';
+      document.getElementById('beat-price-wav').value = '15000';
+      document.getElementById('beat-price-stems').value = '30000';
       setTimeout(()=>{ closeModal('beat-modal'); loadMyBeats(); }, 1500);
     } catch(e){
       prog.style.display='none';

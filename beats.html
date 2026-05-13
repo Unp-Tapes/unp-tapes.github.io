@@ -343,21 +343,21 @@
                 <div class="license-name">Básica</div>
                 <div class="license-desc">MP3 · Uso no exclusivo</div>
               </div>
-              <div class="license-price">$5.000</div>
+              <div class="license-price">$${(b.priceMp3||5000).toLocaleString('es-CL')}</div>
             </div>
             <div class="license-btn ${!b.hasWav?'unavail':b.soldWav?'sold':''}" onclick="${b.hasWav&&!b.soldWav?`buyBeat('${b.id}','wav','${b.artistId}')`:''}">
               <div class="license-info">
                 <div class="license-name">Premium</div>
                 <div class="license-desc">WAV · Exclusivo${b.soldWav?' · VENDIDO':!b.hasWav?' · No disponible':''}</div>
               </div>
-              <div class="license-price">${b.soldWav?'VENDIDO':'$15.000'}</div>
+              <div class="license-price">${b.soldWav?'VENDIDO':'$'+(b.priceWav||15000).toLocaleString('es-CL')}</div>
             </div>
             <div class="license-btn ${!b.hasStems?'unavail':b.soldStems?'sold':''}" onclick="${b.hasStems&&!b.soldStems?`buyBeat('${b.id}','stems','${b.artistId}')`:''}">
               <div class="license-info">
                 <div class="license-name">Exclusiva</div>
                 <div class="license-desc">Stems ZIP · Total exclusivo${b.soldStems?' · VENDIDO':!b.hasStems?' · No disponible':''}</div>
               </div>
-              <div class="license-price">${b.soldStems?'VENDIDO':'$30.000'}</div>
+              <div class="license-price">${b.soldStems?'VENDIDO':'$'+(b.priceStems||30000).toLocaleString('es-CL')}</div>
             </div>
             <button class="beat-share-btn" style="display:none" id="share-${b.id}"></button>
           </div>
@@ -384,10 +384,21 @@
       const audio = new Audio();
       audio.crossOrigin='anonymous'; audio.preload='none'; audio.src=b.mp3URL;
       audio.addEventListener('timeupdate',()=>{
-        const prog=audio.duration?audio.currentTime/audio.duration:0;
+        const previewStart = b.previewStart || 0;
+        const previewEnd   = previewStart + 20;
+        // Limitar a 20 segundos de preview
+        if(audio.currentTime >= previewEnd){
+          audio.pause(); audio.currentTime = previewStart;
+          setPlayIcon(b.id, ICON_PLAY);
+          document.getElementById(`bc-${b.id}`)?.classList.remove('playing');
+          hideFP(); currentBeat=null; currentAudio=null;
+          if(b.waveform?.length){const c=document.getElementById(`wc-${b.id}`);if(c)drawWaveform(c,b.waveform,0);}
+          return;
+        }
+        const prog=(audio.currentTime - previewStart) / 20;
         const c=document.getElementById(`wc-${b.id}`);
-        if(c&&b.waveform?.length) drawWaveform(c,b.waveform,prog,getComputedStyle(document.documentElement).getPropertyValue('--accent').trim()||'#ff6a00');
-        if(currentBeat?.id===b.id) updateFPProgress(audio,b.waveform);
+        if(c&&b.waveform?.length) drawWaveform(c,b.waveform,Math.max(0,Math.min(1,prog)),getComputedStyle(document.documentElement).getPropertyValue('--accent').trim()||'#ff6a00');
+        if(currentBeat?.id===b.id) updateFPProgress(audio,b.waveform,previewStart);
       });
       audio.addEventListener('ended',()=>{
         setPlayIcon(b.id, ICON_PLAY);
@@ -419,7 +430,9 @@
       }
     }
     if(audio.paused){
-      getAudioCtx().resume(); audio.play();
+      getAudioCtx().resume();
+      audio.currentTime = beat.previewStart || 0;
+      audio.play();
       currentBeat=beat; currentAudio=audio;
       document.getElementById(`bc-${beatId}`)?.classList.add('playing');
       showFP(beat);
@@ -461,10 +474,11 @@
     document.getElementById('fp-play-btn').innerHTML=ICON_PLAY;
     document.documentElement.style.setProperty('--accent','#ff6a00');
   }
-  function updateFPProgress(audio,waveform){
-    const prog=audio.duration?audio.currentTime/audio.duration:0;
-    document.getElementById('fp-cur').textContent=fmt(audio.currentTime);
-    document.getElementById('fp-dur').textContent=fmt(audio.duration);
+  function updateFPProgress(audio, waveform, previewStart=0){
+    const elapsed = audio.currentTime - previewStart;
+    const prog    = Math.max(0, Math.min(1, elapsed / 20));
+    document.getElementById('fp-cur').textContent = fmt(Math.max(0, elapsed));
+    document.getElementById('fp-dur').textContent = '0:20';
     if(waveform?.length){
       const color=getComputedStyle(document.documentElement).getPropertyValue('--accent').trim()||'#ff6a00';
       drawWaveform(document.getElementById('fp-canvas'),waveform,prog,color);
@@ -506,7 +520,11 @@
     const beat = allBeats.find(b=>b.id===beatId);
     if(!beat) return;
     const names  = {mp3:'Básica (MP3)',wav:'Premium (WAV exclusivo)',stems:'Exclusiva (Stems ZIP)'};
-    const prices = {mp3:'$5.000',wav:'$15.000',stems:'$30.000'};
+    const prices = {
+      mp3: `$${(beat.priceMp3||5000).toLocaleString('es-CL')}`,
+      wav: `$${(beat.priceWav||15000).toLocaleString('es-CL')}`,
+      stems: `$${(beat.priceStems||30000).toLocaleString('es-CL')}`
+    };
     showBuyModal(beat, license, names[license], prices[license]);
   };
 
